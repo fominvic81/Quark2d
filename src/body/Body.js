@@ -271,8 +271,28 @@ export class Body {
         }
     }
 
+    applyImpulse (impusle, offset = undefined, move = false) {
+        const velocity = Vector.scale(impusle, this.inverseMass, Body.vecTemp[0]);
+        Vector.add(this.velocity, velocity);
+
+        if (move) {
+            Vector.add(this.position, velocity);
+        }
+        if (offset) {
+            const angularVelocity = Vector.cross(offset, impusle) * this.inverseMass;
+            this.angularVelocity += angularVelocity;
+            if (move) {
+                this.angle += angularVelocity;
+            }
+        }
+    }
+
     setVelocity (velocity) {
         Vector.clone(velocity, this.velocity);
     }
 
 }
+
+Body.vecTemp = [
+    new Vector(),
+];
