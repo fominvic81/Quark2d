@@ -129,15 +129,11 @@ export class Solver {
 
                     if (!(pair.bodyA.isStatic || pair.bodyA.sleepState === Sleeping.SLEEPING)) {
                         const offset = Vector.subtract(contact.vertex, pair.bodyA.position, Vector.temp[2]);
-                        pair.bodyA.velocity.x -= impulse.x * pair.bodyA.inverseMass;
-                        pair.bodyA.velocity.y -= impulse.y * pair.bodyA.inverseMass;
-                        pair.bodyA.angularVelocity -= Vector.cross(offset, impulse) * pair.bodyA.inverseInertia;
+                        pair.bodyA.applyImpulse(Vector.neg(impulse, Vector.temp[3]), offset, false);
                     }
                     if (!(pair.bodyB.isStatic || pair.bodyB.sleepState === Sleeping.SLEEPING)) {
                         const offset = Vector.subtract(contact.vertex, pair.bodyB.position, Vector.temp[2]);
-                        pair.bodyB.velocity.x += impulse.x * pair.bodyB.inverseMass;
-                        pair.bodyB.velocity.y += impulse.y * pair.bodyB.inverseMass;
-                        pair.bodyB.angularVelocity += Vector.cross(offset, impulse) * pair.bodyB.inverseInertia;
+                        pair.bodyB.applyImpulse(impulse, offset, false);
                     }        
                 }
             }
@@ -205,14 +201,10 @@ export class Solver {
                     );
                     
                     if (!(pair.bodyA.isStatic || pair.bodyA.sleepState === Sleeping.SLEEPING)) {
-                        pair.bodyA.velocity.x -= impulse.x * pair.bodyA.inverseMass;
-                        pair.bodyA.velocity.y -= impulse.y * pair.bodyA.inverseMass;
-                        pair.bodyA.angularVelocity -= Vector.cross(offsetA, impulse) * pair.bodyA.inverseInertia;
+                        pair.bodyA.applyImpulse(Vector.neg(impulse, Vector.temp[6]), offsetA, false);
                     }
                     if (!(pair.bodyB.isStatic || pair.bodyB.sleepState === Sleeping.SLEEPING)) {
-                        pair.bodyB.velocity.x += impulse.x * pair.bodyB.inverseMass;
-                        pair.bodyB.velocity.y += impulse.y * pair.bodyB.inverseMass;
-                        pair.bodyB.angularVelocity += Vector.cross(offsetB, impulse) * pair.bodyB.inverseInertia;
+                        pair.bodyB.applyImpulse(impulse, offsetB, false);
                     }
                 }
             }

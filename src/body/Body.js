@@ -279,7 +279,7 @@ export class Body {
             Vector.add(this.position, velocity);
         }
         if (offset) {
-            const angularVelocity = Vector.cross(offset, impusle) * this.inverseMass;
+            const angularVelocity = Vector.cross(offset, impusle) * this.inverseInertia;
             this.angularVelocity += angularVelocity;
             if (move) {
                 this.angle += angularVelocity;
