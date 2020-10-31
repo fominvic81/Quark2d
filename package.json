@@ -1,11 +1,11 @@
 {
   "name": "quark2d",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "repository": "git@github.com:fominvic81/Quark2d.git",
   "author": "fominvic81 <fomin.vic81@gmail.com>",
   "description": "2d javascript physics engine",
   "license": "MIT",
-  "main": "build/Quark2d.js",
+  "main": "src/Quark2d.js",
   "keywords": [
     "javascript",
     "physics engine",
