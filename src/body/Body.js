@@ -30,6 +30,10 @@ export class Body {
         this.velocity = new Vector();
         this.force = new Vector();
         this.isStatic = false;
+        this.inverseMassMultiplier = new Vector(1, 1);
+        this.inverseMassMultiplied = new Vector(this.inverseMass, this.inverseMass);
+        this.inverseInertiaMultiplier = 1;
+        this.inverseInertiaMultiplied = this.inverseInertia;
         this.velocityDamping = 0.0005;
         this.density = 100;
         this.mass = 0;
@@ -43,6 +47,9 @@ export class Body {
 
         this.set(options);
         
+        this.updateArea();
+        this.updateMass();
+        this.updateInertia();
     }
 
     set (options) {
@@ -66,6 +73,15 @@ export class Body {
                 case 'velocityDamping':
                     this.velocityDamping = option[1];
                     break;
+                case 'fixedRotation':
+                    this.setFixedRotation(option[1]);
+                    break;
+                case 'fixedX':
+                    this.setFixedX(option[1]);
+                    break;
+                case 'fixedY':
+                    this.setFixedY(option[1]);
+                    break;
             }
         }
 
@@ -73,9 +89,8 @@ export class Body {
 
     update (delta) {
         if (this.isStatic || this.sleepState === Sleeping.SLEEPING) return;
-
         // update acceleration
-        Vector.scale(this.force, this.inverseMass * delta, this.acceleration);
+        Vector.mult(this.force, Vector.scale(this.inverseMassMultiplied, delta, Body.vecTemp[0]), this.acceleration);
 
         // update velocity
         Vector.add(Vector.scale(this.velocity, (1 - this.velocityDamping)), Vector.scale(this.acceleration, delta));
@@ -83,9 +98,9 @@ export class Body {
         // update position 
         Vector.clone(this.position, this.positionPrev);
         Vector.add(this.position, this.velocity, this.position);
-        
+
         // update angularAcceleration
-        this.angularAcceleration = this.torque * this.inverseInertia * delta;
+        this.angularAcceleration = this.torque * this.inverseInertiaMultiplied * delta;
 
         // update angularVelocity
         this.angularVelocity = this.angularVelocity * (1 - this.velocityDamping) + this.angularAcceleration * delta;
@@ -147,10 +162,11 @@ export class Body {
                 inertia += shapeInertia + r;
             }
         }
-
+        
         
         this.inertia = this.mass * inertia;
         this.inverseInertia = this.inertia === 0 ? 0 : 1 / this.inertia;
+        this.inverseInertiaMultiplied = this.inverseInertiaMultiplier * this.inverseInertia;
     }
     
     updateMass () {
@@ -160,9 +176,10 @@ export class Body {
             this.inverseMass = 0;
         } else {
             this.mass = this.area * this.density;
-            this.inverseMass = this.mass === 0 ? 0 : 1 / this.mass;
+            this.inverseMass = this.mass === 0 ? 0 : (1 / this.mass);
         }
 
+        Vector.scale(this.inverseMassMultiplier, this.inverseMass, this.inverseMassMultiplied);
     }
 
     updateBounds () {
@@ -272,14 +289,14 @@ export class Body {
     }
 
     applyImpulse (impusle, offset = undefined, move = false) {
-        const velocity = Vector.scale(impusle, this.inverseMass, Body.vecTemp[0]);
+        const velocity = Vector.mult(impusle, this.inverseMassMultiplied, Body.vecTemp[0]);
         Vector.add(this.velocity, velocity);
 
         if (move) {
             Vector.add(this.position, velocity);
         }
         if (offset) {
-            const angularVelocity = Vector.cross(offset, impusle) * this.inverseInertia;
+            const angularVelocity = Vector.cross(offset, impusle) * this.inverseInertiaMultiplied;
             this.angularVelocity += angularVelocity;
             if (move) {
                 this.angle += angularVelocity;
@@ -289,6 +306,21 @@ export class Body {
 
     setVelocity (velocity) {
         Vector.clone(velocity, this.velocity);
+    }
+
+    setFixedRotation (value) {
+        this.inverseInertiaMultiplier = value ? 0 : 1;
+        this.updateInertia();
+    }
+
+    setFixedX (value) {
+        this.inverseMassMultiplier.x = value ? 0 : 1;
+        this.updateMass();
+    }
+
+    setFixedY (value) {
+        this.inverseMassMultiplier.y = value ? 0 : 1;
+        this.updateMass();
     }
 
 }

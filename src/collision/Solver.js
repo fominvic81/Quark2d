@@ -68,7 +68,7 @@ export class Solver {
 
                 shapePair.separation = Vector.dot(
                     shapePair.normal,
-                    Vector.subtract(shapePair.penetration, Vector.subtract(pair.bodyB.positionImpulse, pair.bodyA.positionImpulse, Vector.temp[0]), Vector.temp[1]),
+                    Vector.subtract(shapePair.penetration, Vector.subtract(pair.bodyB.positionImpulse, pair.bodyA.positionImpulse, Solver.vecTemp[0]), Solver.vecTemp[1]),
                 );
             }   
         }
@@ -83,14 +83,22 @@ export class Solver {
                 
                 if (!(pair.bodyA.isStatic || pair.bodyA.sleepState === Sleeping.SLEEPING)) { 
                     const share = Solver.DEPTH_DAMPING / pair.bodyA.contactsCount;
-                    pair.bodyA.positionImpulse.x -= shapePair.normal.x * positionImpulse * share;
-                    pair.bodyA.positionImpulse.y -= shapePair.normal.y * positionImpulse * share;
+                    if (pair.bodyA.inverseMassMultiplier.x !== 0) {
+                        pair.bodyA.positionImpulse.x -= shapePair.normal.x * positionImpulse * share;
+                    }
+                    if (pair.bodyA.inverseMassMultiplier.y !== 0) {
+                        pair.bodyA.positionImpulse.y -= shapePair.normal.y * positionImpulse * share;
+                    }
                 }
                 
                 if (!(pair.bodyB.isStatic || pair.bodyB.sleepState === Sleeping.SLEEPING)) {
                     const share = Solver.DEPTH_DAMPING / pair.bodyB.contactsCount;
-                    pair.bodyB.positionImpulse.x += shapePair.normal.x * positionImpulse * share;
-                    pair.bodyB.positionImpulse.y += shapePair.normal.y * positionImpulse * share;
+                    if (pair.bodyB.inverseMassMultiplier.x !== 0) {
+                        pair.bodyB.positionImpulse.x += shapePair.normal.x * positionImpulse * share;
+                    }
+                    if (pair.bodyB.inverseMassMultiplier.y !== 0) {
+                        pair.bodyB.positionImpulse.y += shapePair.normal.y * positionImpulse * share;
+                    }
                 }
             }
         }
@@ -125,14 +133,14 @@ export class Solver {
                 for (let i = 0; i < shapePair.contactsCount; ++i) {
                     const contact = shapePair.contacts[i];
 
-                    const impulse = Vector.scale(shapePair.normal, contact.normalImpulse, Vector.temp[0]);
+                    const impulse = Vector.scale(shapePair.normal, contact.normalImpulse, Solver.vecTemp[0]);
 
                     if (!(pair.bodyA.isStatic || pair.bodyA.sleepState === Sleeping.SLEEPING)) {
-                        const offset = Vector.subtract(contact.vertex, pair.bodyA.position, Vector.temp[2]);
-                        pair.bodyA.applyImpulse(Vector.neg(impulse, Vector.temp[3]), offset, false);
+                        const offset = Vector.subtract(contact.vertex, pair.bodyA.position, Solver.vecTemp[2]);
+                        pair.bodyA.applyImpulse(Vector.neg(impulse, Solver.vecTemp[3]), offset, false);
                     }
                     if (!(pair.bodyB.isStatic || pair.bodyB.sleepState === Sleeping.SLEEPING)) {
-                        const offset = Vector.subtract(contact.vertex, pair.bodyB.position, Vector.temp[2]);
+                        const offset = Vector.subtract(contact.vertex, pair.bodyB.position, Solver.vecTemp[2]);
                         pair.bodyB.applyImpulse(impulse, offset, false);
                     }        
                 }
@@ -160,21 +168,21 @@ export class Solver {
                 for (let i = 0; i < shapePair.contactsCount; ++i) {
                     const contact = shapePair.contacts[i];
 
-                    const offsetA = Vector.subtract(contact.vertex, pair.bodyA.position, Vector.temp[0]);
-                    const offsetB = Vector.subtract(contact.vertex, pair.bodyB.position, Vector.temp[1]);
+                    const offsetA = Vector.subtract(contact.vertex, pair.bodyA.position, Solver.vecTemp[0]);
+                    const offsetB = Vector.subtract(contact.vertex, pair.bodyB.position, Solver.vecTemp[1]);
 
-                    const contactVelocityA = Vector.add(velocityA, Vector.scale(Vector.rotate90(offsetA, Vector.temp[2]), angularVelocityA), Vector.temp[2]);
-                    const contactVelocityB = Vector.add(velocityB, Vector.scale(Vector.rotate90(offsetB, Vector.temp[3]), angularVelocityB), Vector.temp[3]);
+                    const contactVelocityA = Vector.add(velocityA, Vector.scale(Vector.rotate90(offsetA, Solver.vecTemp[2]), angularVelocityA), Solver.vecTemp[2]);
+                    const contactVelocityB = Vector.add(velocityB, Vector.scale(Vector.rotate90(offsetB, Solver.vecTemp[3]), angularVelocityB), Solver.vecTemp[3]);
                     
-                    const relativeVelocity = Vector.subtract(contactVelocityA, contactVelocityB, Vector.temp[4]);
+                    const relativeVelocity = Vector.subtract(contactVelocityA, contactVelocityB, Solver.vecTemp[4]);
                     
                     const crossA = Vector.cross(offsetA, shapePair.normal);
                     const crossB = Vector.cross(offsetB, shapePair.normal);
                     const share = contactShare / (
                         pair.bodyA.inverseMass +
                         pair.bodyB.inverseMass +
-                        pair.bodyA.inverseInertia * Math.pow(crossA, 2) +
-                        pair.bodyB.inverseInertia * Math.pow(crossB, 2)
+                        pair.bodyA.inverseInertiaMultiplied * Math.pow(crossA, 2) +
+                        pair.bodyB.inverseInertiaMultiplied * Math.pow(crossB, 2)
                     );
 
                     const normalVelocity = Vector.dot(relativeVelocity, shapePair.normal);
@@ -196,12 +204,12 @@ export class Solver {
                     }
 
                     const impulse = Vector.add(
-                        Vector.scale(shapePair.normal, normalImpulse, Vector.temp[5]),
-                        Vector.scale(shapePair.tangent, tangentImpulse, Vector.temp[6]),
+                        Vector.scale(shapePair.normal, normalImpulse, Solver.vecTemp[5]),
+                        Vector.scale(shapePair.tangent, tangentImpulse, Solver.vecTemp[6]),
                     );
                     
                     if (!(pair.bodyA.isStatic || pair.bodyA.sleepState === Sleeping.SLEEPING)) {
-                        pair.bodyA.applyImpulse(Vector.neg(impulse, Vector.temp[6]), offsetA, false);
+                        pair.bodyA.applyImpulse(Vector.neg(impulse, Solver.vecTemp[6]), offsetA, false);
                     }
                     if (!(pair.bodyB.isStatic || pair.bodyB.sleepState === Sleeping.SLEEPING)) {
                         pair.bodyB.applyImpulse(impulse, offsetB, false);
@@ -245,3 +253,13 @@ Solver.DEPTH_DAMPING = 0.8;
 Solver.POSITION_IMPULSE_DAMPING = 0.8;
 Solver.CONSTRAINT_IMPULSE_DAMPING = 0.4;
 Solver.RESTING_THRESHOLD = 0.08;
+
+Solver.vecTemp = [
+    new Vector(),
+    new Vector(),
+    new Vector(),
+    new Vector(),
+    new Vector(),
+    new Vector(),
+    new Vector(),
+];

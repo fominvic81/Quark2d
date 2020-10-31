@@ -22,9 +22,9 @@ export class DistanceEquation extends Equation {
         const mass = args.mass;
         const inertia = args.inertia;
 
-        const impulse = Vector.scale(fromBtoA, this.stiffness * (dist - this.constraint.length) / dist, Vector.temp[3]);
+        const impulse = Vector.scale(fromBtoA, this.stiffness * (dist - this.constraint.length) / dist, Equation.vecTemp[0]);
 
-        const relativeVelocity = Vector.temp[4];
+        const relativeVelocity = Equation.vecTemp[1];
         if (this.damping) {
             
             Vector.subtract(
@@ -33,7 +33,7 @@ export class DistanceEquation extends Equation {
                 relativeVelocity,
             );
 
-            const normal = Vector.divide(fromBtoA, dist, Vector.temp[5]);
+            const normal = Vector.divide(fromBtoA, dist, Equation.vecTemp[2]);
             const normalVelocity = Vector.dot(relativeVelocity, normal);
             Vector.scale(normal, normalVelocity, relativeVelocity);
         }
@@ -41,11 +41,14 @@ export class DistanceEquation extends Equation {
         if (this.constraint.bodyA && !this.constraint.bodyA.isStatic) {
             this.constraint.bodyA.setSleeping(Sleeping.AWAKE);
             
-            const ratio = (this.constraint.bodyA.inverseMass / mass);
+            const ratio = Equation.vecTemp[3];
+            ratio.x = this.constraint.bodyA.inverseMassMultiplier.x === 0 ? 0 : this.constraint.bodyA.inverseMassMultiplied.x / mass.x;
+            ratio.y = this.constraint.bodyA.inverseMassMultiplier.y === 0 ? 0 : this.constraint.bodyA.inverseMassMultiplied.y / mass.y;
+            ratio.inertia = this.constraint.bodyA.inverseInertiaMultiplier === 0 ? 0 : this.constraint.bodyA.inverseInertiaMultiplied / inertia;
 
-            const impulseX = impulse.x * ratio;
-            const impulseY = impulse.y * ratio;
-            const impulseAngle = Vector.cross(offsetA, impulse) * (this.constraint.bodyA.inverseInertia / inertia);
+            const impulseX = impulse.x * ratio.x;
+            const impulseY = impulse.y * ratio.y;
+            const impulseAngle = Vector.cross(offsetA, impulse) * ratio.inertia;
 
             this.constraint.bodyA.constraintImpulse.x -= impulseX;
             this.constraint.bodyA.constraintImpulse.y -= impulseY;
@@ -60,7 +63,7 @@ export class DistanceEquation extends Equation {
             this.constraint.bodyA.angularVelocity -= impulseAngle;
 
             if (this.damping) {
-                const damping = Vector.scale(relativeVelocity, this.damping * ratio, Vector.temp[6]);
+                const damping = Vector.mult(relativeVelocity, Vector.scale(ratio, this.damping, Equation.vecTemp[4]), Equation.vecTemp[4]);
 
                 this.constraint.bodyA.velocity.x += damping.x;
                 this.constraint.bodyA.velocity.y += damping.y;
@@ -69,11 +72,14 @@ export class DistanceEquation extends Equation {
         if (this.constraint.bodyB && !this.constraint.bodyB.isStatic) {
             this.constraint.bodyB.setSleeping(Sleeping.AWAKE);
 
-            const ratio = (this.constraint.bodyB.inverseMass / mass);
+            const ratio = Equation.vecTemp[3];
+            ratio.x = this.constraint.bodyB.inverseMassMultiplier.x === 0 ? 0 : this.constraint.bodyB.inverseMassMultiplied.x / mass.x;
+            ratio.y = this.constraint.bodyB.inverseMassMultiplier.y === 0 ? 0 : this.constraint.bodyB.inverseMassMultiplied.y / mass.y;
+            ratio.inertia = this.constraint.bodyB.inverseInertiaMultiplier === 0 ? 0 : this.constraint.bodyB.inverseInertiaMultiplied / inertia;
 
-            const impulseX = impulse.x * ratio;
-            const impulseY = impulse.y * ratio;
-            const impulseAngle = Vector.cross(offsetB, impulse) * (this.constraint.bodyB.inverseInertia / inertia);
+            const impulseX = impulse.x * ratio.x;
+            const impulseY = impulse.y * ratio.y;
+            const impulseAngle = Vector.cross(offsetB, impulse) * ratio.inertia;
 
             this.constraint.bodyB.constraintImpulse.x += impulseX;
             this.constraint.bodyB.constraintImpulse.y += impulseY;
@@ -88,13 +94,11 @@ export class DistanceEquation extends Equation {
             this.constraint.bodyB.angularVelocity += impulseAngle;
 
             if (this.damping) {
-                const damping = Vector.scale(relativeVelocity, this.damping * ratio, Vector.temp[6]);
+                const damping = Vector.mult(relativeVelocity, Vector.scale(ratio, this.damping, Equation.vecTemp[4]), Equation.vecTemp[4]);
 
                 this.constraint.bodyB.velocity.x -= damping.x;
                 this.constraint.bodyB.velocity.y -= damping.y;
             }
         }
-
     }
-
 }

@@ -1,3 +1,4 @@
+import { Vector } from '../../math/Vector';
 
 
 export class Equation {
@@ -11,3 +12,11 @@ export class Equation {
 
 Equation.DISTANCE_EQUATION = 0;
 Equation.ANGLE_EQYATION = 1;
+
+Equation.vecTemp = [
+    new Vector(),
+    new Vector(),
+    new Vector(),
+    new Vector(),
+    new Vector(),
+];

@@ -79,6 +79,12 @@ export class Vector {
         return output;
     }
 
+    static mult (vectorA, vectorB, output = vectorA) {
+        output.x = vectorA.x * vectorB.x;
+        output.y = vectorA.y * vectorB.y;
+        return output;
+    }
+
     static neg (vector, output = vector) {
         output.x = -vector.x;
         output.y = -vector.y;

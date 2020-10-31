@@ -30,14 +30,23 @@ export class Constraint {
         this.getWorldPointA();
         this.getWorldPointB();
 
-        const fromBtoA = Vector.subtract(this.worldPointA, this.worldPointB, Vector.temp[0]);
+        const fromBtoA = Vector.subtract(this.worldPointA, this.worldPointB, Constraint.vecTemp[0]);
         const dist = Math.max(Vector.length(fromBtoA), 0.001);
 
-        const offsetA = this.bodyA ? Vector.subtract(this.worldPointA, this.bodyA.position, Vector.temp[1]) : undefined;
-        const offsetB = this.bodyB ? Vector.subtract(this.worldPointB, this.bodyB.position, Vector.temp[2]) : undefined;
+        const offsetA = this.bodyA ? Vector.subtract(this.worldPointA, this.bodyA.position, Constraint.vecTemp[1]) : undefined;
+        const offsetB = this.bodyB ? Vector.subtract(this.worldPointB, this.bodyB.position, Constraint.vecTemp[2]) : undefined;
         
-        const mass = ((this.bodyA ? this.bodyA.inverseMass : 0) + (this.bodyB ? this.bodyB.inverseMass : 0));
-        const inertia = ((this.bodyA ? this.bodyA.inverseInertia : 0) + (this.bodyB ? this.bodyB.inverseInertia : 0) + mass);
+        const mass = Vector.add(
+            this.bodyA ? this.bodyA.inverseMassMultiplied : Vector.zero,
+            this.bodyB ? this.bodyB.inverseMassMultiplied : Vector.zero,
+            Constraint.vecTemp[3],
+        );
+        const inertia = (
+            (this.bodyA ? this.bodyA.inverseInertiaMultiplied : 0) +
+            (this.bodyB ? this.bodyB.inverseInertiaMultiplied : 0) +
+            (this.bodyA ? this.bodyA.inverseMass : 0) +
+            (this.bodyB ? this.bodyB.inverseMass : 0)
+        );
 
         const args = {
             fromBtoA,
@@ -87,3 +96,11 @@ export class Constraint {
     }
 
 }
+
+Constraint.vecTemp = [
+    new Vector(),
+    new Vector(),
+    new Vector(),
+    new Vector(),
+    new Vector(),
+];
