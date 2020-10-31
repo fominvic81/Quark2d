@@ -50,7 +50,7 @@ import { Draw } from './tools/render/Draw';
 
 import { Runner } from './tools/runner/Runner';
 
-export const Quark2d = {
+export {
     Composite,
     Engine,
     Events,
