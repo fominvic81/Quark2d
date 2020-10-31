@@ -1,9 +1,10 @@
 {
   "name": "quark2d",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "repository": "git@github.com:fominvic81/Quark2d.git",
   "author": "fominvic81 <fomin.vic81@gmail.com>",
   "license": "MIT",
+  "main": "./src/Quark2d.js",
   "scripts": {
     "build": "NODE_ENV=development webpack --mode development",
     "serve": "NODE_ENV=development webpack-dev-server --open",
