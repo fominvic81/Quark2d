@@ -8,6 +8,7 @@ export class Pair {
         this.bodyB = bodyB;
         this.id = Common.combineId(this.bodyA.id, this.bodyB.id);
         this.shapePairs = new Map();
+        this.activeShapePairs = [];
         this.isActive = false;
         this.isSleeping = false;
         this.contacts = [];

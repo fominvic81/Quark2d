@@ -38,6 +38,8 @@ export class Narrowphase extends Phase {
 
                     if (shapePair.isActive) {
                         pair.isActive = true;
+                        
+                        pair.activeShapePairs.push(shapePair);
 
                         for (let i = 0; i < shapePair.contactsCount; ++i) {
                             pair.contacts.push(shapePair.contacts[i]);

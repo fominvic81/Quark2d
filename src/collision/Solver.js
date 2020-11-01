@@ -16,8 +16,7 @@ export class Solver {
 
         for (const pair of pairs) {
             if (pair.isSleeping) continue;
-            for (const shapePair of pair.shapePairs.values()) {
-                if (!shapePair.isActive) continue;
+            for (const shapePair of pair.activeShapePairs) {
                 shapePair.update();
             }
         }
@@ -63,8 +62,7 @@ export class Solver {
 
         for (const pair of pairs) {
             if (pair.isSleeping) continue;
-            for (const shapePair of pair.shapePairs.values()) {
-                if (!shapePair.isActive) continue;
+            for (const shapePair of pair.activeShapePairs) {
 
                 shapePair.separation = Vector.dot(
                     shapePair.normal,
@@ -76,8 +74,7 @@ export class Solver {
         for (const pair of pairs) {
             if (pair.isSleeping) continue;
 
-            for (const shapePair of pair.shapePairs.values()) {
-                if (!shapePair.isActive) continue;
+            for (const shapePair of pair.activeShapePairs) {
 
                 const positionImpulse = (shapePair.separation - Solver.SLOP) * (pair.bodyA.isStatic || pair.bodyB.isStatic ? 1 : 0.5);
                 
@@ -127,8 +124,7 @@ export class Solver {
 
             if (pair.isSleeping) continue;
 
-            for (const shapePair of pair.shapePairs.values()) {
-                if (!shapePair.isActive) continue;
+            for (const shapePair of pair.activeShapePairs) {
 
                 for (let i = 0; i < shapePair.contactsCount; ++i) {
                     const contact = shapePair.contacts[i];
@@ -162,8 +158,7 @@ export class Solver {
             const velocityB = Vector.clone(pair.bodyB.velocity);
             const angularVelocityB = pair.bodyB.angularVelocity;
 
-            for (const shapePair of pair.shapePairs.values()) {
-                if (!shapePair.isActive) continue;
+            for (const shapePair of pair.activeShapePairs) {
 
                 for (let i = 0; i < shapePair.contactsCount; ++i) {
                     const contact = shapePair.contacts[i];

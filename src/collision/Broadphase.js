@@ -27,8 +27,12 @@ export class Broadphase extends Phase {
                 continue;
             }
             pair.updatePrev();
+
             pair.isActive = false;
             pair.isSleeping = isSleeping;
+
+            pair.activeShapePairs.length = 0;
+
             for (const shapePair of pair.shapePairs.values()) {
                 shapePair.updatePrev();
                 shapePair.isActive = false;
