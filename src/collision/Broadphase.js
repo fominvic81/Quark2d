@@ -69,10 +69,11 @@ export class Broadphase extends Phase {
             if (cell.length < 2) continue;
             for (let i = 0; i < cell.length; ++i) {
                 for (let j = i + 1; j < cell.length; ++j) {
-                    const bodyA = cell[i].body;
-                    const shapeA = cell[i];
-                    const bodyB = cell[j].body;
-                    const shapeB = cell[j];
+                    const comp = cell[i].body.id > cell[j].body.id
+                    const shapeA = cell[comp ? i : j];
+                    const shapeB = cell[!comp ? i : j];
+                    const bodyA = shapeA.body;
+                    const bodyB = shapeB.body;
 
                     if (bodyA === bodyB) continue;
 
