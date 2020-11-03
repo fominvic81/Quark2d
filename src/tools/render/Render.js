@@ -30,6 +30,7 @@ export class Render {
             showAngularVelocity: options.showAngularVelocity !== undefined ? options.showAngularVelocity: false,
             showBroadphaseGrid: options.showBroadphaseGrid !== undefined ? options.showBroadphaseGrid: false,
             showPositions: options.showPositions !== undefined ? options.showPositions : false,
+            showConstraintBounds: options.showConstraintBounds !== undefined ? options.showConstraintBounds : false,
 
             showStatus: options.showStatus !== undefined ? options.showStatus : false,
         }
@@ -142,14 +143,26 @@ export class Render {
             
             for (const equation of constraint.equations) {
                 if (equation.type === Equation.DISTANCE_EQUATION) {
-                    if (constraint.length <= 1 || equation.stiffness > 0.8) {
+
+                    if (this.options.showConstraintBounds) {
+                        if (equation.length && equation.length > 0.01) {
+                            if (!constraint.bodyA) Draw.circle(this.ctx, start, equation.length, 'rgb(100, 200, 100)', false, this.options.lineWidth / 20);
+                            if (!constraint.bodyB) Draw.circle(this.ctx, end, equation.length, 'rgb(100, 200, 100)', false, this.options.lineWidth / 20);
+                        }
+                        if (equation.minLength && equation.minLength > 0.01) {
+                            if (!constraint.bodyA) Draw.circle(this.ctx, start, equation.minLength, 'rgb(100, 200, 100)', false, this.options.lineWidth / 20);
+                            if (!constraint.bodyB) Draw.circle(this.ctx, end, equation.minLength, 'rgb(100, 200, 100)', false, this.options.lineWidth / 20);
+                        }
+                    }
+
+                    if (equation.length <= 1 || equation.stiffness > 0.8) {
                         Draw.line(this.ctx, start, end, 'rgb(128, 128, 128)', this.options.lineWidth / 20);
                     } else {
                         const n = Vector.subtract(end, start, Vector.temp[0]);
                         const len = Vector.length(n);
 
                         const normal = Vector.rotate90(Vector.divide(n, len, Vector.temp[1]));
-                        const count = Math.max(constraint.length * 2, 4);
+                        const count = Math.max(equation.length * 2, 4);
 
                         this.ctx.beginPath();
                         this.ctx.moveTo(start.x, start.y);

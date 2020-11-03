@@ -7,11 +7,11 @@ import { Constraint } from '../../constraint/Constraint';
 
 export class MouseConstraint {
     
-    constructor (engine, mouse, equations = [new DistanceEquation({stiffness: 0.2})]) {
+    constructor (engine, mouse, equations = [new DistanceEquation({stiffness: 0.2, length: 0})]) {
 
         this.engine = engine;
         this.mouse = mouse;
-        this.constraint = new Constraint({length: 0});
+        this.constraint = new Constraint();
         this.constraint.addEquation(equations);
         this.events = new Events();
 

@@ -15,15 +15,6 @@ export class Constraint {
         this.worldPointB = this.bodyB ? new Vector() : Vector.clone(this.pointB);
         this.equations = [];
 
-        this.length = options.length;
-
-        if (!this.length) {
-            this.getWorldPointA();
-            this.getWorldPointB();
-
-            this.length = Vector.length(Vector.subtract(this.worldPointA, this.worldPointB, Vector.temp[0]));
-        }
-
     }
 
     solve () {
@@ -48,6 +39,20 @@ export class Constraint {
             (this.bodyB ? this.bodyB.inverseMass : 0)
         );
 
+        const ratioA = Constraint.vecTemp[4];
+        if (this.bodyA && !this.bodyA.isStatic) {
+            ratioA.x = this.bodyA.inverseMassMultiplier.x === 0 ? 0 : this.bodyA.inverseMassMultiplied.x / mass.x;
+            ratioA.y = this.bodyA.inverseMassMultiplier.y === 0 ? 0 : this.bodyA.inverseMassMultiplied.y / mass.y;
+            ratioA.inertia = this.bodyA.inverseInertiaMultiplier === 0 ? 0 : this.bodyA.inverseInertiaMultiplied / inertia;
+        }
+
+        const ratioB = Constraint.vecTemp[5];
+        if (this.bodyB && !this.bodyB.isStatic) {
+            ratioB.x = this.bodyB.inverseMassMultiplier.x === 0 ? 0 : this.bodyB.inverseMassMultiplied.x / mass.x;
+            ratioB.y = this.bodyB.inverseMassMultiplier.y === 0 ? 0 : this.bodyB.inverseMassMultiplied.y / mass.y;
+            ratioB.inertia = this.bodyB.inverseInertiaMultiplier === 0 ? 0 : this.bodyB.inverseInertiaMultiplied / inertia;
+        }
+
         const args = {
             fromBtoA,
             dist,
@@ -56,7 +61,9 @@ export class Constraint {
             mass,
             inertia,
             worldPointA: this.worldPointA,
-            worldPointB: this.worldPointB
+            worldPointB: this.worldPointB,
+            ratioA,
+            ratioB,
         };
 
         for (const equation of this.equations) {
@@ -72,6 +79,7 @@ export class Constraint {
         for (const equation of equations) {
             equation.constraint = this;
             this.equations.push(equation);
+            equation.afterAdd();
         }
     }
 
@@ -98,6 +106,7 @@ export class Constraint {
 }
 
 Constraint.vecTemp = [
+    new Vector(),
     new Vector(),
     new Vector(),
     new Vector(),
