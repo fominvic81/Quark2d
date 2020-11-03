@@ -49,7 +49,7 @@ export class Runner {
         this.event.delta = this.delta;
         this.event.tps = this.tps;
 
-        this.events.trigger('beforeTick', [this.event]);
+        this.events.trigger('before-tick', [this.event]);
         this.events.trigger('tick', [this.event]);
 
         this.deltaAccumulator += this.delta;
@@ -62,12 +62,12 @@ export class Runner {
             this.event.delta = this.fixedDelta;
             this.event.tps = this.fixedTps;
             
-            this.events.trigger('beforeUpdate', [this.event]);
+            this.events.trigger('before-update', [this.event]);
             this.events.trigger('update', [this.event]);
-            this.events.trigger('afterUpdate', [this.event]);
+            this.events.trigger('after-update', [this.event]);
         }
 
-        this.events.trigger('beforeTick', [this.event]);
+        this.events.trigger('before-tick', [this.event]);
         
         setTimeout(() => {this.tick()}, 0);
     }
@@ -99,9 +99,9 @@ export class Runner {
         this.renderEvent.delta = this.renderDelta;
         this.renderEvent.fps = this.fps;
 
-        this.events.trigger('beforeRender', [this.renderEvent]);
+        this.events.trigger('before-render', [this.renderEvent]);
         this.events.trigger('render', [this.renderEvent]);
-        this.events.trigger('afterRender', [this.renderEvent]);
+        this.events.trigger('after-render', [this.renderEvent]);
 
         window.requestAnimationFrame(() => {this.render()});
     }

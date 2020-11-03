@@ -16,7 +16,6 @@ export class Composite {
         if (!Array.isArray(objects)) {
             objects = [objects];
         }
-//
         for (const object of objects) {
             switch (object.name) {
                 case 'body':
@@ -40,9 +39,9 @@ export class Composite {
 
         
         for (const body of bodies) {
-            this.events.trigger('beforeAdd', [{object: body}]);
+            this.events.trigger('before-add', [{object: body}]);
             this.bodies.set(body.id, body);
-            this.events.trigger('afterAdd', [{object: body}]);
+            this.events.trigger('after-add', [{object: body}]);
         }
     }
 
@@ -59,9 +58,9 @@ export class Composite {
                 
             for (const body of bodies) {
                 if (composite.bodies.has(body.id)) {
-                    this.events.trigger('beforeRemove', [{object: body}]);
+                    this.events.trigger('before-remove', [{object: body}]);
                     composite.bodies.delete(body.id);
-                    this.events.trigger('afterRemove', [{object: body}]);
+                    this.events.trigger('after-remove', [{object: body}]);
 
                     --l;
                 }
@@ -89,9 +88,9 @@ export class Composite {
             constraints = [constraints];
         }
         for (const constraint of constraints) {
-            this.events.trigger('beforeAdd', [{object: constraint}]);
+            this.events.trigger('before-add', [{object: constraint}]);
             this.constraints.set(constraint.id, constraint);
-            this.events.trigger('afterAdd', [{object: constraint}]);
+            this.events.trigger('after-add', [{object: constraint}]);
         }
     }
 
@@ -108,9 +107,9 @@ export class Composite {
                 
             for (const constraint of constraints) {
                 if (composite.constraints.has(constraint.id)) {
-                    this.events.trigger('beforeRemove', [{object: constraint}]);
+                    this.events.trigger('before-remove', [{object: constraint}]);
                     composite.constraints.delete(constraint.id);
-                    this.events.trigger('afterRemove', [{object: constraint}]);
+                    this.events.trigger('after-remove', [{object: constraint}]);
 
                     --count;
                 }
@@ -139,9 +138,9 @@ export class Composite {
         }
 
         for (const composite of composites) {
-            this.events.trigger('beforeAdd', [{object: composite}]);
+            this.events.trigger('before-add', [{object: composite}]);
             this.composites.set(composite.id, composite);
-            this.events.trigger('afterAdd', [{object: composite}]);
+            this.events.trigger('after-add', [{object: composite}]);
         }
     }
 
@@ -152,9 +151,9 @@ export class Composite {
 
         
         for (const composite of composites) {
-            this.events.trigger('beforeRemove', [{object: composite}]);
+            this.events.trigger('before-remove', [{object: composite}]);
             this.composites.delete(composite.id);
-            this.events.trigger('afterRemove', [{object: composite}]);
+            this.events.trigger('after-remove', [{object: composite}]);
         }
     }
 

@@ -135,7 +135,7 @@ export class Body {
         
         this.boundsNeedsUpdate = true;
 
-        this.events.trigger('addShape', [{shape, updateCenterOfMass, offset, angle, body: this}])
+        this.events.trigger('add-shape', [{shape, updateCenterOfMass, offset, angle, body: this}])
     }
 
     updateArea () {

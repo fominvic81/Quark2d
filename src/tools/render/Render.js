@@ -51,14 +51,14 @@ export class Render {
 
         this.mouse = new Mouse(this);
 
-        this.mouse.events.on('mousemove', (event) => {this.mouseMove(event)});
+        this.mouse.events.on('mouse-move', (event) => {this.mouseMove(event)});
         this.mouse.events.on('wheel', (event) => {this.mouseWheel(event)});
     }
 
     step (timestamp) {
 
         this.statusTimer += timestamp.delta;
-        this.events.trigger('beforeStep', [{render: this, timestamp}]);
+        this.events.trigger('before-step', [{render: this, timestamp}]);
 
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.ctx.fillStyle = this.options.backgroundColor;
@@ -109,7 +109,7 @@ export class Render {
             this.positions(allBodies);
         }
         
-        this.events.trigger('afterStep', [{render: this, timestamp}]);
+        this.events.trigger('after-step', [{render: this, timestamp}]);
         
         this.ctx.setTransform(1, 0, 0, 1, 0, 0);
 

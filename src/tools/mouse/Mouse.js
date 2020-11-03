@@ -52,7 +52,7 @@ export class Mouse {
         Vector.set(this.localPosition, event.clientX, event.clientY);
         this.updatePosition();
         
-        this.events.trigger('mousedown', [this]);
+        this.events.trigger('mouse-down', [this]);
 
         
     }
@@ -73,7 +73,7 @@ export class Mouse {
         Vector.set(this.localPosition, event.clientX, event.clientY);
         this.updatePosition();
 
-        this.events.trigger('mouseup', [this]);
+        this.events.trigger('mouse-up', [this]);
     }
 
     mouseMove (event) {
@@ -83,7 +83,7 @@ export class Mouse {
         Vector.set(this.localMovement, event.movementX, event.movementY);
         this.updateMovement();
 
-        this.events.trigger('mousemove', [this]);
+        this.events.trigger('mouse-move', [this]);
     }
 
     mouseWheel (event) {

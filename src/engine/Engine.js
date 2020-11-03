@@ -26,7 +26,7 @@ export class Engine {
             });
         }
 
-        this.world.events.on('beforeRemove', (event) => {
+        this.world.events.on('before-remove', (event) => {
             if (event.object.name === 'body') {
                 this.broadphase.removeBodyFromGrid(event.object);
             }
@@ -36,7 +36,7 @@ export class Engine {
     update (timestamp) {
         this.timestamp = timestamp;
 
-        this.events.trigger('beforeUpdate', [{engine: this, timestamp}]);
+        this.events.trigger('before-update', [{engine: this, timestamp}]);
         this.events.trigger('update', [{engine: this, timestamp}]);
 
         this.sleeping.update(timestamp.delta);
@@ -52,21 +52,33 @@ export class Engine {
         this.sleeping.afterCollisions();
 
         if (this.narrowphase.startedPairs.length) {
-            this.events.trigger('startedPairs', [{pairs: this.narrowphase.startedPairs}]);
+            this.events.trigger('started-collisions', [{pairs: this.narrowphase.startedPairs}]);
         }
 
-        this.solver.update();
-                
         if (this.narrowphase.activePairs.length) {
-            this.events.trigger('activePairs', [{pairs: this.narrowphase.activePairs}]);
+            this.events.trigger('active-collisions', [{pairs: this.narrowphase.activePairs}]);
         }
 
         if (this.narrowphase.endedPairs.length) {
-            this.events.trigger('endedPairs', [{pairs: this.narrowphase.endedPairs}]);
+            this.events.trigger('ended-collisions', [{pairs: this.narrowphase.endedPairs}]);
+        }
+
+        this.solver.update();
+
+        if (this.narrowphase.startedPairs.length) {
+            this.events.trigger('started-collisions-after-solve', [{pairs: this.narrowphase.startedPairs}]);
+        }
+
+        if (this.narrowphase.activePairs.length) {
+            this.events.trigger('active-collisions-after-solve', [{pairs: this.narrowphase.activePairs}]);
+        }
+
+        if (this.narrowphase.endedPairs.length) {
+            this.events.trigger('ended-collisions-after-solve', [{pairs: this.narrowphase.endedPairs}]);
         }
 
 
-        this.events.trigger('afterUpdate', [{engine: this, timestamp}]);
+        this.events.trigger('after-update', [{engine: this, timestamp}]);
         
     }
 

@@ -17,9 +17,9 @@ export class MouseConstraint {
 
         engine.world.addConstraint(this.constraint);
 
-        this.mouse.events.on('mousedown', (event) => {this.mouseDown(event)});
-        this.mouse.events.on('mouseup', (event) => {this.mouseUp(event)});
-        this.mouse.events.on('mousemove', (event) => {this.mouseMove(event)});
+        this.mouse.events.on('mouse-down', (event) => {this.mouseDown(event)});
+        this.mouse.events.on('mouse-up', (event) => {this.mouseUp(event)});
+        this.mouse.events.on('mouse-move', (event) => {this.mouseMove(event)});
 
     }
 
@@ -38,7 +38,7 @@ export class MouseConstraint {
                             if (shape.type === Shape.AAB) {
                                 this.constraint.bodyA = body;
                                 Vector.rotate(Vector.subtract(event.position, body.position, this.constraint.pointA), -body.angle);
-                                this.events.trigger('catchBody', [{body, shape}]);
+                                this.events.trigger('catch-body', [{body, shape}]);
                                 break;
                             }
 
@@ -46,7 +46,7 @@ export class MouseConstraint {
                                 if (Vector.lengthSquared(Vector.subtract(event.position, shape.getWorldPosition(), Vector.temp[0])) < Math.pow(shape.radius, 2)) {
                                     this.constraint.bodyA = body;
                                     Vector.rotate(Vector.subtract(event.position, body.position, this.constraint.pointA), -body.angle);
-                                    this.events.trigger('catchBody', [{body, shape}]);
+                                    this.events.trigger('catch-body', [{body, shape}]);
                                     break;
                                 }
                             }
@@ -55,7 +55,7 @@ export class MouseConstraint {
                                 if (Vertices.contains(shape.getWorldVertices(), event.position)) {
                                     this.constraint.bodyA = body;
                                     Vector.rotate(Vector.subtract(event.position, body.position, this.constraint.pointA), -body.angle);
-                                    this.events.trigger('catchBody', [{body, shape}]);
+                                    this.events.trigger('catch-body', [{body, shape}]);
                                     break;
                                 }
                             }
