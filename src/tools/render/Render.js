@@ -5,6 +5,7 @@ import { Events } from '../../common/Events';
 import { Mouse } from '../mouse/Mouse';
 import { Sleeping } from '../../body/Sleeping';
 import { Equation } from '../../constraint/equation/Equation';
+import { Bounds } from '../../math/Bounds';
 
 export class Render {
 
@@ -16,6 +17,7 @@ export class Render {
         this.options = {
             scale: new Vector(20, 20),
             translate: new Vector(),
+            bounds: new Bounds(),
             lineWidth: 1,
             backgroundColor: options.backgroundColor || 'rgb(16, 24, 24)',
             showBodies: options.showBodies !== undefined ? options.showBodies : true,
@@ -72,41 +74,51 @@ export class Render {
 
         this.options.lineWidth = 1 / Math.pow(this.options.scale.x + this.options.scale.y, 0.5) * 3;
 
+        this.updateBounds();
+
         const allBodies = this.engine.world.allBodies();
         const allConstraints = this.engine.world.allConstraints();
 
+        const bodies = [];
+
+        for (const body of allBodies) {
+            if (this.options.bounds.overlaps(body.getBounds())) {
+                bodies.push(body);
+            }
+        }
+
         if (this.options.showBodies) {
-            this.bodies(allBodies);
+            this.bodies(bodies);
         }
         if (this.options.showConstraints) {
             this.constraints(allConstraints);
         }
         if (this.options.showAngleIndicator) {
-            this.angleIndicator(allBodies);
+            this.angleIndicator(bodies);
         }
         if (this.options.showCollisions) {
             this.collisions();
         }
         if (this.options.showNormals) {
-            this.normals(allBodies);
+            this.normals(bodies);
         }
         if (this.options.showBounds) {
-            this.bounds(allBodies);
+            this.bounds(bodies);
         }
         if (this.options.showPositionImpulses) {
-            this.positionImpulses(allBodies);
+            this.positionImpulses(bodies);
         }
         if (this.options.showVelocity) {
-            this.velocity(allBodies);
+            this.velocity(bodies);
         }
         if (this.options.showAngularVelocity) {
-            this.angularVelocity(allBodies);
+            this.angularVelocity(bodies);
         }
         if (this.options.showBroadphaseGrid) {
             this.grid();
         }
         if (this.options.showPositions) {
-            this.positions(allBodies);
+            this.positions(bodies);
         }
         
         this.events.trigger('after-step', [{render: this, timestamp}]);
@@ -116,6 +128,14 @@ export class Render {
         if (this.options.showStatus) {
             this.status();
         }
+    }
+
+    updateBounds () {
+        this.options.bounds.min.x = (-this.canvas.width / 2) / this.options.scale.x - this.options.translate.x;
+        this.options.bounds.max.x = (this.canvas.width / 2) / this.options.scale.x - this.options.translate.x;
+
+        this.options.bounds.min.y = (-this.canvas.height / 2) / this.options.scale.y - this.options.translate.y;
+        this.options.bounds.max.y = (this.canvas.height / 2) / this.options.scale.y - this.options.translate.y;
     }
 
     bodies (bodies) {
