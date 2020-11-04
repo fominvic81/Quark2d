@@ -45,7 +45,7 @@ export class Composite {
         }
     }
 
-    removeBody (bodies, deep = false) {
+    removeBody (bodies, deep = true) {
         if (!Array.isArray(bodies)) {
             bodies = [bodies];
         }
@@ -94,7 +94,7 @@ export class Composite {
         }
     }
 
-    removeConstraint (constraints, deep = false) {
+    removeConstraint (constraints, deep = true) {
         if (!Array.isArray(constraints)) {
             constraints = [constraints];
         }
@@ -144,17 +144,52 @@ export class Composite {
         }
     }
 
-    removeComposite (composites) {
+    removeComposite (composites, deep = true) {
         if (!Array.isArray(composites)) {
             composites = [composites];
         }
 
-        
-        for (const composite of composites) {
-            this.events.trigger('before-remove', [{object: composite}]);
-            this.composites.delete(composite.id);
-            this.events.trigger('after-remove', [{object: composite}]);
+        let stack = [this];
+        let count = composites.length;
+
+        while (stack.length > 0) {
+            const composite = stack.pop();
+                
+            for (const composite of composites) {
+                if (composite.composites.has(composite.id)) {
+                    this.events.trigger('before-remove', [{object: composite}]);
+                    composite.composites.delete(composite.id);
+                    this.events.trigger('after-remove', [{object: composite}]);
+
+                    --count;
+                }
+            }
+            if (count <= 0 && !deep) break;
+
+            for (const composite1 of composite.composites.values()) {
+                stack.push(composite1);
+            }
         }
+    }
+
+    all () {
+        let all = [...this.allBodies(), ...this.allConstraints()];
+
+        return all;
+    }
+
+    clearBodies () {
+        this.removeBody(this.allBodies(), true);
+    }
+
+    clearConstraints () {
+        this.removeConstraint(this.allConstraints(), true);
+    }
+
+    clear () {
+        this.composites.clear();
+        this.removeBody(this.allBodies(), false);
+        this.removeConstraint(this.allConstraints(), false);
     }
 
 };
