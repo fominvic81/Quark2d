@@ -18,13 +18,7 @@ export class Engine {
         this.solver = new Solver(this);
         this.sleeping = new Sleeping(this);
         this.events = new Events();
-        this.runner = options.runner;
-
-        if (this.runner) {
-            this.runner.events.on('update', (timestamp) => {
-                this.update(timestamp);
-            });
-        }
+        this.timestamp = undefined;
 
         this.world.events.on('before-remove', (event) => {
             if (event.object.name === 'body') {

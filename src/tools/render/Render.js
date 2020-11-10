@@ -353,9 +353,8 @@ export class Render {
             this.statusTimer -= 0.1;
             this.statusText = '';
 
-            if (this.engine.runner) {
-                this.statusText += `fps: ${Math.round(this.engine.runner.fps)}   `;
-                this.statusText += `tps: ${Math.round(this.engine.runner.tps)}   `;
+            if (this.engine.timestamp) {
+                this.statusText += `tps: ${Math.round(this.engine.timestamp.tps)}   `;
             }
 
             const allBodies = this.engine.world.allBodies();
