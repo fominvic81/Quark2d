@@ -1,4 +1,10 @@
-export const Common = {IDs: {}};
+export const Common = {
+    IDs: {},
+    PI05: Math.PI,
+    PI: Math.PI,
+    PI2: Math.PI * 2,
+    PI3: Math.PI * 3,
+};
 
 Common.sign = (n) => {
     if (n >= 0) {
@@ -38,3 +44,22 @@ Common.clamp = (value, min, max) => {
 Common.contains = (value, min, max) => {
     return !(min > value || max < value);
 }
+
+Common.normaliseAngle = (angle) => {
+    return ((angle % Common.PI2) + Common.PI3) % Common.PI2 - Common.PI
+}
+
+Common.angleDiff = (angleA, angleB) => {
+    return Common.normaliseAngle(angleA - angleB);
+};
+
+Common.clampAngle = (angle, minAngle, maxAngle) => {
+    if (maxAngle - minAngle < 0.01) return maxAngle;
+
+    var minDiff = Common.angleDiff(angle, minAngle);
+    var maxDiff = Common.angleDiff(angle, maxAngle);
+
+    if (minDiff > 0 && maxDiff < 0) return angle;
+    if (Math.abs(maxDiff) > Math.abs(minDiff)) return angle - minDiff;
+    return angle - maxDiff;
+};

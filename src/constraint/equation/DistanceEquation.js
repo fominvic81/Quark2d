@@ -36,7 +36,7 @@ export class DistanceEquation extends Equation {
         const offsetB = args.offsetB;
 
         if (this.minLength !== undefined && dist > this.minLength && dist < this.length) return;
-        const diff = (this.minLength !== undefined && dist < this.minLength) ? (dist - this.minLength) : (dist - this.length)
+        const diff = (this.minLength !== undefined && dist < this.minLength) ? (dist - this.minLength) : (dist - this.length);
 
         const impulse = Vector.scale(fromBtoA, this.stiffness * diff / dist, Equation.vecTemp[0]);
 
@@ -109,7 +109,7 @@ export class DistanceEquation extends Equation {
     }
 
     afterAdd () {
-        if (!this.length) {
+        if (this.length === undefined) {
             this.length = Vector.length(Vector.subtract(this.constraint.getWorldPointA(), this.constraint.getWorldPointB(), Equation.vecTemp[0]));
         }
     }

@@ -38,6 +38,7 @@ import { Solver } from './collision/Solver';
 
 import { Equation } from './constraint/equation/Equation';
 import { DistanceEquation } from './constraint/equation/DistanceEquation';
+import { AngleEquation } from './constraint/equation/AngleEquation';
 import { Constraint } from './constraint/Constraint';
 
 import { Factory } from './tools/factory/Factory';
@@ -49,6 +50,7 @@ import { Render } from './tools/render/Render';
 import { Draw } from './tools/render/Draw';
 
 import { Runner } from './tools/runner/Runner';
+
 
 export {
     Composite,
@@ -90,6 +92,7 @@ export {
 
     Equation,
     DistanceEquation,
+    AngleEquation,
     Constraint,
 
     Factory,

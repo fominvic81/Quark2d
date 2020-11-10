@@ -53,6 +53,8 @@ export class Constraint {
             ratioB.inertia = this.bodyB.inverseInertiaMultiplier === 0 ? 0 : this.bodyB.inverseInertiaMultiplied / inertia;
         }
 
+        const angle = Vector.angle(this.worldPointB, this.worldPointA);
+
         const args = {
             fromBtoA,
             dist,
@@ -64,6 +66,7 @@ export class Constraint {
             worldPointB: this.worldPointB,
             ratioA,
             ratioB,
+            angle,
         };
 
         for (const equation of this.equations) {
@@ -79,7 +82,7 @@ export class Constraint {
         for (const equation of equations) {
             equation.constraint = this;
             this.equations.push(equation);
-            equation.afterAdd();
+            if (equation.afterAdd) equation.afterAdd();
         }
     }
 

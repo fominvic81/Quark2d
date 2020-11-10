@@ -11,7 +11,7 @@ export class Equation {
 }
 
 Equation.DISTANCE_EQUATION = 0;
-Equation.ANGLE_EQYATION = 1;
+Equation.ANGLE_EQUATION = 1;
 
 Equation.vecTemp = [
     new Vector(),

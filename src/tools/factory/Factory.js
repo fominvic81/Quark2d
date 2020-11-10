@@ -7,6 +7,7 @@ import { Circle } from '../../body/shapes/Circle';
 import { Convex } from '../../body/shapes/Convex';
 import { Filter } from '../../body/Filter';
 import { Vertices } from '../../math/Vertices';
+import { Common } from '../../common/Common';
 
 export const Factory = {};
 
@@ -39,7 +40,7 @@ Factory.circle = (position, radius, bodyOptions = {}, shapeOptions = {}) => {
 
 Factory.polygon = (position, sides = 4, radius = 2, bodyOptions = {}, shapeOptions = {}) => {
 
-    const delta = Math.PI * 2 / sides;
+    const delta = Common.PI2 / sides;
     const vertices = [];
 
     for (let i = 0; i < sides; ++i) {

@@ -5,6 +5,7 @@ import { Events } from '../../common/Events';
 import { Mouse } from '../mouse/Mouse';
 import { Sleeping } from '../../body/Sleeping';
 import { Equation } from '../../constraint/equation/Equation';
+import { Bounds } from '../../math/Bounds';
 
 export class Render {
 
@@ -16,6 +17,7 @@ export class Render {
         this.options = {
             scale: new Vector(20, 20),
             translate: new Vector(),
+            bounds: new Bounds(),
             lineWidth: 1,
             backgroundColor: options.backgroundColor || 'rgb(16, 24, 24)',
             showBodies: options.showBodies !== undefined ? options.showBodies : true,
@@ -72,41 +74,51 @@ export class Render {
 
         this.options.lineWidth = 1 / Math.pow(this.options.scale.x + this.options.scale.y, 0.5) * 3;
 
+        this.updateBounds();
+
         const allBodies = this.engine.world.allBodies();
         const allConstraints = this.engine.world.allConstraints();
 
+        const bodies = [];
+
+        for (const body of allBodies) {
+            if (this.options.bounds.overlaps(body.getBounds())) {
+                bodies.push(body);
+            }
+        }
+
         if (this.options.showBodies) {
-            this.bodies(allBodies);
+            this.bodies(bodies);
         }
         if (this.options.showConstraints) {
             this.constraints(allConstraints);
         }
         if (this.options.showAngleIndicator) {
-            this.angleIndicator(allBodies);
+            this.angleIndicator(bodies);
         }
         if (this.options.showCollisions) {
             this.collisions();
         }
         if (this.options.showNormals) {
-            this.normals(allBodies);
+            this.normals(bodies);
         }
         if (this.options.showBounds) {
-            this.bounds(allBodies);
+            this.bounds(bodies);
         }
         if (this.options.showPositionImpulses) {
-            this.positionImpulses(allBodies);
+            this.positionImpulses(bodies);
         }
         if (this.options.showVelocity) {
-            this.velocity(allBodies);
+            this.velocity(bodies);
         }
         if (this.options.showAngularVelocity) {
-            this.angularVelocity(allBodies);
+            this.angularVelocity(bodies);
         }
         if (this.options.showBroadphaseGrid) {
             this.grid();
         }
         if (this.options.showPositions) {
-            this.positions(allBodies);
+            this.positions(bodies);
         }
         
         this.events.trigger('after-step', [{render: this, timestamp}]);
@@ -116,6 +128,14 @@ export class Render {
         if (this.options.showStatus) {
             this.status();
         }
+    }
+
+    updateBounds () {
+        this.options.bounds.min.x = (-this.canvas.width / 2) / this.options.scale.x - this.options.translate.x;
+        this.options.bounds.max.x = (this.canvas.width / 2) / this.options.scale.x - this.options.translate.x;
+
+        this.options.bounds.min.y = (-this.canvas.height / 2) / this.options.scale.y - this.options.translate.y;
+        this.options.bounds.max.y = (this.canvas.height / 2) / this.options.scale.y - this.options.translate.y;
     }
 
     bodies (bodies) {
@@ -142,49 +162,74 @@ export class Render {
             const end = constraint.getWorldPointB();
             
             for (const equation of constraint.equations) {
-                if (equation.type === Equation.DISTANCE_EQUATION) {
+                switch (equation.type) {
+                    case Equation.DISTANCE_EQUATION:
 
-                    if (this.options.showConstraintBounds) {
-                        if (equation.length && equation.length > 0.01) {
-                            if (!constraint.bodyA) Draw.circle(this.ctx, start, equation.length, 'rgb(100, 200, 100)', false, this.options.lineWidth / 20);
-                            if (!constraint.bodyB) Draw.circle(this.ctx, end, equation.length, 'rgb(100, 200, 100)', false, this.options.lineWidth / 20);
+                        if (this.options.showConstraintBounds) {
+                            if (equation.length && equation.length > 0.01) {
+                                if (!constraint.bodyA) Draw.circle(this.ctx, start, equation.length, 'rgb(100, 200, 100)', false, this.options.lineWidth / 20);
+                                if (!constraint.bodyB) Draw.circle(this.ctx, end, equation.length, 'rgb(100, 200, 100)', false, this.options.lineWidth / 20);
+                            }
+                            if (equation.minLength && equation.minLength > 0.01) {
+                                if (!constraint.bodyA) Draw.circle(this.ctx, start, equation.minLength, 'rgb(100, 200, 100)', false, this.options.lineWidth / 20);
+                                if (!constraint.bodyB) Draw.circle(this.ctx, end, equation.minLength, 'rgb(100, 200, 100)', false, this.options.lineWidth / 20);
+                            }
                         }
-                        if (equation.minLength && equation.minLength > 0.01) {
-                            if (!constraint.bodyA) Draw.circle(this.ctx, start, equation.minLength, 'rgb(100, 200, 100)', false, this.options.lineWidth / 20);
-                            if (!constraint.bodyB) Draw.circle(this.ctx, end, equation.minLength, 'rgb(100, 200, 100)', false, this.options.lineWidth / 20);
+
+                        if (equation.length <= 1 || equation.stiffness > 0.8) {
+                            Draw.line(this.ctx, start, end, 'rgb(128, 128, 128)', this.options.lineWidth / 20);
+                        } else {
+                            const n = Vector.subtract(end, start, Vector.temp[0]);
+                            const len = Vector.length(n);
+
+                            const normal = Vector.rotate90(Vector.divide(n, len, Vector.temp[1]));
+                            const count = Math.max(equation.length * 2, 4);
+
+                            this.ctx.beginPath();
+                            this.ctx.moveTo(start.x, start.y);
+
+                            for (let i = 1; i < count; ++i) {
+                                const side = i % 2 === 0 ? 1 : -1;
+                                const offset = Vector.scale(normal, side * 0.25, Vector.temp[2]);
+                                const p = i / count;
+
+                                this.ctx.lineTo(
+                                    start.x + n.x * p + offset.x,
+                                    start.y + n.y * p + offset.y,
+                                );
+
+                            }
+
+                            this.ctx.lineTo(end.x, end.y);
+
+                            this.ctx.strokeStyle = 'rgb(128, 128, 128)';
+                            this.ctx.lineWidth = this.options.lineWidth / 20;
+                            this.ctx.stroke();
                         }
-                    }
-
-                    if (equation.length <= 1 || equation.stiffness > 0.8) {
-                        Draw.line(this.ctx, start, end, 'rgb(128, 128, 128)', this.options.lineWidth / 20);
-                    } else {
-                        const n = Vector.subtract(end, start, Vector.temp[0]);
-                        const len = Vector.length(n);
-
-                        const normal = Vector.rotate90(Vector.divide(n, len, Vector.temp[1]));
-                        const count = Math.max(equation.length * 2, 4);
-
-                        this.ctx.beginPath();
+                        break;
+                    case Equation.ANGLE_EQUATION:
                         this.ctx.moveTo(start.x, start.y);
-
-                        for (let i = 1; i < count; ++i) {
-                            const side = i % 2 === 0 ? 1 : -1;
-                            const offset = Vector.scale(normal, side * 0.25, Vector.temp[2]);
-                            const p = i / count;
-
-                            this.ctx.lineTo(
-                                start.x + n.x * p + offset.x,
-                                start.y + n.y * p + offset.y,
-                            );
-
+                        if (constraint.bodyA) {
+                            this.ctx.arc(start.x, start.y, 0.4, equation.minAngleA + constraint.bodyA.angle + Math.PI, equation.maxAngleA + constraint.bodyA.angle + Math.PI, true);
+                        } else {
+                            this.ctx.arc(start.x, start.y, 0.4, equation.minAngleA + Math.PI, equation.maxAngleA + Math.PI, true);
                         }
+                        this.ctx.lineTo(start.x, start.y);
 
+                        
+                        this.ctx.moveTo(end.x, end.y);
+                        if (constraint.bodyB) {
+                            this.ctx.arc(end.x, end.y, 0.4, equation.minAngleB + constraint.bodyB.angle, equation.maxAngleB + constraint.bodyB.angle, true);
+                        } else {
+                            this.ctx.arc(end.x, end.y, 0.4, equation.minAngleB, equation.maxAngleB, true);
+                        }
                         this.ctx.lineTo(end.x, end.y);
 
-                        this.ctx.strokeStyle = 'rgb(128, 128, 128)';
+
+                        this.ctx.strokeStyle = 'rgb(200, 200, 200)';
                         this.ctx.lineWidth = this.options.lineWidth / 20;
                         this.ctx.stroke();
-                    }
+                        break
                 }
             }
 
@@ -373,7 +418,7 @@ export class Render {
         canvas.style.bottom = 0;
         canvas.width = width;
         canvas.height = height;
-        canvas.oncontextmenu = function() {
+        canvas.oncontextmenu = () => {
             return false;
         }
         return canvas;

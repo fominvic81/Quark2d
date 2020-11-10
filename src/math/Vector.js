@@ -32,6 +32,14 @@ export class Vector {
         return output;
     }
 
+    static angle (vectorA, vectorB = undefined) {
+        if (vectorB) {
+            return Math.atan2(vectorB.y - vectorA.y, vectorB.x - vectorA.x);
+        } else {
+            return Math.atan2(vectorA.y, vectorA.x);
+        }
+    };
+
     static length (vector) {
         return Math.sqrt(Math.pow(vector.x, 2) + Math.pow(vector.y, 2));
     }

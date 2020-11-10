@@ -1,10 +1,11 @@
+import { Common } from "../../common/Common";
 
 
 export const Draw = {};
 
 Draw.rect = (ctx, position, width, height, angle, color, fill = true, lineWidth = 1) => {
 
-    if (angle && Math.abs(angle % Math.PI * 0.5) > 0.025) {
+    if (angle && Math.abs(angle % Common.PI05) > 0.025) {
         ctx.save();
         ctx.translate(position.x, position.y);
 
@@ -35,7 +36,7 @@ Draw.circle = (ctx, position, radius, color, fill = true, lineWidth = 1) => {
 
 
     ctx.beginPath();
-    ctx.arc(position.x, position.y, radius, 0, Math.PI * 2);
+    ctx.arc(position.x, position.y, radius, 0, Common.PI2);
 
     if (fill) {
         ctx.fillStyle = color;
