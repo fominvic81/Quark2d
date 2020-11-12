@@ -30,15 +30,13 @@ export class AngleEquation extends Equation {
         this.stiffnessA = options.stiffnessA;
         this.stiffnessB = options.stiffnessB;
 
-        this.isFixedA = options.isFixedA;
-        this.isFixedB = options.isFixedB;
-
     }
     
     solve (args) {
         
         const fromBtoA = args.fromBtoA;
         const angle = args.angle;
+        const distSquared = Math.pow(args.dist, 2);
 
         const offsetA = args.offsetA;
         const offsetB = args.offsetB;
@@ -47,42 +45,58 @@ export class AngleEquation extends Equation {
         let impulseB;
 
         if (this.stiffnessA) {
-            impulseA = this.solveImpulse(this.constraint.bodyA, angle, this.minAngleA, this.maxAngleA, 1, fromBtoA, Equation.vecTemp[0]);
+            impulseA = this.solveImpulse(this.constraint.bodyA, angle, this.minAngleA, this.maxAngleA, 1, fromBtoA, distSquared, Equation.vecTemp[0]);
         }
         if (this.stiffnessB) {
-            impulseB = this.solveImpulse(this.constraint.bodyB, angle, this.minAngleB, this.maxAngleB, -1, fromBtoA, Equation.vecTemp[1]);
+            impulseB = this.solveImpulse(this.constraint.bodyB, angle, this.minAngleB, this.maxAngleB, -1, fromBtoA, distSquared, Equation.vecTemp[1]);
         }
 
-        if (this.constraint.bodyA && !this.constraint.bodyA.isStatic) {
-            if (impulseB && (!this.constraint.bodyB || this.constraint.bodyB.isStatic)) {
+        if (impulseB) {
+            if (this.constraint.bodyA && !this.constraint.bodyA.isStatic) {
                 const impulseX = impulseB.x * args.ratioA.x * this.stiffnessB;
                 const impulseY = impulseB.y * args.ratioA.y * this.stiffnessB;
                 const impulseAngle = Vector.cross(offsetA, impulseB) * args.ratioA.inertia * this.stiffnessB;
 
-                this.constraint.bodyA.constraintImpulse.x -= impulseX;
-                this.constraint.bodyA.constraintImpulse.y -= impulseY;
-                this.constraint.bodyA.constraintImpulse.angle -= impulseAngle;
-
                 this.constraint.bodyA.position.x -= impulseX;
                 this.constraint.bodyA.position.y -= impulseY;
                 this.constraint.bodyA.angle -= impulseAngle;
-
+                
                 this.constraint.bodyA.velocity.x -= impulseX;
                 this.constraint.bodyA.velocity.y -= impulseY;
                 this.constraint.bodyA.angularVelocity -= impulseAngle;
-
-            }
-            if (impulseA) {
-                const impulseAngle = impulseA.angle * args.ratioA.inertia * this.stiffnessA;
-
-                this.constraint.bodyA.angle -= impulseAngle;
-                this.constraint.bodyA.angularVelocity -= impulseAngle;
+                
+                this.constraint.bodyA.constraintImpulse.x -= impulseX;
+                this.constraint.bodyA.constraintImpulse.y -= impulseY;
                 this.constraint.bodyA.constraintImpulse.angle -= impulseAngle;
+            }
+
+            if (this.constraint.bodyB && !this.constraint.bodyB.isStatic) {
+                const impulseX = impulseB.x * args.ratioB.x * this.stiffnessB;
+                const impulseY = impulseB.y * args.ratioB.y * this.stiffnessB;
+                const impulseAngle = Vector.cross(offsetB, impulseB) * args.ratioB.inertia * this.stiffnessB;
+
+                this.constraint.bodyB.position.x += impulseX;
+                this.constraint.bodyB.position.y += impulseY;
+                this.constraint.bodyB.constraintImpulse.angle += impulseAngle;
+
+                this.constraint.bodyB.velocity.x += impulseX;
+                this.constraint.bodyB.velocity.y += impulseY;
+                this.constraint.bodyB.angle += impulseAngle;
+
+                this.constraint.bodyB.constraintImpulse.x += impulseX;
+                this.constraint.bodyB.constraintImpulse.y += impulseY;
+                this.constraint.bodyB.angularVelocity += impulseAngle;
+
+                const impulseAngleB = impulseB.angle * args.ratioB.inertia * this.stiffnessB;
+
+                this.constraint.bodyB.angle += impulseAngleB;
+                this.constraint.bodyB.angularVelocity += impulseAngleB;
+                this.constraint.bodyB.constraintImpulse.angle += impulseAngleB;
             }
         }
 
-        if (this.constraint.bodyB && !this.constraint.bodyB.isStatic) {
-            if (impulseA && (!this.constraint.bodyA || this.constraint.bodyA.isStatic)) {
+        if (impulseA) {
+            if (this.constraint.bodyB && !this.constraint.bodyB.isStatic) {
                 const impulseX = impulseA.x * args.ratioB.x * this.stiffnessA;
                 const impulseY = impulseA.y * args.ratioB.y * this.stiffnessA;
                 const impulseAngle = Vector.cross(offsetB, impulseA) * args.ratioB.inertia * this.stiffnessA;
@@ -99,17 +113,34 @@ export class AngleEquation extends Equation {
                 this.constraint.bodyB.constraintImpulse.y += impulseY;
                 this.constraint.bodyB.angularVelocity += impulseAngle;
             }
-            if (impulseB) {
-                const impulseAngle = impulseB.angle * args.ratioB.inertia * this.stiffnessB;
 
-                this.constraint.bodyB.angle += impulseAngle;
-                this.constraint.bodyB.angularVelocity += impulseAngle;
-                this.constraint.bodyB.constraintImpulse.angle += impulseAngle;
+            if (this.constraint.bodyA && !this.constraint.bodyA.isStatic) {
+                const impulseX = impulseA.x * args.ratioA.x * this.stiffnessA;
+                const impulseY = impulseA.y * args.ratioA.y * this.stiffnessA;
+                const impulseAngle = Vector.cross(offsetA, impulseA) * args.ratioA.inertia * this.stiffnessA;
+                
+                this.constraint.bodyA.position.x -= impulseX;
+                this.constraint.bodyA.position.y -= impulseY;
+                this.constraint.bodyA.angle -= impulseAngle;
+                
+                this.constraint.bodyA.velocity.x -= impulseX;
+                this.constraint.bodyA.velocity.y -= impulseY;
+                this.constraint.bodyA.angularVelocity -= impulseAngle;
+
+                this.constraint.bodyA.constraintImpulse.x -= impulseX;
+                this.constraint.bodyA.constraintImpulse.y -= impulseY;
+                this.constraint.bodyA.constraintImpulse.angle -= impulseAngle;
+
+                const impulseAngleA = impulseA.angle * args.ratioA.inertia * this.stiffnessA;
+
+                this.constraint.bodyA.angle -= impulseAngleA;
+                this.constraint.bodyA.angularVelocity -= impulseAngleA;
+                this.constraint.bodyA.constraintImpulse.angle -= impulseAngleA;
             }
         }
     }
 
-    solveImpulse (body, angle, minAngle, maxAngle, scale, fromBtoA, impulse) {
+    solveImpulse (body, angle, minAngle, maxAngle, scale, fromBtoA, distSquared, impulse) {
         let angleAbsolute = angle;
 
         if (body) {
@@ -120,12 +151,19 @@ export class AngleEquation extends Equation {
 
         const clampedAngle = Common.clampAngle(angleAbsolute, minAngle, maxAngle);
         const diff = Common.angleDiff(clampedAngle, angleAbsolute);
-        
-        Vector.subtract(
-            fromBtoA,
-            Vector.rotate(fromBtoA, diff, Equation.vecTemp[4]),
-            impulse
-        );
+
+        Vector.rotate90(fromBtoA, impulse);
+        Vector.neg(impulse);
+        Vector.scale(impulse, diff / 2);
+
+        const impulseMaxX = impulse.x;
+        const impulseMaxY = impulse.y;
+
+        Vector.divide(impulse, distSquared / 2);
+
+        impulse.x = Common.absMin(impulse.x, impulseMaxX);
+        impulse.y = Common.absMin(impulse.y, impulseMaxY);
+
         impulse.angle = diff * scale;
 
         return impulse;

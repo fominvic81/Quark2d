@@ -63,3 +63,19 @@ Common.clampAngle = (angle, minAngle, maxAngle) => {
     if (Math.abs(maxDiff) > Math.abs(minDiff)) return angle - minDiff;
     return angle - maxDiff;
 };
+
+Common.absMin = (a, b) => {
+    if (Math.abs(a) < Math.abs(b)) {
+        return a;
+    } else {
+        return b;
+    }
+}
+
+Common.absMax = (a, b) => {
+    if (Math.abs(a) > Math.abs(b)) {
+        return a;
+    } else {
+        return b;
+    }
+}
