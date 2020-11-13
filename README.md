@@ -1,6 +1,6 @@
 # Quark2d
 
-[Install](#install) - [Getting started](#Getting-started) - [Example](#Example) - [Docs](#documentation) - [Wiki](#Wiki)
+[Install](#install) - [Getting started](https://github.com/fominvic81/Quark2d/wiki/Getting-started) - [Example](#Example) - [Docs](https://github.com/fominvic81/Quark2d/wiki/Documentation)
 
 ## Install
 
@@ -8,10 +8,6 @@
     npm install quark2d
 #### Yarn
     yarn add quark2d
-
-## Getting-started
-
-TODO
 
 ## Example
 
@@ -87,11 +83,3 @@ TODO
     // Run runner
     runner.run();
     runner.runRender();
-
-## Documentation
-
-TODO
-
-## Wiki
-
-TODO
