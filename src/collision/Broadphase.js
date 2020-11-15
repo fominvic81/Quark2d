@@ -34,7 +34,6 @@ export class Broadphase extends Phase {
             pair.isSleeping = isSleeping;
 
             pair.activeShapePairs.length = 0;
-            this.activePairsCount = 0;
 
             for (const shapePair of pair.shapePairs.values()) {
                 shapePair.updatePrev();
