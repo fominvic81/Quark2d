@@ -65,13 +65,15 @@ export class Broadphase extends Phase {
         }
 
         for (const pair of this.pairs.values()) {
-            pair.isActive = false;
-            
-            for (const shapePair of pair.shapePairs.values()) {
-                shapePair.isActive = shapePair.isActiveBroadphase;
+            if (!(pair.isSleeping && pair.prev.isSleeping)) {
+                pair.isActive = false;
+                
+                for (const shapePair of pair.shapePairs.values()) {
+                    shapePair.isActive = shapePair.isActiveBroadphase;
 
-                if (shapePair.isActiveBroadphase) {
-                    pair.isActive = true;
+                    if (shapePair.isActiveBroadphase) {
+                        pair.isActive = true;
+                    }
                 }
             }
 
