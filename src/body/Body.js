@@ -157,9 +157,8 @@ export class Body {
         } else {
             for(const shape of this.shapes) {
                 // now this code is wrong
-                const r = Vector.length(shape.position);
                 const shapeInertia = shape.inertia;
-                inertia += shapeInertia + r;
+                inertia += shapeInertia;
             }
         }
         
