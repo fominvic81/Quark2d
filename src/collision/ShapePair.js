@@ -27,6 +27,8 @@ export class ShapePair {
             penetration: new Vector(),
             depth: 0,
         }
+        this.isActiveBroadphase = false;
+        this.broadphaseCellsCount = 0;
     }
 
     update () {

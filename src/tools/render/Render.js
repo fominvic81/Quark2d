@@ -334,7 +334,6 @@ export class Render {
 
         for (const position of grid.keys()) {
             const cell = grid.get(position);
-            if (cell.size < 2 || !cell.render) continue;
             Vector.add(position, Vector.set(Vector.temp[0], 0.5, 0.5))
             Draw.rect(this.ctx, Vector.scale(position, broadphase.gridSize), broadphase.gridSize, broadphase.gridSize, 0, 'rgb(80, 200, 80)', false, this.options.lineWidth / 50);
         }

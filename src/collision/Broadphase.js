@@ -21,21 +21,23 @@ export class Broadphase extends Phase {
 
 
         for (const pair of this.pairs.values()) {
-            const isSleeping = pair.bodyA.sleepState === Sleeping.SLEEPING && pair.bodyB.sleepState === Sleeping.SLEEPING;
+            const isSleeping =
+            pair.bodyA.sleepState === Sleeping.SLEEPING &&
+            pair.bodyB.sleepState === Sleeping.SLEEPING;
+
             if (pair.isSleeping && isSleeping) {
                 pair.prev.isSleeping = true;
                 continue;
             }
             pair.updatePrev();
 
-            pair.isActive = false;
             pair.isSleeping = isSleeping;
 
             pair.activeShapePairs.length = 0;
+            this.activePairsCount = 0;
 
             for (const shapePair of pair.shapePairs.values()) {
                 shapePair.updatePrev();
-                shapePair.isActive = false;
             }
         }
 
@@ -63,48 +65,21 @@ export class Broadphase extends Phase {
             }
         }
 
-        for (const m of this.grid.values()) {
-            const cell = [...m.values()];
-            m.render = false;
-            if (cell.length < 2) continue;
-            for (let i = 0; i < cell.length; ++i) {
-                for (let j = i + 1; j < cell.length; ++j) {
-                    const comp = cell[i].body.id > cell[j].body.id
-                    const shapeA = cell[comp ? i : j];
-                    const shapeB = cell[!comp ? i : j];
-                    const bodyA = shapeA.body;
-                    const bodyB = shapeB.body;
+        for (const pair of this.pairs.values()) {
+            pair.isActive = false;
+            
+            for (const shapePair of pair.shapePairs.values()) {
+                shapePair.isActive = shapePair.isActiveBroadphase;
 
-                    if (bodyA === bodyB) continue;
-
-                    if ((bodyA.isStatic && bodyB.isStatic)) continue;
-                    
-                    const collisionId = Common.combineId(bodyA.id, bodyB.id);
-                    const c = this.pairs.get(collisionId);
-                    
-                    const pair = c || new Pair(bodyA, bodyB);
-                    if (!c) {
-                        this.pairs.set(collisionId, pair);
-                    }
-
-                    if (!(pair.isSleeping && pair.prev.isSleeping)) {
-                        pair.isActive = true;
-
-                        const id = Common.combineId(shapeA.id, shapeB.id);
-                        const s = pair.shapePairs.get(id);
-                        const shapePair = s || new ShapePair(shapeA, shapeB);
-                        shapePair.isActive = true;
-
-                        if (!s) {
-                            pair.shapePairs.set(id, shapePair);
-                        }
-                    }   
-                    this.activePairsCount += 1;
-                    
-                    m.render = true;
-
+                if (shapePair.isActiveBroadphase) {
+                    pair.isActive = true;
                 }
             }
+
+            if (pair.isActive) {
+                this.activePairsCount += 1;
+            }
+
         }
         
         return this.pairs;
@@ -137,6 +112,51 @@ export class Broadphase extends Phase {
         return output;
     }
 
+    createShapePair (shapeA_, shapeB_) {
+        const comp = shapeA_.body.id > shapeB_.body.id;
+        const shapeA = comp ? shapeA_ : shapeB_;
+        const shapeB = !comp ? shapeA_ : shapeB_;
+
+        const bodyA = shapeA.body;
+        const bodyB = shapeB.body;
+
+        if ((bodyA === bodyB) || (bodyA.isStatic && bodyB.isStatic)) return;
+        
+        const PairId = Common.combineId(bodyA.id, bodyB.id);
+        const c = this.pairs.get(PairId);
+        
+        const pair = c || new Pair(bodyA, bodyB);
+        if (!c) {
+            this.pairs.set(PairId, pair);
+        }
+
+        if (!(pair.isSleeping && pair.prev.isSleeping)) {
+            const shapePairId = Common.combineId(shapeA.id, shapeB.id);
+            const s = pair.shapePairs.get(shapePairId);
+            const shapePair = s || new ShapePair(shapeA, shapeB);
+            shapePair.isActiveBroadphase = true;
+
+            if (!s) {
+                pair.shapePairs.set(shapePairId, shapePair);
+            }
+            return shapePair;
+        }
+    }
+
+    getShapePair (shapeA, shapeB) {
+        const bodyA = shapeA.body;
+        const bodyB = shapeB.body;
+
+        if ((bodyA === bodyB) || (bodyA.isStatic && bodyB.isStatic)) return;
+
+        const pairId = Common.combineId(bodyA.id, bodyB.id);
+        const pair = this.pairs.get(pairId);
+        if (!pair) return;
+
+        const shapePairId = Common.combineId(shapeA.id, shapeB.id);
+        return pair.shapePairs.get(shapePairId);
+    }
+
     createCell (position) {
         const cell = new Map();
         this.grid.set(position, cell);
@@ -151,6 +171,13 @@ export class Broadphase extends Phase {
             return;
         }
 
+        for (const shapeB of cell.values()) {
+            const shapePair = this.createShapePair(shapeB, shape);
+            if (shapePair) {
+                shapePair.broadphaseCellsCount += 1;
+            }
+        }
+
         cell.set(shape.id, shape);
     }
 
@@ -158,6 +185,18 @@ export class Broadphase extends Phase {
         const cell = this.grid.get(position);
         if (!cell) return;
         cell.delete(shape.id);
+
+        for (const shapeB of cell.values()) {
+            const shapePair = this.getShapePair(shape, shapeB);
+            if (shapePair) {
+                shapePair.broadphaseCellsCount -= 1;
+
+                if (shapePair.broadphaseCellsCount <= 0) {
+                    shapePair.isActiveBroadphase = false;
+                }
+            }
+        }
+
         if (cell.size === 0) {
             this.grid.delete(position);
         }
