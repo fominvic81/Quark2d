@@ -1,5 +1,5 @@
-import { Vector } from '../math/Vector';
-import { Sleeping } from '../body/Sleeping';
+import { Vector } from '../../math/Vector';
+import { Sleeping } from '../../body/Sleeping';
 
 export class Solver {
 

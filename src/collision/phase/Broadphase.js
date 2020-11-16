@@ -1,7 +1,7 @@
 import { Phase } from './Phase';
-import { Pair } from '../Pair';
+import { Pair } from '../pair/Pair';
+import { ShapePair } from '../pair/ShapePair';
 import { Common } from '../../common/Common';
-import { ShapePair } from '../ShapePair';
 import { Grid } from '../../common/Grid';
 import { Vector } from '../../math/Vector';
 import { Bounds } from '../../math/Bounds';

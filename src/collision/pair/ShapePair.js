@@ -1,5 +1,5 @@
-import { Common } from '../common/Common';
-import { Vector } from '../math/Vector';
+import { Common } from '../../common/Common';
+import { Vector } from '../../math/Vector';
 import { Contact } from './Contact';
 
 

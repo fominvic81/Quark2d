@@ -30,11 +30,11 @@ import { Broadphase } from './collision/phase/broadphase';
 import { Midphase } from './collision/phase/Midphase';
 import { Narrowphase } from './collision/phase/narrowphase/Narrowphase';
 
-import { Contact } from './collision/Contact';
-import { Pair } from './collision/Pair';
-import { ShapePair } from './collision/ShapePair';
+import { Contact } from './collision/pair/Contact';
+import { Pair } from './collision/pair/Pair';
+import { ShapePair } from './collision/pair/ShapePair';
 
-import { Solver } from './collision/Solver';
+import { Solver } from './collision/solver/Solver';
 
 import { Equation } from './constraint/equation/Equation';
 import { DistanceEquation } from './constraint/equation/DistanceEquation';

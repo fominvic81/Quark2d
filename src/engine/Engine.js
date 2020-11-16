@@ -3,7 +3,7 @@ import { Vector } from '../math/Vector';
 import { Broadphase } from '../collision/phase/broadphase';
 import { Midphase } from '../collision/phase/Midphase';
 import { Narrowphase } from '../collision/phase/narrowphase/Narrowphase';
-import { Solver } from '../collision/Solver';
+import { Solver } from '../collision/solver/Solver';
 import { Events } from '../common/Events';
 import { Sleeping } from '../body/Sleeping';
 
