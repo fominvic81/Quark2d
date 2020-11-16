@@ -1,5 +1,5 @@
 import { Phase } from './Phase';
-import { Filter } from '../body/Filter';
+import { Filter } from '../../body/Filter';
 
 export class Midphase extends Phase {
 

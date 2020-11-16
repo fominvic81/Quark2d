@@ -1,19 +1,16 @@
-import { Shape } from "../../body/shapes/Shape";
-import { Vector } from "../../math/Vector";
-import { Vertices } from "../../math/Vertices";
+import { Vector } from '../../../math/Vector';
+import { Vertices } from '../../../math/Vertices';
 
+export const ConvexVsConvex = (shapePair) => {
 
-export const ConvexVsAAB = (shapePair) => {
-
-    const a = shapePair.shapeA.type === Shape.CONVEX;
-    const shapeA = a ? shapePair.shapeA : shapePair.shapeB; // convex
-    const shapeB = a ? shapePair.shapeB : shapePair.shapeA; // AAB
+    const shapeA = shapePair.shapeA;
+    const shapeB = shapePair.shapeB;
     let minOverlap;
-
-    const overlapA = findMinOverlapNormalAAB(shapeA, shapeB);
+    
+    const overlapA = findMinOverlapNormal(shapeA, shapeB, shapeA.getWorldNormals());
     if (overlapA.overlap <= 0) return shapePair;
 
-    const overlapB = findMinOverlapNormal(shapeA, shapeB, shapeA.getWorldNormals());
+    const overlapB = findMinOverlapNormal(shapeA, shapeB, shapeB.getWorldNormals());
     if (overlapB.overlap <= 0) return shapePair;
 
     if (overlapA.overlap < overlapB.overlap) {
@@ -27,14 +24,14 @@ export const ConvexVsAAB = (shapePair) => {
 
     Vector.clone(minOverlap.normal, shapePair.normal);
 
-    if (Vector.dot(shapePair.normal, Vector.subtract(shapePair.shapeA.getWorldPosition(), shapePair.shapeB.getWorldPosition(), Vector.temp[0])) > 0) {
+    if (Vector.dot(shapePair.normal, Vector.subtract(shapeA.getWorldPosition(), shapeB.getWorldPosition(), Vector.temp[0])) > 0) {
         Vector.neg(shapePair.normal);
     }
 
     // find contacts
     shapePair.contactsCount = 0;
-    const verticesA = shapePair.shapeA.getWorldVertices();
-    const verticesB = shapePair.shapeB.getWorldVertices();
+    const verticesA = shapeA.getWorldVertices();
+    const verticesB = shapeB.getWorldVertices();
 
     const supportsA = findSupports(verticesA, shapePair.normal);
     for (const support of supportsA) {
@@ -81,41 +78,6 @@ const findMinOverlapNormal = (shapeA, shapeB, normals) => {
             minOverlap.overlap = overlap;
             minOverlap.normal = normal;
         }
-    }
-
-    return minOverlap;
-}
-
-const findMinOverlapNormalAAB = (shapeA, shapeB) => {
-
-    const minOverlap = {};
-
-    const projectionXA = shapeA.projectOnAxisX();
-    const projectionXB = shapeB.projectOnAxisX();
-
-    const overlapX = Math.min(projectionXA.max - projectionXB.min, projectionXB.max - projectionXA.min);
-
-    if (overlapX <= 0) {
-        minOverlap.overlap = overlapX;
-        return minOverlap;
-    }
-
-    const projectionYA = shapeA.projectOnAxisY();
-    const projectionYB = shapeB.projectOnAxisY();
-
-    const overlapY = Math.min(projectionYA.max - projectionYB.min, projectionYB.max - projectionYA.min);
-
-    if (overlapY <= 0) {
-        minOverlap.overlap = overlapY;
-        return minOverlap;
-    }
-
-    if (overlapX < overlapY) {
-        minOverlap.overlap = overlapX;
-        minOverlap.normal = new Vector(1, 0);
-    } else {
-        minOverlap.overlap = overlapY;
-        minOverlap.normal = new Vector(0, 1);
     }
 
     return minOverlap;

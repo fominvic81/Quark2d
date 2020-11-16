@@ -1,4 +1,4 @@
-import { Shape } from '../../body/shapes/Shape';
+import { Shape } from '../../../body/shapes/Shape';
 import { AABVsAAB } from './AABVsAAB';
 import { CircleVsAAB } from './CircleVsAAB';
 import { CircleVsCircle } from './CircleVsCircle';

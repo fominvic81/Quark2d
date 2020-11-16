@@ -17,18 +17,18 @@ import { Grid } from './common/Grid';
 import { Events } from './common/Events';
 import { Composite } from './common/Composite';
 
-import { AABVsAAB } from './collision/narrowphase/AABVsAAB';
-import { CircleVsAAB } from './collision/narrowphase/CircleVsAAB';
-import { CircleVsCircle } from './collision/narrowphase/CircleVsCircle';
-import { ConvexVsAAB } from './collision/narrowphase/ConvexVsAAB';
-import { ConvexVsCircle } from './collision/narrowphase/ConvexVsCircle';
-import { ConvexVsConvex } from './collision/narrowphase/ConvexVsConvex';
-import { Colliders } from './collision/narrowphase/Colliders';
+import { AABVsAAB } from './collision/phase/narrowphase/AABVsAAB';
+import { CircleVsAAB } from './collision/phase/narrowphase/CircleVsAAB';
+import { CircleVsCircle } from './collision/phase/narrowphase/CircleVsCircle';
+import { ConvexVsAAB } from './collision/phase/narrowphase/ConvexVsAAB';
+import { ConvexVsCircle } from './collision/phase/narrowphase/ConvexVsCircle';
+import { ConvexVsConvex } from './collision/phase/narrowphase/ConvexVsConvex';
+import { Colliders } from './collision/phase/narrowphase/Colliders';
 
-import { Phase } from './collision/Phase';
-import { Broadphase } from './collision/broadphase';
-import { Midphase } from './collision/midphase';
-import { Narrowphase } from './collision/narrowphase/Narrowphase';
+import { Phase } from './collision/phase/Phase';
+import { Broadphase } from './collision/phase/broadphase';
+import { Midphase } from './collision/phase/Midphase';
+import { Narrowphase } from './collision/phase/narrowphase/Narrowphase';
 
 import { Contact } from './collision/Contact';
 import { Pair } from './collision/Pair';

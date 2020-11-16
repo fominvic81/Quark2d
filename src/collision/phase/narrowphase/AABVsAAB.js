@@ -1,5 +1,5 @@
-import { Vector } from '../../math/Vector';
-import { Common } from '../../common/Common';
+import { Vector } from '../../../math/Vector';
+import { Common } from '../../../common/Common';
 
 
 export const AABVsAAB = (shapePair) => {

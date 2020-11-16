@@ -1,8 +1,8 @@
 import { Composite } from '../common/Composite';
 import { Vector } from '../math/Vector';
-import { Broadphase } from '../collision/broadphase';
-import { Midphase } from '../collision/midphase';
-import { Narrowphase } from '../collision/narrowphase/Narrowphase';
+import { Broadphase } from '../collision/phase/broadphase';
+import { Midphase } from '../collision/phase/Midphase';
+import { Narrowphase } from '../collision/phase/narrowphase/Narrowphase';
 import { Solver } from '../collision/Solver';
 import { Events } from '../common/Events';
 import { Sleeping } from '../body/Sleeping';

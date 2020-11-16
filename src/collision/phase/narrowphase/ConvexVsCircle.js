@@ -1,5 +1,5 @@
-import { Vector } from '../../math/Vector';
-import { Shape } from '../../body/shapes/Shape';
+import { Vector } from '../../../math/Vector';
+import { Shape } from '../../../body/shapes/Shape';
 
 export const ConvexVsCircle = (shapePair) => {
 

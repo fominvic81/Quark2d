@@ -1,11 +1,11 @@
 import { Phase } from './Phase';
-import { Pair } from './Pair';
-import { Common } from '../common/Common';
-import { ShapePair } from './ShapePair';
-import { Grid } from '../common/Grid';
-import { Vector } from '../math/Vector';
-import { Bounds } from '../math/Bounds';
-import { Sleeping } from '../body/Sleeping';
+import { Pair } from '../Pair';
+import { Common } from '../../common/Common';
+import { ShapePair } from '../ShapePair';
+import { Grid } from '../../common/Grid';
+import { Vector } from '../../math/Vector';
+import { Bounds } from '../../math/Bounds';
+import { Sleeping } from '../../body/Sleeping';
 
 export class Broadphase extends Phase {
 

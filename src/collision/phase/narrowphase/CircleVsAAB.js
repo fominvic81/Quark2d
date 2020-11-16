@@ -1,6 +1,6 @@
-import { Vector } from '../../math/Vector';
-import { Common } from '../../common/Common';
-import { Shape } from '../../body/shapes/Shape';
+import { Vector } from '../../../math/Vector';
+import { Common } from '../../../common/Common';
+import { Shape } from '../../../body/shapes/Shape';
 
 export const CircleVsAAB = (shapePair) => {
     
