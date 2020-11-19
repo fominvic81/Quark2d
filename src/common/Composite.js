@@ -73,6 +73,14 @@ export class Composite {
         }
     }
 
+    getBody (id) {
+        return this.bodies.get(id);
+    }
+
+    hasBody (id) {
+        return this.bodies.has(id);
+    }
+
     allBodies () {
         let allBodies = [...this.bodies.values()];
         
@@ -120,6 +128,15 @@ export class Composite {
                 stack.push(composite1);
             }
         }
+    }
+
+
+    getConstraint (id) {
+        return this.constraints.get(id);
+    }
+
+    hasConstraint (id) {
+        return this.constraints.has(id);
     }
 
     allConstraints () {
