@@ -1,5 +1,6 @@
 import { Shape } from './Shape';
 import { Vector } from '../../math/Vector';
+import { Common } from '../../common/Common';
 
 export class AAB extends Shape {
 
@@ -103,4 +104,34 @@ export class AAB extends Shape {
         this.bounds.translate(this.getWorldPosition());
         return this.bounds;
     }
+
+    raycast (intersection, from, to, delta) {
+        const vertices = this.getWorldVertices();
+
+        let contact = intersection.contacts[intersection.contactsCount];
+
+        let prevVertex = vertices[vertices.length - 1];
+        for (const vertex of vertices) {
+
+
+            const point = Vector.lineLineIntersection(prevVertex, vertex, from, to, contact.point);
+            if (point) {
+
+                if (prevVertex.index % 2 === 0) {
+                    Vector.set(contact.normal, 0, -Common.sign(delta.y));
+                } else {
+                    Vector.set(contact.normal, -Common.sign(delta.x), 0);                   
+                }
+
+                intersection.contactsCount += 1;
+                contact = intersection.contacts[intersection.contactsCount];
+            }
+            if (intersection.contactsCount >= 2) break;
+
+            prevVertex = vertex;
+        }
+
+        return intersection;
+    }
+
 }

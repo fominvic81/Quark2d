@@ -19,7 +19,7 @@ export class Render {
             translate: new Vector(),
             bounds: new Bounds(),
             lineWidth: 1,
-            backgroundColor: options.backgroundColor || 'rgb(16, 24, 24)',
+            backgroundColor: options.backgroundColor || 'rgb(48, 48, 48)',
             showBodies: options.showBodies !== undefined ? options.showBodies : true,
             showConstraints: options.showConstraints !== undefined ? options.showConstraints : true,
             showAngleIndicator: options.showAngleIndicator !== undefined ? options.showAngleIndicator : true,
@@ -306,7 +306,14 @@ export class Render {
             const bounds = body.getBounds();
             const width = bounds.max.x - bounds.min.x;
             const height = bounds.max.y - bounds.min.y;
-            Draw.rect(this.ctx, Vector.set(Vector.temp[0], bounds.min.x + width / 2, bounds.min.y + height / 2), width, height, 0, 'rgb(48, 48, 48)', false, this.options.lineWidth / 50);
+            Draw.rect(this.ctx, Vector.set(Vector.temp[0], bounds.min.x + width / 2, bounds.min.y + height / 2), width, height, 0, 'rgb(96, 96, 96)', false, this.options.lineWidth / 25);
+
+            for (const shape of body.shapes) {
+                const shapeBounds = shape.getBounds();
+                const shapeWidth = shapeBounds.max.x - shapeBounds.min.x;
+                const shapeHeight = shapeBounds.max.y - shapeBounds.min.y;
+                Draw.rect(this.ctx, Vector.set(Vector.temp[0], shapeBounds.min.x + shapeWidth / 2, shapeBounds.min.y + shapeHeight / 2), shapeWidth, shapeHeight, 0, 'rgb(96, 96, 96)', false, this.options.lineWidth / 50);
+            }
         }
     }
 
@@ -373,7 +380,7 @@ export class Render {
             this.statusText += `constraintIterations: ${this.engine.solver.constraintIterations}   `;
         }
 
-        this.ctx.font = "12px Arial";
+        this.ctx.font = '12px Arial';
 
         this.ctx.fillStyle = 'rgb(128, 128, 128)';
         this.ctx.fillText(this.statusText, 20, 20, this.canvas.width - 50);

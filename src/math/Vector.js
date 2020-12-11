@@ -110,6 +110,12 @@ export class Vector {
         return (Math.abs(vectorA.x / vectorA.y - vectorB.x / vectorB.y) < 0.0001) || (vectorA.y === 0 && vectorB.y === 0);
     }
 
+    static interpolate (vectorA, vectorB, t, output) {
+        output.x = vectorA.x + t * (vectorB.x - vectorA.x);
+        output.y = vectorA.y + t * (vectorB.y - vectorA.y);
+        return output;
+    }
+
     static rayRayIntersectionPoint (start1, end1, start2, end2, output = new Vector()) {
         
         const a1 = end1.y - start1.y; 
@@ -131,30 +137,40 @@ export class Vector {
         }
     }
 
+    static lineLineIntersection (start1, end1, start2, end2, output) {
+        const t = Vector.lineLineIntersectionFraction(start1, end1, start2, end2);
+        if(t < 0){
+            return false;
+        } else {
+            output.x = start1.x + (t * (end1.x - start1.x));
+            output.y = start1.y + (t * (end1.y - start1.y));
+            return output;
+        }
+    };
+
+    static lineLineIntersectionFraction (start1, end1, start2, end2) {
+        const deltaX1 = end1.x - start1.x;
+        const deltaY1 = end1.y - start1.y;
+        const deltaX2 = end2.x - start2.x;
+        const deltaY2 = end2.y - start2.y;
+
+        const deltaStartX = start1.y - start2.y;
+        const deltaStartY = start1.x - start2.x;
+    
+        const determinant = deltaX1 * deltaY2 - deltaX2 * deltaY1;
+    
+        let a = (deltaX1 * deltaStartX - deltaY1 * deltaStartY) / determinant;
+        if (a < 0 || a > 1) return -1;
+        let b = (deltaX2 * deltaStartX - deltaY2 * deltaStartY) / determinant;
+        if (b < 0 || b > 1) return -1;
+        return b;
+    };
+
     static getSide (vector, point) {
         const cross = Vector.cross(vector, point);
         if (cross > 0.001) return 1; // right
         if (cross < -0.001) return -1; // left
         return 0; // on
-    }
-
-    static lineLineIntersection (start1, end1, start2, end2) {
-        
-        const vector = Vector.subtract(end1, start1, Vector.temp[0]);
-        const start = Vector.subtract(start2, start1, Vector.temp[1]);
-        const end = Vector.subtract(end2, start1, Vector.temp[2]);
-
-        if (Vector.getSide(vector, start) !== Vector.getSide(vector, end)) {
-
-            Vector.subtract(end2, start2, vector);
-            Vector.subtract(start1, start2, start);
-            Vector.subtract(end1, start2, end);
-
-            if (Vector.getSide(vector, start) !== Vector.getSide(vector, end)) {
-                return true;
-            }
-        }
-        return false;
     }
 };
 

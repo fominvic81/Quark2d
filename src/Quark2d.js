@@ -36,6 +36,10 @@ import { ShapePair } from './collision/pair/ShapePair';
 
 import { Solver } from './collision/solver/Solver';
 
+import { Ray } from './collision/ray/Ray';
+import { RaycastResult } from './collision/ray/RaycastResult';
+import { Intersection } from './collision/ray/Intersection';
+
 import { Equation } from './constraint/equation/Equation';
 import { DistanceEquation } from './constraint/equation/DistanceEquation';
 import { AngleEquation } from './constraint/equation/AngleEquation';
@@ -50,7 +54,6 @@ import { Render } from './tools/render/Render';
 import { Draw } from './tools/render/Draw';
 
 import { Runner } from './tools/runner/Runner';
-
 
 export {
     Composite,
@@ -89,6 +92,10 @@ export {
     ShapePair,
 
     Solver,
+
+    Ray,
+    RaycastResult,
+    Intersection,
 
     Equation,
     DistanceEquation,

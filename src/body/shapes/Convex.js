@@ -202,4 +202,34 @@ export class Convex extends Shape {
             Vector.subtract(vertex, center);
         }
     }
+
+    raycast (intersection, from, to, delta) {
+        const vertices = this.getWorldVertices();
+        const normals = this.getWorldNormals(false);
+
+        let contact = intersection.contacts[intersection.contactsCount];
+
+        let prevVertex = vertices[vertices.length - 1];
+        for (const vertex of vertices) {
+
+
+            const point = Vector.lineLineIntersection(prevVertex, vertex, from, to, contact.point);
+            if (point) {
+
+                Vector.clone(normals[prevVertex.index], contact.normal);
+                if (Vector.dot(delta, contact.normal) > 0) {
+                    Vector.neg(contact.normal);
+                }
+
+                intersection.contactsCount += 1;
+                contact = intersection.contacts[intersection.contactsCount];
+
+            }
+            if (intersection.contactsCount >= 2) break;
+
+            prevVertex = vertex;
+        }
+
+        return intersection;
+    }
 }
