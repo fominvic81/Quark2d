@@ -165,7 +165,6 @@ export class Ray {
                         intersection = new Intersection(body, shape);
                         intersections.set(id, intersection);
                     }
-                    intersection.set(this.from, this.to, this.delta);
                     intersection.isActive = true;
                 }
             }
