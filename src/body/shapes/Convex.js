@@ -9,18 +9,10 @@ export class Convex extends Shape {
 
         this.label = 'convex'
         this.type = Shape.CONVEX;
-        this.vertices = [];
+        this.vertices = options.vertices || Convex.DEFAULT_VERTICES;
 
-        if (options.vertices) {
-            for (const vertex of options.vertices) {
-                this.vertices.push(Vector.clone(vertex));
-            }
-        } else {
-            this.vertices.push(new Vector(-1, -1));
-            this.vertices.push(new Vector(1, -1));
-            this.vertices.push(new Vector(1, 1));
-            this.vertices.push(new Vector(-1, 1));
-        }
+        this.worldVertices = new Vertices(this.vertices);
+        this.vertices = new Vertices(this.vertices);
 
         this.updateArea();
         if (this.area <= 0) {
@@ -30,22 +22,11 @@ export class Convex extends Shape {
 
         this.updateCenterOfMass();
 
-        this.updateVertices();
-
         this.createNormals();
 
 
         if (!this.inertia) {
             this.inertia = this.updateInertia();
-        }
-    }
-
-    updateVertices () {
-        this.worldVertices = [];
-        for (let i = 0; i < this.vertices.length; ++i) {
-            this.worldVertices.push(Vector.clone(this.vertices[i]));
-            this.vertices[i].index = i;
-            this.worldVertices[i].index = i;
         }
     }
 
@@ -62,27 +43,14 @@ export class Convex extends Shape {
         this.allNormals = [];
         const normals = {};
 
-        for (let i = 0; i < this.vertices.length; ++i) {
-            const j = (i + 1) % this.vertices.length;
-            const normal = Vector.subtract(this.vertices[i], this.vertices[j], new Vector());
-            Vector.rotate90(normal);
-            Vector.normalise(normal);
-            normal.index = i;
+        Vertices.normals(this.vertices, this.allNormals);
 
-            this.allNormals.push(normal);
-
+        for (const normal of this.allNormals) {
             let gradient = normal.y === 0 ? Infinity : normal.x / normal.y; // if normal.y === 0, then always positive number(Infinity)
             normals[gradient.toFixed(2)] = normal;
-            
         }
 
         this.normals = Object.values(normals);
-
-        for (let i = 0; i < this.normals.length; ++i) {
-            const index = this.normals[i].index;
-            this.normals[i] = Vector.clone(this.normals[i]);
-            this.normals[i].index = index;
-        }
         
         this.worldNormals = [];
         
@@ -233,3 +201,5 @@ export class Convex extends Shape {
         return intersection;
     }
 }
+
+Convex.DEFAULT_VERTICES = [new Vector(-1, -1), new Vector(1, -1), new Vector(1, 1), new Vector(-1, 1)];
