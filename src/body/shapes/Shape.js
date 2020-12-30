@@ -2,7 +2,7 @@ import { Vector } from '../../math/Vector';
 import { Bounds } from '../../math/Bounds';
 import { Common } from '../../common/Common';
 import { Filter } from '../Filter';
-
+import { Solver } from '../../collision/solver/Solver';
 
 export class Shape {
 
@@ -16,6 +16,7 @@ export class Shape {
         this.angle = 0;
         this.inertia = options.inertia;
         this.area = 0;
+        this.radius = options.radius !== undefined ? options.radius + Solver.SLOP / 2 : Solver.SLOP / 2;
         this.filter = new Filter();
         if (options.filter) {
             if (options.filter.category !== undefined) this.filter.category = options.filter.category;
@@ -49,6 +50,5 @@ export class Shape {
 
 }
 
-Shape.AAB = Math.pow(2, 0);
-Shape.CIRCLE = Math.pow(2, 1);
-Shape.CONVEX = Math.pow(2, 2);
+Shape.CIRCLE = Math.pow(2, 0);
+Shape.CONVEX = Math.pow(2, 1);

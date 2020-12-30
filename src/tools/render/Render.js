@@ -6,6 +6,7 @@ import { Mouse } from '../mouse/Mouse';
 import { Sleeping } from '../../body/Sleeping';
 import { Equation } from '../../constraint/equation/Equation';
 import { Bounds } from '../../math/Bounds';
+import { Solver } from '../../collision/solver/Solver';
 
 export class Render {
 
@@ -23,8 +24,9 @@ export class Render {
             showBodies: options.showBodies !== undefined ? options.showBodies : true,
             showConstraints: options.showConstraints !== undefined ? options.showConstraints : true,
             showAngleIndicator: options.showAngleIndicator !== undefined ? options.showAngleIndicator : true,
-            showCollisions: options.showCollisions !== undefined ? options.showCollisions : false,
             showSleeping: options.showSleeping !== undefined ? options.showSleeping : true,
+            showRadius: options.showRadius !== undefined ? options.showRadius : true,
+            showCollisions: options.showCollisions !== undefined ? options.showCollisions : false,
             showNormals: options.showNormals !== undefined ? options.showNormals : false,
             showBounds: options.showBounds !== undefined ? options.showBounds : false,
             showPositionImpulses: options.showPositionImpulses !== undefined ? options.showPositionImpulses : false,
@@ -33,6 +35,7 @@ export class Render {
             showBroadphaseGrid: options.showBroadphaseGrid !== undefined ? options.showBroadphaseGrid: false,
             showPositions: options.showPositions !== undefined ? options.showPositions : false,
             showConstraintBounds: options.showConstraintBounds !== undefined ? options.showConstraintBounds : false,
+            showVertexIds: options.showVertexIds !== undefined ? options.showVertexIds : false,
 
             showStatus: options.showStatus !== undefined ? options.showStatus : false,
         }
@@ -120,6 +123,9 @@ export class Render {
         if (this.options.showPositions) {
             this.positions(bodies);
         }
+        if (this.options.showVertexIds) {
+            this.vertexIds(bodies);
+        }
         
         this.events.trigger('after-step', [{render: this, timestamp}]);
         
@@ -144,12 +150,14 @@ export class Render {
             const color = (body.sleepState === Sleeping.AWAKE || !this.options.showSleeping) ? 'rgb(200, 200, 200)' : 'rgb(100, 100, 100)';
             for (const shape of body.shapes) {
                 const pos = shape.getWorldPosition();
-                if (shape.type === Shape.AAB) {
-                    Draw.rect(this.ctx, pos, shape.width, shape.height, 0, color, false, this.options.lineWidth / 20);
-                } else if (shape.type === Shape.CIRCLE) {
-                    Draw.circle(this.ctx, pos, shape.radius, color, false, this.options.lineWidth / 20);
+                if (shape.type === Shape.CIRCLE) {
+                    Draw.circle(this.ctx, pos, Math.max(shape.radius - Solver.SLOP / 2, 0.00001), color, false, this.options.lineWidth / 20);
                 } else if (shape.type === Shape.CONVEX) {
-                    Draw.polygon(this.ctx, shape.getWorldVertices(), color, false, this.options.lineWidth / 20);
+                    if (this.options.showRadius) {
+                        this.convex(shape, color, false, this.options.lineWoidth / 20);
+                    } else {
+                        Draw.polygon(this.ctx, shape.getWorldVertices(), color, false, this.options.lineWidth / 20);
+                    }
                 }
             }
         }
@@ -245,13 +253,7 @@ export class Render {
                 const pos = shape.getWorldPosition();
                 const angle = shape.getWorldAngle();
 
-                if (shape.type === Shape.AAB) {
-                    Draw.line(this.ctx, pos, Vector.add(Vector.set(
-                        Vector.temp[0],
-                        shape.width / 2,
-                        0,
-                    ), pos), 'rgb(200, 200, 200)', this.options.lineWidth / 10);
-                } else if (shape.type === Shape.CIRCLE) {
+                if (shape.type === Shape.CIRCLE) {
                     Draw.line(this.ctx, pos, Vector.add(Vector.set(
                         Vector.temp[0],
                         Math.cos(angle) * shape.radius,
@@ -352,6 +354,21 @@ export class Render {
         }
     }
 
+    vertexIds (bodies) {
+        for (const body of bodies) {
+            for (const shape of body.shapes) {
+                if (shape.type === Shape.CONVEX) {
+                    const vertices = shape.getWorldVertices();
+                    for (const vertex of vertices) {
+                        this.ctx.font = '0.5px Arial';
+                        this.ctx.fillStyle = 'rgb(128, 128, 128)';
+                        this.ctx.fillText(vertex.index, vertex.x, vertex.y);
+                    }
+                }
+            }
+        }
+    }
+
     status () {
 
 
@@ -441,4 +458,50 @@ export class Render {
         canvas.oncontextmenu = function() { return false; };
         return canvas;
     }
+
+    convex (convex, color, fill = true, lineWidth = 1) {
+
+        const radius = convex.radius - Solver.SLOP / 2;
+        const vertices = convex.getWorldVertices();
+        if (radius <= 0.000001) {
+            Draw.polygon(this.ctx, vertices, color, fill, lineWidth);
+            return;
+        }
+        
+        const normals = convex.getWorldNormals(false);
+    
+        const first = Vector.add(vertices[0], Vector.scale(normals[vertices.length - 1], radius, Vector.temp[0]), Vector.temp[0]);
+
+        this.ctx.beginPath();
+    
+        this.ctx.moveTo(first.x, first.y);
+
+        let prevOffset = Vector.scale(normals[vertices.length - 1], radius, Vector.temp[0]);
+
+        for (let i = 0; i < vertices.length; ++i) {
+            const offset = Vector.scale(normals[i], radius, Vector.temp[1]);
+
+            const p1 = Vector.add(vertices[i], prevOffset, Vector.temp[2]);
+
+            this.ctx.lineTo(p1.x, p1.y);
+
+            const angle1 = Math.atan2(prevOffset.y, prevOffset.x);
+            const angle2 = Math.atan2(offset.y, offset.x);
+            
+            this.ctx.arc(vertices[i].x, vertices[i].y, radius, angle1, angle2);
+            Vector.clone(offset, prevOffset);
+        }
+
+        this.ctx.closePath();
+
+        if (fill) {
+            this.ctx.fillStyle = color;
+            this.ctx.fill();
+        } else {
+            this.ctx.lineWidth = lineWidth;
+            this.ctx.strokeStyle = color;
+            this.ctx.stroke();
+        }
+    }
+
 }

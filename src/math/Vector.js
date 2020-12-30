@@ -55,6 +55,14 @@ export class Vector {
         return output;
     }
 
+    static dist (vectorA, vectorB) {
+        return Math.sqrt(Math.pow((vectorA.x - vectorB.x), 2) + Math.pow((vectorA.y - vectorB.y), 2));
+    }
+
+    static distSquared (vectorA, vectorB) {
+        return Math.pow((vectorA.x - vectorB.x), 2) + Math.pow((vectorA.y - vectorB.y), 2);
+    }
+
     static dot (vectorA, vectorB) {
         return (vectorA.x * vectorB.x) + (vectorA.y * vectorB.y);
     }

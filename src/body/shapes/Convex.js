@@ -15,10 +15,6 @@ export class Convex extends Shape {
         this.vertices = new Vertices(this.vertices);
 
         this.updateArea();
-        if (this.area <= 0) {
-            this.area = -this.area;
-            this.vertices.reverse();
-        }
 
         this.updateCenterOfMass();
 
@@ -88,18 +84,33 @@ export class Convex extends Shape {
         const min = Vector.dot(worldVertices[0], vector);
         const projection = {
             min,
+            minIndex: 0,
             max: min,
+            maxIndex: 0,
         };
 
-        for (const vertex of worldVertices) {
+        const ld = Vector.dot(worldVertices[worldVertices.length - 1], vector);
+
+        if (Math.abs(ld - min) < 0.000001) {
+            projection.minIndex = worldVertices.length - 1;
+            projection.maxIndex = worldVertices.length - 1;
+        }
+
+        for (let i = 1; i < worldVertices.length; ++i) {
+            const vertex = worldVertices[i];
             const dot = Vector.dot(vertex, vector);
 
-            if (dot > projection.max) { 
-                projection.max = dot; 
-            } else if (dot < projection.min) { 
-                projection.min = dot; 
+            if (dot > projection.max + 0.000001) {
+                projection.max = dot;
+                projection.maxIndex = vertex.index;
+            } else if (dot < projection.min - 0.000001) {
+                projection.min = dot;
+                projection.minIndex = vertex.index;
             }
         }
+
+        projection.min -= this.radius;
+        projection.max += this.radius;
 
         return projection;
     }
@@ -109,7 +120,9 @@ export class Convex extends Shape {
         const min = worldVertices[0].x;
         const projection = {
             min,
+            minIndex: 0,
             max: min,
+            maxIndex: 0,
         };
 
         for (const vertex of worldVertices) {
@@ -117,10 +130,15 @@ export class Convex extends Shape {
 
             if (dot > projection.max) { 
                 projection.max = dot; 
+                projection.maxIndex = vertex.index;
             } else if (dot < projection.min) { 
                 projection.min = dot; 
+                projection.minIndex = vertex.index;
             }
         }
+
+        projection.min -= this.radius;
+        projection.max += this.radius;
 
         return projection;
     }
@@ -130,7 +148,9 @@ export class Convex extends Shape {
         const min = worldVertices[0].y;
         const projection = {
             min,
+            minIndex: 0,
             max: min,
+            maxIndex: 0,
         };
 
         for (const vertex of worldVertices) {
@@ -138,10 +158,15 @@ export class Convex extends Shape {
 
             if (dot > projection.max) { 
                 projection.max = dot; 
+                projection.maxIndex = vertex.index;
             } else if (dot < projection.min) { 
                 projection.min = dot; 
+                projection.minIndex = vertex.index;
             }
         }
+
+        projection.min -= this.radius;
+        projection.max += this.radius;
 
         return projection;
     }
@@ -158,6 +183,10 @@ export class Convex extends Shape {
 
     updateBounds () {
         this.bounds.fromVertices(this.getWorldVertices());
+        this.bounds.min.x -= this.radius;
+        this.bounds.min.y -= this.radius;
+        this.bounds.max.x += this.radius;
+        this.bounds.max.y += this.radius;
         return this.bounds;
     }
 

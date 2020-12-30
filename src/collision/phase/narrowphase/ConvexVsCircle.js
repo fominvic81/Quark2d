@@ -24,12 +24,13 @@ export const ConvexVsCircle = (shapePair) => {
             vertexIndex = normal.index;
             maxDist = dot;
         }
-
     }
+
+    const radius = shapeA.radius + shapeB.radius;
 
     const point1 = vertices[vertexIndex];
 
-    if (Vector.dot(Vector.subtract(positionB, point1, Vector.temp[1]), normals[vertexIndex]) > shapeB.radius) {
+    if (Vector.dot(Vector.subtract(positionB, point1, Vector.temp[1]), normals[vertexIndex]) > radius) {
         return shapePair;
     }
 
@@ -45,7 +46,7 @@ export const ConvexVsCircle = (shapePair) => {
 
         const distSquared = Vector.lengthSquared(shapePair.normal);
 
-        if (Math.pow(shapeB.radius, 2) < distSquared) {
+        if (Math.pow(radius, 2) < distSquared) {
             return shapePair;
         }
 
@@ -55,7 +56,7 @@ export const ConvexVsCircle = (shapePair) => {
 
         const dist = Math.sqrt(distSquared);
         
-        shapePair.depth = shapeB.radius - dist;
+        shapePair.depth = radius - dist;
         Vector.divide(shapePair.normal, dist);
         shapePair.isActive = true;
 
@@ -70,7 +71,7 @@ export const ConvexVsCircle = (shapePair) => {
 
             const distSquared = Vector.lengthSquared(shapePair.normal);
 
-            if (Math.pow(shapeB.radius, 2) < distSquared) {
+            if (Math.pow(radius, 2) < distSquared) {
                 return shapePair;
             }
 
@@ -80,7 +81,7 @@ export const ConvexVsCircle = (shapePair) => {
 
             const dist = Math.sqrt(distSquared);
             
-            shapePair.depth = shapeB.radius - dist;
+            shapePair.depth = radius - dist;
             Vector.divide(shapePair.normal, dist);
             shapePair.isActive = true;
 
@@ -92,8 +93,8 @@ export const ConvexVsCircle = (shapePair) => {
                 Vector.neg(shapePair.normal);
             }
 
-            Vector.clone(Vector.subtract(positionB, Vector.scale(normals[vertexIndex], shapeB.radius, Vector.temp[2]), Vector.temp[2]), closestPoint);
-            shapePair.depth = shapeB.radius - maxDist;
+            Vector.clone(Vector.subtract(positionB, Vector.scale(normals[vertexIndex], radius, Vector.temp[2]), Vector.temp[2]), closestPoint);
+            shapePair.depth = radius - maxDist;
             shapePair.isActive = true;
 
         }
@@ -103,8 +104,10 @@ export const ConvexVsCircle = (shapePair) => {
         Vector.neg(shapePair.normal);
     }
 
+    const offset = Vector.scale(a ? shapePair.normal : Vector.neg(shapePair.normal, Vector.temp[2]), shapeA.radius, Vector.temp[2]);
+
     shapePair.contactsCount = 1;
-    Vector.clone(closestPoint, shapePair.contacts[0].vertex)
+    Vector.clone(Vector.add(offset, closestPoint), shapePair.contacts[0].vertex)
 
     return shapePair;
 }

@@ -2,7 +2,6 @@ import { Engine } from './engine/Engine';
 
 import { Body } from './body/Body';
 import { Shape } from './body/shapes/Shape';
-import { AAB } from './body/shapes/AAB';
 import { Circle } from './body/shapes/Circle';
 import { Convex } from './body/shapes/Convex';
 import { Filter } from './body/Filter';
@@ -17,10 +16,7 @@ import { Grid } from './common/Grid';
 import { Events } from './common/Events';
 import { Composite } from './common/Composite';
 
-import { AABVsAAB } from './collision/phase/narrowphase/AABVsAAB';
-import { CircleVsAAB } from './collision/phase/narrowphase/CircleVsAAB';
 import { CircleVsCircle } from './collision/phase/narrowphase/CircleVsCircle';
-import { ConvexVsAAB } from './collision/phase/narrowphase/ConvexVsAAB';
 import { ConvexVsCircle } from './collision/phase/narrowphase/ConvexVsCircle';
 import { ConvexVsConvex } from './collision/phase/narrowphase/ConvexVsConvex';
 import { Colliders } from './collision/phase/narrowphase/Colliders';
@@ -62,7 +58,6 @@ export {
 
     Body,
     Shape,
-    AAB,
     Circle,
     Convex,
     Filter,
@@ -74,10 +69,7 @@ export {
     Vector,
     Vertices,
 
-    AABVsAAB,
-    CircleVsAAB,
     CircleVsCircle,
-    ConvexVsAAB,
     ConvexVsCircle,
     ConvexVsConvex,
     Colliders,

@@ -1,14 +1,15 @@
 import { Shape } from './Shape';
 import { Vector } from '../../math/Vector';
+import { Solver } from '../../collision/solver/Solver';
 
 export class Circle extends Shape {
 
     constructor (options = {}) {
         super(options);
 
-        this.label = 'circle'
+        this.label = 'circle';
         this.type = Shape.CIRCLE;
-        this.radius = options.radius || 0.5;
+        this.radius = options.radius + Solver.SLOP / 2 || 0.5 + Solver.SLOP / 2;
 
         this.updateArea();
 
