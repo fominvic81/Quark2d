@@ -95,12 +95,12 @@ Factory.car = (position, size = 1, composite = new Composite()) => {
     const car = new Body({position});
     car.addShape(new Convex({
         vertices: [
-            new Vector(-1.5 * size, 0.5 * size),
-            new Vector(1.5 * size, 0.5 * size),
-            new Vector(1.5 * size, 0.0),
-            new Vector(0.0, -0.9 * size),
-            new Vector(-1.15 * size, -0.9 * size),
             new Vector(-1.5 * size, -0.2 * size),
+            new Vector(-1.15 * size, -0.9 * size),
+            new Vector(0.0, -0.9 * size),
+            new Vector(1.5 * size, 0.0),
+            new Vector(1.5 * size, 0.5 * size),
+            new Vector(-1.5 * size, 0.5 * size),
         ],
         filter: {group},
     }));
