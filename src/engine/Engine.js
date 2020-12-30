@@ -12,11 +12,11 @@ export class Engine {
     constructor (options = {}) {
         this.world = options.world || new Composite();
         this.gravity = options.gravity === undefined ? new Vector(0, 9.8) : Vector.clone(options.gravity);
-        this.broadphase = new Broadphase(this);
-        this.midphase = new Midphase(this);
-        this.narrowphase = new Narrowphase(this);
-        this.solver = new Solver(this);
-        this.sleeping = new Sleeping(this);
+        this.broadphase = options.broadphase || new Broadphase(this);
+        this.midphase = options.midphase || new Midphase(this);
+        this.narrowphase = options.narrowphase || new Narrowphase(this);
+        this.solver = options.solver || new Solver(this);
+        this.sleeping = options.sleeping || new Sleeping(this);
         this.events = new Events();
         this.timestamp = undefined;
 

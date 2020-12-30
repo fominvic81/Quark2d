@@ -4,38 +4,43 @@ import { Vector } from '../math/Vector';
 
 export class Sleeping {
 
-    constructor (engine) {
+    constructor (engine, options = {}) {
 
         this.engine = engine;
-        this.type = Sleeping.BODY_SLEEPING;
+        this.type = options.type !== undefined ? options.type : Sleeping.BODY_SLEEPING;
 
     }
 
     update (delta) {
         const bodies = this.engine.world.allBodies();
 
-        for (const body of bodies) {
-            if (body.isStatic && body.sleepState === Sleeping.SLEEPING) continue;
-            
-            if (body.force.x !== 0 || body.force.y !== 0) {
-                body.setSleeping(Sleeping.AWAKE);
-                continue;
+        if (this.type === Sleeping.NO_SLEEPING) return;
+
+        if (this.type === Sleeping.BODY_SLEEPING) {
+            for (const body of bodies) {
+                if (body.isStatic && body.sleepState === Sleeping.SLEEPING) continue;
+                
+                if (body.force.x !== 0 || body.force.y !== 0) {
+                    body.setSleeping(Sleeping.AWAKE);
+                    continue;
+                }
+
+                if (body.sleepState == Sleeping.SLEEPING) continue;
+
+                body.motion = (Vector.lengthSquared(body.velocity) + Math.pow(body.angularVelocity, 2) / 4) * 0.8 + body.motion * 0.2;
+
+                if (body.motion <= Sleeping.MOTION_SLEEP_LIMIT) {
+                    body.sleepyTimer += delta;
+                } else if (body.sleepyTimer > 0) {
+                    body.sleepyTimer -= delta;
+                }
+
+                if (body.sleepyTimer >= Sleeping.SLEEPY_TIME_LIMIT) {
+                    body.setSleeping(Sleeping.SLEEPING);
+                }
             }
-
-            if (body.sleepState == Sleeping.SLEEPING) continue;
-
-            body.motion = (Vector.lengthSquared(body.velocity) + Math.pow(body.angularVelocity, 2) / 4) * 0.8 + body.motion * 0.2;
-
-            if (body.motion <= Sleeping.MOTION_SLEEP_LIMIT) {
-                body.sleepyTimer += delta;
-            } else if (body.sleepyTimer > 0) {
-                body.sleepyTimer -= delta;
-            }
-
-            if (body.sleepyTimer >= Sleeping.SLEEPY_TIME_LIMIT) {
-                body.setSleeping(Sleeping.SLEEPING);
-            }
-
+        } else if (this.type === Sleeping.ISLAND_SLEEPING) {
+            // TODO
         }
     }
 
@@ -83,5 +88,6 @@ Sleeping.MOTION_SLEEP_LIMIT = 0.000018;
 Sleeping.COLLISION_MOTION_SLEEP_LIMIT = 0.00004;
 Sleeping.SLEEPY_TIME_LIMIT = 1;
 
-Sleeping.BODY_SLEEPING = 0;
-Sleeping.ISLAND_SLEEPING = 1;
+Sleeping.NO_SLEEPING = 0;
+Sleeping.BODY_SLEEPING = 1;
+Sleeping.ISLAND_SLEEPING = 2;
