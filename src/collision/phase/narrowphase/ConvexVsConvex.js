@@ -106,7 +106,7 @@ const findMinOverlapNormal = (shapeA, shapeB, normals) => {
 
     for (const normal of normals) {
 
-        const projectionA = shapeA.project(normal);
+        const projectionA = shapeA.projectOnOwn(normal.index);
         const projectionB = shapeB.project(normal);
 
         const overlapA = projectionA.max - projectionB.min;
