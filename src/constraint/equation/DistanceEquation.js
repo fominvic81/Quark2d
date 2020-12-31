@@ -65,9 +65,8 @@ export class DistanceEquation extends Equation {
             this.constraint.bodyA.constraintImpulse.y -= impulseY;
             this.constraint.bodyA.constraintImpulse.angle -= impulseAngle;
 
-            this.constraint.bodyA.position.x -= impulseX;
-            this.constraint.bodyA.position.y -= impulseY;
-            this.constraint.bodyA.angle -= impulseAngle;
+            this.constraint.bodyA.translate(Vector.set(Equation.vecTemp[4], -impulseX, -impulseY));
+            this.constraint.bodyA.rotate(-impulseAngle);
 
             this.constraint.bodyA.velocity.x -= impulseX;
             this.constraint.bodyA.velocity.y -= impulseY;
@@ -91,9 +90,8 @@ export class DistanceEquation extends Equation {
             this.constraint.bodyB.constraintImpulse.y += impulseY;
             this.constraint.bodyB.constraintImpulse.angle += impulseAngle;
 
-            this.constraint.bodyB.position.x += impulseX;
-            this.constraint.bodyB.position.y += impulseY;
-            this.constraint.bodyB.angle += impulseAngle;
+            this.constraint.bodyB.translate(Vector.set(Equation.vecTemp[4], impulseX, impulseY));
+            this.constraint.bodyB.rotate(impulseAngle);
 
             this.constraint.bodyB.velocity.x += impulseX;
             this.constraint.bodyB.velocity.y += impulseY;

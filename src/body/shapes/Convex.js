@@ -20,18 +20,12 @@ export class Convex extends Shape {
 
         this.createNormals();
 
-
         if (!this.inertia) {
             this.inertia = this.updateInertia();
         }
     }
 
     getWorldVertices () {
-        this.getWorldPosition();
-        for (let i = 0; i < this.vertices.length; ++i) {
-            Vector.rotate(this.vertices[i], this.getWorldAngle(), this.worldVertices[i]);
-            Vector.add(this.worldVertices[i], this.worldPosition);
-        }
         return this.worldVertices;
     }
 
@@ -51,7 +45,7 @@ export class Convex extends Shape {
         this.worldNormals = [];
         
         for (const normal of this.normals) {
-            const worldNormal = new Vector();
+            const worldNormal = Vector.clone(normal);
             worldNormal.index = normal.index;
             this.worldNormals.push(worldNormal);
         }
@@ -59,23 +53,14 @@ export class Convex extends Shape {
         this.allWorldNormals = [];
 
         for (const normal of this.allNormals) {
-            const worldNormal = new Vector();
+            const worldNormal = Vector.clone(normal);
             worldNormal.index = normal.index;
             this.allWorldNormals.push(worldNormal);
         }
     }
 
     getWorldNormals (nonCollinear = true) {
-        const worldAngle = this.getWorldAngle();
-        const cos = Math.cos(worldAngle);
-        const sin = Math.sin(worldAngle);
-
-        const normals = nonCollinear ? this.normals : this.allNormals;
         const worldNormals = nonCollinear ? this.worldNormals : this.allWorldNormals;
-        for (let i = 0; i < normals.length; ++i) {
-            worldNormals[i].x = normals[i].x * cos - normals[i].y * sin;
-            worldNormals[i].y = normals[i].x * sin + normals[i].y * cos;
-        }
         return worldNormals;
     }
 
@@ -169,6 +154,17 @@ export class Convex extends Shape {
         projection.max += this.radius;
 
         return projection;
+    }
+
+    translate (offset) {
+        Vector.add(this.worldPosition, offset);
+        Vertices.translate(this.worldVertices, offset);
+    }
+
+    rotate (angle) {
+        Vertices.rotate(this.worldVertices, angle, this.worldPosition);
+        Vertices.rotate(this.worldNormals, angle);
+        Vertices.rotate(this.allWorldNormals, angle);
     }
 
     updateArea () {

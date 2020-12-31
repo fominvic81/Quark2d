@@ -107,7 +107,7 @@ export class Solver {
         for (const body of bodies) {
             if (body.isStatic || body.sleepState === Sleeping.SLEEPING) continue;
 
-            Vector.add(body.position, body.positionImpulse);
+            body.translate(body.positionImpulse);
 
             if (Vector.dot(body.positionImpulse, body.velocity) > 0) {
                 Vector.set(body.positionImpulse, 0, 0);
@@ -223,9 +223,8 @@ export class Solver {
             body.constraintImpulse.y *= Solver.CONSTRAINT_IMPULSE_DAMPING;
             body.constraintImpulse.angle *= Solver.CONSTRAINT_IMPULSE_DAMPING;
 
-            body.position.x += body.constraintImpulse.x;
-            body.position.y += body.constraintImpulse.y;
-            body.angle += body.constraintImpulse.angle;
+            body.translate(body.constraintImpulse);
+            body.rotate(body.constraintImpulse.angle);
 
             body.velocity.x += body.constraintImpulse.x;
             body.velocity.y += body.constraintImpulse.y;
@@ -239,7 +238,6 @@ export class Solver {
         for (const constraint of constraints) {
             constraint.solve();
         }
-        
     }
 }
 

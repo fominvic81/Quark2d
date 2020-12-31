@@ -44,7 +44,7 @@ export class Vertices {
         return vertices;
     };
 
-    static rotate (vertices, angle, output = vertices) {
+    static rotate (vertices, angle, point = Vector.zero, output = vertices) {
 
         const cos = Math.cos(angle);
         const sin = Math.sin(angle);
@@ -52,10 +52,11 @@ export class Vertices {
         for (let i = 0; i < vertices.length; ++i) {
             const vertex = vertices[i];
             const outputVertex = output[i];
-            const x = vertex.x;
-            const y = vertex.y;
-            outputVertex.x = x * cos - y * sin;
-            outputVertex.y = x * sin + y * cos;
+            const x = vertex.x - point.x;
+            const y = vertex.y - point.y;
+
+            outputVertex.x = x * cos - y * sin + point.x;
+            outputVertex.y = x * sin + y * cos + point.y;
         }
         return output;
     };

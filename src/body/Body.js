@@ -3,6 +3,7 @@ import { Bounds } from '../math/Bounds';
 import { Common } from '../common/Common';
 import { Events } from '../common/Events';
 import { Sleeping } from './Sleeping';
+import { Shape } from './shapes/Shape';
 
 
 export class Body {
@@ -97,7 +98,7 @@ export class Body {
         
         // update position 
         Vector.clone(this.position, this.positionPrev);
-        Vector.add(this.position, this.velocity, this.position);
+        this.translate(this.velocity);
 
         // update angularAcceleration
         this.angularAcceleration = this.torque * this.inverseInertiaMultiplied * delta;
@@ -107,7 +108,7 @@ export class Body {
 
         // update angle
         this.anglePrev = this.angle;
-        this.angle += this.angularVelocity;
+        this.rotate(this.angularVelocity);
 
         // clear forces
         Vector.set(this.force, 0, 0);
@@ -118,8 +119,10 @@ export class Body {
 
     addShape (shape, updateCenterOfMass = false, offset = new Vector(), angle = 0) {
 
-        Vector.add(shape.position, offset);
-        shape.angle += angle;
+        shape.rotate(this.angle + angle);
+        shape.translate(this.position);
+        shape.translate(offset);
+
         shape.body = this;
 
         this.shapes.push(shape);
@@ -217,6 +220,11 @@ export class Body {
 
     translate (offset) {
         Vector.add(this.position, offset);
+
+        for (const shape of this.shapes) {
+            shape.translate(offset);
+        }
+
         this.boundsNeedsUpdate = true;
     }
 
@@ -227,6 +235,55 @@ export class Body {
 
     rotate (angle) {
         this.angle += angle;
+
+        const cos = Math.cos(angle);
+        const sin = Math.sin(angle);
+
+        let vertices;
+        let dx, dy;
+        let normals;
+
+        for (const shape of this.shapes) {
+
+            dx = shape.worldPosition.x - this.position.x;
+            dy = shape.worldPosition.y - this.position.y;
+
+            shape.worldPosition.x = dx * cos - dy * sin + this.position.x;
+            shape.worldPosition.y = dx * sin + dy * cos + this.position.y;
+
+            if (shape.type === Shape.CONVEX) {
+                vertices = shape.worldVertices;
+
+                for (const vertex of vertices) {
+                    dx = vertex.x - this.position.x;
+                    dy = vertex.y - this.position.y;
+        
+                    vertex.x = dx * cos - dy * sin + this.position.x;
+                    vertex.y = dx * sin + dy * cos + this.position.y;
+                }
+
+                normals = shape.worldNormals;
+
+                for (const normal of normals) {
+                    dx = normal.x;
+                    dy = normal.y;
+        
+                    normal.x = dx * cos - dy * sin;
+                    normal.y = dx * sin + dy * cos;
+                }
+
+                normals = shape.allWorldNormals;
+
+                for (const normal of normals) {
+                    dx = normal.x;
+                    dy = normal.y;
+        
+                    normal.x = dx * cos - dy * sin;
+                    normal.y = dx * sin + dy * cos;
+                }
+            }
+        }
+
         this.boundsNeedsUpdate = true;
     }
 

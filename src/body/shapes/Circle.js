@@ -18,6 +18,10 @@ export class Circle extends Shape {
         }
     }
 
+    translate (offset) {
+        Vector.add(this.worldPosition, offset);
+    }
+
     updateArea () {
         this.area = Math.PI * Math.pow(this.radius, 2);
         return this.area;

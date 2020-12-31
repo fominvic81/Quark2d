@@ -29,13 +29,16 @@ export class Shape {
     }
 
     getWorldPosition () {
-        Vector.add(Vector.rotate(this.position, this.body.angle, this.worldPosition), this.body.position, this.worldPosition);
         return this.worldPosition;
     }
 
     getWorldAngle () {
         return this.angle + this.body.angle;
     }
+
+    translate (offset) {}
+
+    rotate (angle) {}
 
     updateArea () {}
     
@@ -47,6 +50,8 @@ export class Shape {
         this.updateBounds();
         return this.bounds;
     }
+
+    raycast (intersection, from, to, delta) {}
 
 }
 
