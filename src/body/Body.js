@@ -214,8 +214,7 @@ export class Body {
     }
 
     setPosition (position) {
-        Vector.clone(position, this.position);
-        this.boundsNeedsUpdate = true;
+        this.translate(Vector.subtract(position, this.position, Body.vecTemp[0]));
     }
 
     translate (offset) {
@@ -229,8 +228,7 @@ export class Body {
     }
 
     setAngle (angle) {
-        this.angle = angle;
-        this.boundsNeedsUpdate = true;
+        this.rotate(angle - this.angle);
     }
 
     rotate (angle) {
