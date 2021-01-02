@@ -30,6 +30,7 @@ export class Body {
         this.acceleration = new Vector();
         this.velocity = new Vector();
         this.force = new Vector();
+        this.dir = new Vector(Math.cos(this.angle), Math.sin(this.angle));
         this.isStatic = false;
         this.inverseMassMultiplier = new Vector(1, 1);
         this.inverseMassMultiplied = new Vector(this.inverseMass, this.inverseMass);
@@ -238,8 +239,12 @@ export class Body {
         const sin = Math.sin(angle);
 
         let vertices;
-        let dx, dy;
+        let dx = this.dir.x;
+        let dy = this.dir.y;
         let normals;
+
+        this.dir.x = dx * cos - dy * sin;
+        this.dir.y = dx * sin + dy * cos;
 
         for (const shape of this.shapes) {
 

@@ -57,20 +57,9 @@ export class DistanceEquation extends Equation {
         if (this.constraint.bodyA && !this.constraint.bodyA.isStatic) {
             this.constraint.bodyA.setSleeping(Sleeping.AWAKE);
 
-            const impulseX = impulse.x * args.ratioA.x;
-            const impulseY = impulse.y * args.ratioA.y;
-            const impulseAngle = Vector.cross(offsetA, impulse) * args.ratioA.inertia;
-
-            this.constraint.bodyA.constraintImpulse.x -= impulseX;
-            this.constraint.bodyA.constraintImpulse.y -= impulseY;
-            this.constraint.bodyA.constraintImpulse.angle -= impulseAngle;
-
-            this.constraint.bodyA.translate(Vector.set(Equation.vecTemp[4], -impulseX, -impulseY));
-            this.constraint.bodyA.rotate(-impulseAngle);
-
-            this.constraint.bodyA.velocity.x -= impulseX;
-            this.constraint.bodyA.velocity.y -= impulseY;
-            this.constraint.bodyA.angularVelocity -= impulseAngle;
+            this.constraint.impulseA.x += impulse.x;
+            this.constraint.impulseA.y += impulse.y;
+            this.constraint.impulseA.angle += Vector.cross(offsetA, impulse);
 
             if (this.damping) {
                 const damping = Vector.mult(relativeVelocity, Vector.scale(args.ratioA, this.damping, Equation.vecTemp[4]), Equation.vecTemp[4]);
@@ -82,20 +71,9 @@ export class DistanceEquation extends Equation {
         if (this.constraint.bodyB && !this.constraint.bodyB.isStatic) {
             this.constraint.bodyB.setSleeping(Sleeping.AWAKE);
 
-            const impulseX = impulse.x * args.ratioB.x;
-            const impulseY = impulse.y * args.ratioB.y;
-            const impulseAngle = Vector.cross(offsetB, impulse) * args.ratioB.inertia;
-
-            this.constraint.bodyB.constraintImpulse.x += impulseX;
-            this.constraint.bodyB.constraintImpulse.y += impulseY;
-            this.constraint.bodyB.constraintImpulse.angle += impulseAngle;
-
-            this.constraint.bodyB.translate(Vector.set(Equation.vecTemp[4], impulseX, impulseY));
-            this.constraint.bodyB.rotate(impulseAngle);
-
-            this.constraint.bodyB.velocity.x += impulseX;
-            this.constraint.bodyB.velocity.y += impulseY;
-            this.constraint.bodyB.angularVelocity += impulseAngle;
+            this.constraint.impulseB.x += impulse.x;
+            this.constraint.impulseB.y += impulse.y;
+            this.constraint.impulseB.angle += Vector.cross(offsetB, impulse);
 
             if (this.damping) {
                 const damping = Vector.mult(relativeVelocity, Vector.scale(args.ratioB, this.damping, Equation.vecTemp[4]), Equation.vecTemp[4]);

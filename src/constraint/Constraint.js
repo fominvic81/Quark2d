@@ -1,5 +1,6 @@
 import { Vector } from '../math/Vector';
 import { Common } from '../common/Common';
+import { Sleeping } from '../body/Sleeping';
 
 export class Constraint {
 
@@ -15,9 +16,19 @@ export class Constraint {
         this.worldPointB = this.bodyB ? new Vector() : Vector.clone(this.pointB);
         this.equations = [];
 
+        this.impulseA = new Vector();
+        this.impulseA.angle = 0;
+        this.impulseB = new Vector();
+        this.impulseB.angle = 0;
     }
 
     solve () {
+
+        Vector.set(this.impulseA, 0, 0);
+        this.impulseA.angle = 0;
+        Vector.set(this.impulseB, 0, 0);
+        this.impulseB.angle = 0;
+
         this.getWorldPointA();
         this.getWorldPointB();
 
@@ -60,18 +71,53 @@ export class Constraint {
             dist,
             offsetA,
             offsetB,
-            mass,
-            inertia,
             worldPointA: this.worldPointA,
             worldPointB: this.worldPointB,
-            ratioA,
-            ratioB,
             angle,
         };
 
         for (const equation of this.equations) {
             equation.solve(args);
         }
+
+        if (this.bodyA && !this.bodyA.isStatic) {
+            this.bodyA.setSleeping(Sleeping.AWAKE);
+
+            const impulseX = this.impulseA.x * ratioA.x;
+            const impulseY = this.impulseA.y * ratioA.y;
+            const impulseAngle = this.impulseA.angle * ratioA.inertia;
+
+            this.bodyA.constraintImpulse.x -= impulseX;
+            this.bodyA.constraintImpulse.y -= impulseY;
+            this.bodyA.constraintImpulse.angle -= impulseAngle;
+
+            this.bodyA.translate(Vector.set(Vector.temp[0], -impulseX, -impulseY));
+            this.bodyA.rotate(-impulseAngle);
+
+            this.bodyA.velocity.x -= impulseX;
+            this.bodyA.velocity.y -= impulseY;
+            this.bodyA.angularVelocity -= impulseAngle;
+        }
+
+        if (this.bodyB && !this.bodyB.isStatic) {
+            this.bodyB.setSleeping(Sleeping.AWAKE);
+
+            const impulseX = this.impulseB.x * ratioB.x;
+            const impulseY = this.impulseB.y * ratioB.y;
+            const impulseAngle = this.impulseB.angle * ratioB.inertia;
+            
+            this.bodyB.constraintImpulse.x += impulseX;
+            this.bodyB.constraintImpulse.y += impulseY;
+            this.bodyB.constraintImpulse.angle += impulseAngle;
+
+            this.bodyB.translate(Vector.set(Vector.temp[0], impulseX, impulseY));
+            this.bodyB.rotate(impulseAngle);
+
+            this.bodyB.velocity.x += impulseX;
+            this.bodyB.velocity.y += impulseY;
+            this.bodyB.angularVelocity += impulseAngle;
+        }
+
     }
 
     addEquation (equations) {
@@ -88,7 +134,8 @@ export class Constraint {
 
     getWorldPointA () {
         if (this.bodyA) {
-            Vector.rotate(this.pointA, this.bodyA.angle, this.worldPointA);
+            this.worldPointA.x = this.pointA.x * this.bodyA.dir.x - this.pointA.y * this.bodyA.dir.y;
+            this.worldPointA.y = this.pointA.x * this.bodyA.dir.y + this.pointA.y * this.bodyA.dir.x;
             Vector.add(this.worldPointA, this.bodyA.position);
         } else {
             Vector.clone(this.pointA, this.worldPointA);
@@ -98,7 +145,8 @@ export class Constraint {
 
     getWorldPointB () {
         if (this.bodyB) {
-            Vector.rotate(this.pointB, this.bodyB.angle, this.worldPointB);
+            this.worldPointB.x = this.pointB.x * this.bodyB.dir.x - this.pointB.y * this.bodyB.dir.y;
+            this.worldPointB.y = this.pointB.x * this.bodyB.dir.y + this.pointB.y * this.bodyB.dir.x;
             Vector.add(this.worldPointB, this.bodyB.position);
         } else {
             Vector.clone(this.pointB, this.worldPointB);
