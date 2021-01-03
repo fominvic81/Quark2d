@@ -199,19 +199,17 @@ export class Body {
 
     updateCenterOfMass () {
         const sum = Vector.temp[0];
+        const offset = Vector.temp[1];
         Vector.set(sum, 0, 0);
     
         for (const shape of this.shapes){
-            Vector.add(sum, Vector.scale(shape.position, shape.area, Vector.temp[1]));
+            Vector.subtract(this.position, shape.worldPosition, offset);
+            Vector.add(sum, Vector.scale(offset, shape.area, Vector.temp[2]));
         }
     
         const cm = Vector.scale(sum, 1 / this.area, Vector.temp[1]);
-        
-        for(const shape of this.shapes){
-            Vector.subtract(shape.position, cm);
-        }
-        
-        this.setPosition(Vector.add(this.position, cm, Vector.temp[2]));
+
+        Vector.subtract(this.position, cm);
     }
 
     setPosition (position) {

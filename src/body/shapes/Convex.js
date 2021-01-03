@@ -71,6 +71,9 @@ export class Convex extends Shape {
     createProjections () {
         for (const normal of this.allWorldNormals) {
             this.projections[normal.index] = this.project(normal, {});
+            const dot = Vector.dot(this.worldPosition, normal);
+            this.projections[normal.index].min -= dot;
+            this.projections[normal.index].max -= dot;
         }
     }
 
@@ -206,13 +209,9 @@ export class Convex extends Shape {
     }
 
     updateCenterOfMass () {
-        const center = Vertices.center(this.vertices);
+        const center = Vertices.center(this.worldVertices);
 
-        Vector.add(this.position, center);
-
-        for (const vertex of this.vertices) {
-            Vector.subtract(vertex, center);
-        }
+        Vector.clone(center, this.worldPosition);
     }
 
     raycast (intersection, from, to, delta) {

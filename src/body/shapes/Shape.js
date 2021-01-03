@@ -10,7 +10,6 @@ export class Shape {
         this.id = Common.nextId();
         this.name = 'shape';
         this.body = undefined;
-        this.position = new Vector();
         this.worldPosition = new Vector();
         this.bounds = new Bounds();
         this.angle = 0;

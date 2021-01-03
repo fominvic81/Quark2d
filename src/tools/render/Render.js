@@ -350,7 +350,10 @@ export class Render {
 
     positions (bodies) {
         for (const body of bodies) {
-            Draw.circle(this.ctx, body.position, this.options.lineWidth / 6 , 'rgb(40, 160, 40)');
+            Draw.circle(this.ctx, body.position, this.options.lineWidth / 4 , 'rgb(40, 160, 40)');
+            for (const shape of body.shapes) {
+                Draw.circle(this.ctx, shape.getWorldPosition(), this.options.lineWidth / 8 , 'rgb(160, 40, 40)');
+            }
         }
     }
 
