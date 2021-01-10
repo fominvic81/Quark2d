@@ -238,6 +238,9 @@ export class Body {
     }
 
     rotate (angle) {
+
+        // if (angle === 0) return;
+
         this.angle += angle;
 
         const cos = Math.cos(angle);
