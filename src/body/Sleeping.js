@@ -27,8 +27,6 @@ export class Sleeping {
 
                 if (body.sleepState == Sleeping.SLEEPING) continue;
 
-                body.motion = (Vector.lengthSquared(body.velocity) + Math.pow(body.angularVelocity, 2) / 4) * 0.8 + body.motion * 0.2;
-
                 if (body.motion <= Sleeping.MOTION_SLEEP_LIMIT) {
                     body.sleepyTimer += delta;
                 } else if (body.sleepyTimer > 0) {

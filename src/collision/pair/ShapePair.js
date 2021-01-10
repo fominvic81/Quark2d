@@ -12,6 +12,9 @@ export class ShapePair {
         this.isActive = false;
         this.depth = 0;
         this.separation = 0;
+        this.flipped = false;
+        this.vertexCol = false;
+        this.indexA = -1;
         this.normal = new Vector();
         this.tangent = new Vector();
         this.penetration = new Vector();
@@ -22,6 +25,9 @@ export class ShapePair {
         ];
         this.prev = {
             isActive: false,
+            flipped: false,
+            vertexCol: false,
+            indexA: -1,
             normal: new Vector(),
             tangent: new Vector(),
             penetration: new Vector(),
@@ -42,6 +48,9 @@ export class ShapePair {
     updatePrev () {
         this.prev.isActive = this.isActive;
         this.prev.depth = this.depth;
+        this.prev.flipped = this.flipped;
+        this.prev.vertexCol = this.vertexCol;
+        this.prev.indexA = this.indexA;
         Vector.clone(this.normal, this.prev.normal);
         Vector.clone(this.tangent, this.prev.tangent);
         Vector.clone(this.penetration, this.prev.penetration);

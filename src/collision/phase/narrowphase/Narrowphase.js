@@ -70,3 +70,5 @@ export class Narrowphase extends Phase {
         return this.pairs;
     }
 }
+
+Narrowphase.PREV_COLLISION_MOTION_LIMIT = 0.000005;

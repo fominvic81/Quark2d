@@ -44,8 +44,10 @@ export class Body {
         this.inverseInertia = 0;
         this.area = 0;
         this.sleepState = Sleeping.AWAKE;
-        this.motion = 0;
         this.sleepyTimer = 0;
+        this.motion = 0;
+        this.speedSquared = 0;
+        this.angSpeedSquared = 0;
 
         this.set(options);
         
@@ -91,6 +93,11 @@ export class Body {
 
     update (delta) {
         if (this.isStatic || this.sleepState === Sleeping.SLEEPING) return;
+
+        this.speedSquared = Vector.lengthSquared(this.velocity);
+        this.angSpeedSquared = Math.pow(this.angularVelocity, 2);
+        this.motion = this.speedSquared + this.angSpeedSquared;
+
         // update acceleration
         Vector.mult(this.force, Vector.scale(this.inverseMassMultiplied, delta, Body.vecTemp[0]), this.acceleration);
 
