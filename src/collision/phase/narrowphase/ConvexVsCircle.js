@@ -9,7 +9,7 @@ export const ConvexVsCircle = (shapePair) => {
     const shapeB = flipped ? shapePair.shapeB : shapePair.shapeA; // circle
 
     const vertices = shapeA.getWorldVertices();
-    const normals = shapeA.getWorldNormals(false);
+    const normals = shapeA.getWorldNormals();
     
     const positionB = shapeB.getWorldPosition();
     const radius = shapeA.radius + shapeB.radius;

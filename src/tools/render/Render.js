@@ -294,7 +294,7 @@ export class Render {
             for (const shape of body.shapes) {
                 if (shape.type === Shape.CONVEX) {
                     const pos = shape.getWorldPosition();
-                    const normals = shape.getWorldNormals(true);
+                    const normals = shape.getWorldNormals();
                     for (const normal of normals) {
                         Draw.line(this.ctx, pos, Vector.add(pos, normal, Vector.temp[0]), 'rgb(200, 100, 100)', this.options.lineWidth / 8);
                     }
@@ -471,7 +471,7 @@ export class Render {
             return;
         }
         
-        const normals = convex.getWorldNormals(false);
+        const normals = convex.getWorldNormals();
     
         const first = Vector.add(vertices[0], Vector.scale(normals[vertices.length - 1], radius, Vector.temp[0]), Vector.temp[0]);
 

@@ -36,41 +36,23 @@ export class Convex extends Shape {
 
     createNormals () {
         this.allNormals = [];
-        const normals = {};
 
         Vertices.normals(this.vertices, this.allNormals);
-
-        for (const normal of this.allNormals) {
-            let gradient = normal.y === 0 ? Infinity : normal.x / normal.y; // if normal.y === 0, then always positive number(Infinity)
-            normals[gradient.toFixed(2)] = normal;
-        }
-
-        this.normals = Object.values(normals);
         
         this.worldNormals = [];
-
-        for (const normal of this.normals) {
+        for (const normal of this.allNormals) {
             const worldNormal = Vector.clone(normal);
             worldNormal.index = normal.index;
             this.worldNormals.push(worldNormal);
         }
-        
-        this.allWorldNormals = [];
-
-        for (const normal of this.allNormals) {
-            const worldNormal = Vector.clone(normal);
-            worldNormal.index = normal.index;
-            this.allWorldNormals.push(worldNormal);
-        }
     }
 
-    getWorldNormals (nonCollinear = true) {
-        const worldNormals = nonCollinear ? this.worldNormals : this.allWorldNormals;
-        return worldNormals;
+    getWorldNormals () {
+        return this.worldNormals;
     }
 
     createProjections () {
-        for (const normal of this.allWorldNormals) {
+        for (const normal of this.worldNormals) {
             this.projections[normal.index] = this.project(normal, {});
             const dot = Vector.dot(this.worldPosition, normal);
             this.projections[normal.index].value -= dot;
@@ -78,7 +60,7 @@ export class Convex extends Shape {
     }
 
     projectOnOwn (index) {
-        const dot = Vector.dot(this.worldPosition, this.allWorldNormals[index]);
+        const dot = Vector.dot(this.worldPosition, this.worldNormals[index]);
         const projection = this.projection;
 
         projection.value = this.projections[index].value + dot;
@@ -170,7 +152,6 @@ export class Convex extends Shape {
     rotate (angle) {
         Vertices.rotate(this.worldVertices, angle, this.worldPosition);
         Vertices.rotate(this.worldNormals, angle);
-        Vertices.rotate(this.allWorldNormals, angle);
     }
 
     updateArea () {
@@ -200,7 +181,7 @@ export class Convex extends Shape {
 
     raycast (intersection, from, to, delta) {
         const vertices = this.getWorldVertices();
-        const normals = this.getWorldNormals(false);
+        const normals = this.getWorldNormals();
 
         let contact = intersection.contacts[intersection.contactsCount];
 

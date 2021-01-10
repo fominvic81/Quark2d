@@ -30,17 +30,17 @@ export const ConvexVsConvex = (shapePair) => {
                 incident = shapeB;
             }
 
-            const normal = reference.getWorldNormals(false)[shapePair.prev.indexA];
+            const normal = reference.getWorldNormals()[shapePair.prev.indexA];
 
             minOverlap = findMinOverlapNormal(reference, incident, [normal]);
             if (minOverlap.overlap < 0) return shapePair;
         }
 
     } else {
-        const overlapA = findMinOverlapNormal(shapeA, shapeB, shapeA.getWorldNormals(false));
+        const overlapA = findMinOverlapNormal(shapeA, shapeB, shapeA.getWorldNormals());
         if (overlapA.overlap < 0) return shapePair;
 
-        const overlapB = findMinOverlapNormal(shapeB, shapeA, shapeB.getWorldNormals(false));
+        const overlapB = findMinOverlapNormal(shapeB, shapeA, shapeB.getWorldNormals());
         if (overlapB.overlap < 0) return shapePair;
 
         if (overlapA.overlap < overlapB.overlap) {

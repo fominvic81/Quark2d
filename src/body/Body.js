@@ -279,16 +279,6 @@ export class Body {
                     normal.x = dx * cos - dy * sin;
                     normal.y = dx * sin + dy * cos;
                 }
-
-                normals = shape.allWorldNormals;
-
-                for (const normal of normals) {
-                    dx = normal.x;
-                    dy = normal.y;
-        
-                    normal.x = dx * cos - dy * sin;
-                    normal.y = dx * sin + dy * cos;
-                }
             }
         }
 
