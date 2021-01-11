@@ -239,7 +239,7 @@ export class Body {
 
     rotate (angle) {
 
-        // if (angle === 0) return;
+        if (angle === 0) return;
 
         this.angle += angle;
 
