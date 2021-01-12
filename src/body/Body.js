@@ -31,6 +31,8 @@ export class Body {
         this.velocity = new Vector();
         this.force = new Vector();
         this.dir = new Vector(Math.cos(this.angle), Math.sin(this.angle));
+        this.constraintDir = Vector.clone(this.dir);
+        this.constraintAngle = this.angle;
         this.isStatic = false;
         this.inverseMassMultiplier = new Vector(1, 1);
         this.inverseMassMultiplied = new Vector(this.inverseMass, this.inverseMass);

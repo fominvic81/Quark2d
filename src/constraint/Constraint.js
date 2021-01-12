@@ -73,6 +73,8 @@ export class Constraint {
             offsetB,
             worldPointA: this.worldPointA,
             worldPointB: this.worldPointB,
+            ratioA,
+            ratioB,
             angle,
         };
 
@@ -92,7 +94,8 @@ export class Constraint {
             this.bodyA.constraintImpulse.angle -= impulseAngle;
 
             this.bodyA.translate(Vector.set(Vector.temp[0], -impulseX, -impulseY));
-            this.bodyA.rotate(-impulseAngle);
+            this.bodyA.constraintAngle -= impulseAngle;
+            Vector.rotate(this.bodyA.constraintDir, -impulseAngle);
 
             this.bodyA.velocity.x -= impulseX;
             this.bodyA.velocity.y -= impulseY;
@@ -111,7 +114,8 @@ export class Constraint {
             this.bodyB.constraintImpulse.angle += impulseAngle;
 
             this.bodyB.translate(Vector.set(Vector.temp[0], impulseX, impulseY));
-            this.bodyB.rotate(impulseAngle);
+            this.bodyB.constraintAngle += impulseAngle;
+            Vector.rotate(this.bodyB.constraintDir, impulseAngle);
 
             this.bodyB.velocity.x += impulseX;
             this.bodyB.velocity.y += impulseY;
@@ -134,8 +138,8 @@ export class Constraint {
 
     getWorldPointA () {
         if (this.bodyA) {
-            this.worldPointA.x = this.pointA.x * this.bodyA.dir.x - this.pointA.y * this.bodyA.dir.y;
-            this.worldPointA.y = this.pointA.x * this.bodyA.dir.y + this.pointA.y * this.bodyA.dir.x;
+            this.worldPointA.x = this.pointA.x * this.bodyA.constraintDir.x - this.pointA.y * this.bodyA.constraintDir.y;
+            this.worldPointA.y = this.pointA.x * this.bodyA.constraintDir.y + this.pointA.y * this.bodyA.constraintDir.x;
             Vector.add(this.worldPointA, this.bodyA.position);
         } else {
             Vector.clone(this.pointA, this.worldPointA);
@@ -145,8 +149,8 @@ export class Constraint {
 
     getWorldPointB () {
         if (this.bodyB) {
-            this.worldPointB.x = this.pointB.x * this.bodyB.dir.x - this.pointB.y * this.bodyB.dir.y;
-            this.worldPointB.y = this.pointB.x * this.bodyB.dir.y + this.pointB.y * this.bodyB.dir.x;
+            this.worldPointB.x = this.pointB.x * this.bodyB.constraintDir.x - this.pointB.y * this.bodyB.constraintDir.y;
+            this.worldPointB.y = this.pointB.x * this.bodyB.constraintDir.y + this.pointB.y * this.bodyB.constraintDir.x;
             Vector.add(this.worldPointB, this.bodyB.position);
         } else {
             Vector.clone(this.pointB, this.worldPointB);

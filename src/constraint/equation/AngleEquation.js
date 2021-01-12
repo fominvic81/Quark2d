@@ -84,7 +84,7 @@ export class AngleEquation extends Equation {
         let angleAbsolute = angle;
 
         if (body) {
-            angleAbsolute = Common.angleDiff(angle, body.angle);
+            angleAbsolute = Common.angleDiff(angle, body.constraintAngle);
         }
 
         if (angleAbsolute > minAngle && angleAbsolute < maxAngle) return;

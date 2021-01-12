@@ -40,6 +40,7 @@ export class Solver {
         for (let i = 0; i < this.velocityIterations; ++i) {
             this.solveVelocity();
         }
+        this.postSolveConstraints();
         
     }
 
@@ -245,13 +246,18 @@ export class Solver {
         const bodies = this.engine.world.allBodies();
 
         for (const body of bodies) {
+
+            Vector.clone(body.dir, body.constraintDir);
+            body.constraintAngle = body.angle;
+
             if (body.isStatic || body.sleepState === Sleeping.SLEEPING) continue;
             body.constraintImpulse.x *= Solver.CONSTRAINT_IMPULSE_DAMPING;
             body.constraintImpulse.y *= Solver.CONSTRAINT_IMPULSE_DAMPING;
             body.constraintImpulse.angle *= Solver.CONSTRAINT_IMPULSE_DAMPING;
 
             body.translate(body.constraintImpulse);
-            body.rotate(body.constraintImpulse.angle);
+            body.constraintAngle += body.constraintImpulse.angle;
+            Vector.rotate(body.constraintDir, body.constraintImpulse.angle);
 
             body.velocity.x += body.constraintImpulse.x;
             body.velocity.y += body.constraintImpulse.y;
@@ -264,6 +270,14 @@ export class Solver {
 
         for (const constraint of constraints) {
             constraint.solve();
+        }
+    }
+
+    postSolveConstraints () {
+        const bodies = this.engine.world.allBodies();
+
+        for (const body of bodies) {
+            body.setAngle(body.constraintAngle);
         }
     }
 }
