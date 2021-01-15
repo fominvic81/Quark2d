@@ -41,4 +41,9 @@ export class Events {
         }
     }
 
+    clear () {
+        this.events.clear();
+        this.namesByIds.clear();
+    }
+
 }
