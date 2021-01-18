@@ -4,6 +4,7 @@ import { Common } from '../common/Common';
 import { Events } from '../common/Events';
 import { Sleeping } from './Sleeping';
 import { Shape } from './shapes/Shape';
+import { Vertices } from '../math/Vertices';
 
 
 export class Body {
@@ -132,6 +133,9 @@ export class Body {
         shape.rotate(this.angle + angle);
         shape.translate(this.position);
         shape.translate(offset);
+        if (shape.type === Shape.CONVEX) {
+            Vertices.translate(shape.deltaVertices, offset);
+        }
 
         shape.body = this;
 
@@ -219,6 +223,9 @@ export class Body {
         const cm = Vector.scale(sum, 1 / this.area, Vector.temp[1]);
 
         Vector.subtract(this.position, cm);
+        for (const shape of this.shapes) {
+            Vertices.translate(shape.deltaVertices, cm);
+        }
     }
 
     setPosition (position) {
@@ -251,6 +258,7 @@ export class Body {
         let vertices;
         let dx = this.dir.x;
         let dy = this.dir.y;
+        let delta;
         let normals;
 
         this.dir.x = dx * cos - dy * sin;
@@ -268,11 +276,16 @@ export class Body {
                 vertices = shape.worldVertices;
 
                 for (const vertex of vertices) {
-                    dx = vertex.x - this.position.x;
-                    dy = vertex.y - this.position.y;
+                    delta = shape.deltaVertices[vertex.index];
+
+                    dx = delta.x;
+                    dy = delta.y;
         
-                    vertex.x = dx * cos - dy * sin + this.position.x;
-                    vertex.y = dx * sin + dy * cos + this.position.y;
+                    delta.x = dx * cos - dy * sin;
+                    delta.y = dx * sin + dy * cos;
+
+                    vertex.x = delta.x + this.position.x;
+                    vertex.y = delta.y + this.position.y;
                 }
 
                 normals = shape.worldNormals;
