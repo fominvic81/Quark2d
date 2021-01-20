@@ -34,21 +34,20 @@ export class Solver {
         for (let i = 0; i < this.constraintIterations; ++i) {
             this.solveConstraints();
         }
+        this.postSolveConstraints();
 
         // solve velocity
         this.preSolveVelocity();
         for (let i = 0; i < this.velocityIterations; ++i) {
             this.solveVelocity();
         }
-        this.postSolveConstraints();
         
     }
 
     preSolvePosition () {
         const pairs = this.engine.narrowphase.activePairs;
-        const bodies = this.engine.world.allBodies();
 
-        for (const body of bodies) {
+        for (const body of this.engine.world.bodies.values()) {
             body.contactsCount = 0;
         }
 
@@ -105,9 +104,8 @@ export class Solver {
     }
 
     postSolvePosition () {
-        const bodies = this.engine.world.allBodies();
 
-        for (const body of bodies) {
+        for (const body of this.engine.world.bodies.values()) {
             if (body.isStatic || body.sleepState === Sleeping.SLEEPING) continue;
 
             body.translate(body.positionImpulse);
@@ -243,9 +241,8 @@ export class Solver {
     }
 
     preSolveConstraints () {
-        const bodies = this.engine.world.allBodies();
 
-        for (const body of bodies) {
+        for (const body of this.engine.world.bodies.values()) {
 
             Vector.clone(body.dir, body.constraintDir);
             body.constraintAngle = body.angle;
@@ -274,9 +271,8 @@ export class Solver {
     }
 
     postSolveConstraints () {
-        const bodies = this.engine.world.allBodies();
 
-        for (const body of bodies) {
+        for (const body of this.engine.world.bodies.values()) {
             body.setAngle(body.constraintAngle);
         }
     }

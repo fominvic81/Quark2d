@@ -50,8 +50,6 @@ export class Ray {
             composite = engine.world;
         }
 
-        const bodies = composite.allBodies();
-
         const intersections = result.intersections;
         for (const intersection of intersections.values()) {
             intersection.isActive = false;
@@ -157,7 +155,7 @@ export class Ray {
             }
 
         } else {
-            for (const body of bodies) {
+            for (const body of composite.bodies.values()) {
                 for (const shape of body.shapes) {
                     const id = Common.combineId(body.id, shape.id);
                     let intersection = intersections.get(id);

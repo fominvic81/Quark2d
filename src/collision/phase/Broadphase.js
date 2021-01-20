@@ -40,9 +40,7 @@ export class Broadphase extends Phase {
             }
         }
 
-        const bodies = this.engine.world.allBodies();
-
-        for (const body of bodies) {
+        for (const body of this.engine.world.bodies.values()) {
             for (const shape of body.shapes) {
 
                 const region = this.createRegion(shape.getBounds(), Bounds.temp[0]);

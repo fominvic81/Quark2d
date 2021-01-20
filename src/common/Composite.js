@@ -37,38 +37,21 @@ export class Composite {
             bodies = [bodies];
         }
 
-        
         for (const body of bodies) {
-            this.events.trigger('before-add', [{object: body}]);
+            this.events.trigger('add-body', [{body}]);
             this.bodies.set(body.id, body);
-            this.events.trigger('after-add', [{object: body}]);
         }
     }
 
-    removeBody (bodies, deep = true) {
+    removeBody (bodies) {
         if (!Array.isArray(bodies)) {
             bodies = [bodies];
         }
 
-        let stack = [this];
-        let l = bodies.length;
-
-        while (stack.length > 0) {
-            const composite = stack.pop();
-                
-            for (const body of bodies) {
-                if (composite.bodies.has(body.id)) {
-                    this.events.trigger('before-remove', [{object: body}]);
-                    composite.bodies.delete(body.id);
-                    this.events.trigger('after-remove', [{object: body}]);
-
-                    --l;
-                }
-            }
-            if (l <= 0 && !deep) break;
-
-            for (const composite1 of composite.composites.values()) {
-                stack.push(composite1);
+        for (const body of bodies) {
+            if (this.bodies.has(body.id)) {
+                this.events.trigger('remove-body', [{body}]);
+                this.bodies.delete(body.id);
             }
         }
     }
@@ -82,13 +65,7 @@ export class Composite {
     }
 
     allBodies () {
-        let allBodies = [...this.bodies.values()];
-        
-        for (const composite of this.composites.values()) {
-            allBodies = allBodies.concat(composite.allBodies());
-        }
-
-        return allBodies;
+        return [...this.bodies.values()];
     }
 
     addConstraint (constraints) {
@@ -96,9 +73,8 @@ export class Composite {
             constraints = [constraints];
         }
         for (const constraint of constraints) {
-            this.events.trigger('before-add', [{object: constraint}]);
+            this.events.trigger('add-constraint', [{constraint}]);
             this.constraints.set(constraint.id, constraint);
-            this.events.trigger('after-add', [{object: constraint}]);
         }
     }
 
@@ -107,25 +83,10 @@ export class Composite {
             constraints = [constraints];
         }
 
-        let stack = [this];
-        let count = constraints.length;
-
-        while (stack.length > 0) {
-            const composite = stack.pop();
-                
-            for (const constraint of constraints) {
-                if (composite.constraints.has(constraint.id)) {
-                    this.events.trigger('before-remove', [{object: constraint}]);
-                    composite.constraints.delete(constraint.id);
-                    this.events.trigger('after-remove', [{object: constraint}]);
-
-                    --count;
-                }
-            }
-            if (count <= 0 && !deep) break;
-
-            for (const composite1 of composite.composites.values()) {
-                stack.push(composite1);
+        for (const constraint of constraints) {
+            if (this.constraints.has(constraint.id)) {
+                this.events.trigger('remove-constraint', [{constraint}]);
+                this.constraints.delete(constraint.id);
             }
         }
     }
@@ -140,13 +101,7 @@ export class Composite {
     }
 
     allConstraints () {
-        let allConstraints = [...this.constraints.values()];
-        
-        for (const composite of this.composites.values()) {
-            allConstraints = allConstraints.concat(composite.allConstraints());
-        }
-
-        return allConstraints;
+        return [...this.constraints.values()];
     }
 
     addComposite (composites) {
@@ -155,58 +110,39 @@ export class Composite {
         }
 
         for (const composite of composites) {
-            this.events.trigger('before-add', [{object: composite}]);
-            this.composites.set(composite.id, composite);
-            this.events.trigger('after-add', [{object: composite}]);
+            this.addBody(composite.allBodies());
+            this.addConstraint(composite.allConstraints());
         }
     }
 
-    removeComposite (composites, deep = true) {
+    removeComposite (composites) {
         if (!Array.isArray(composites)) {
             composites = [composites];
         }
 
-        let stack = [this];
-        let count = composites.length;
-
-        while (stack.length > 0) {
-            const composite = stack.pop();
-                
-            for (const composite of composites) {
-                if (composite.composites.has(composite.id)) {
-                    this.events.trigger('before-remove', [{object: composite}]);
-                    composite.composites.delete(composite.id);
-                    this.events.trigger('after-remove', [{object: composite}]);
-
-                    --count;
-                }
-            }
-            if (count <= 0 && !deep) break;
-
-            for (const composite1 of composite.composites.values()) {
-                stack.push(composite1);
-            }
+        for (const composite of composites) {
+            this.removeBody(composite.allBodies());
+            this.removeConstraint(composite.allConstraints());
         }
     }
 
     all () {
-        let all = [...this.allBodies(), ...this.allConstraints()];
+        let all = [...this.bodies.values(), ...this.constraints.values()];
 
         return all;
     }
 
     clearBodies () {
-        this.removeBody(this.allBodies(), true);
+        this.bodies.clear();
     }
 
     clearConstraints () {
-        this.removeConstraint(this.allConstraints(), true);
+        this.constraints.clear();
     }
 
     clear () {
-        this.composites.clear();
-        this.removeBody(this.allBodies(), false);
-        this.removeConstraint(this.allConstraints(), false);
+        this.clearBodies();
+        this.clearConstraints();
     }
 
 };

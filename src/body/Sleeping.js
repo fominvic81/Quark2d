@@ -12,12 +12,10 @@ export class Sleeping {
     }
 
     update (delta) {
-        const bodies = this.engine.world.allBodies();
-
         if (this.type === Sleeping.NO_SLEEPING) return;
 
         if (this.type === Sleeping.BODY_SLEEPING) {
-            for (const body of bodies) {
+            for (const body of this.engine.world.bodies.values()) {
                 if (body.isStatic && body.sleepState === Sleeping.SLEEPING) continue;
                 
                 if (body.force.x !== 0 || body.force.y !== 0) {

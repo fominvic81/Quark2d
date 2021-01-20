@@ -20,10 +20,8 @@ export class Engine {
         this.events = new Events();
         this.timestamp = undefined;
 
-        this.world.events.on('before-remove', (event) => {
-            if (event.object.name === 'body') {
-                this.broadphase.removeBodyFromGrid(event.object);
-            }
+        this.world.events.on('remove-body', (event) => {
+            this.broadphase.removeBodyFromGrid(event.body);
         });
     }
 
@@ -77,7 +75,7 @@ export class Engine {
     }
 
     applyGravity () {
-        for (const body of this.world.allBodies()) {
+        for (const body of this.world.bodies.values()) {
             if (body.isStatic || body.sleepState === Sleeping.SLEEPING) continue;
             body.force.x += this.gravity.x * body.mass;
             body.force.y += this.gravity.y * body.mass;
@@ -85,7 +83,7 @@ export class Engine {
     }
 
     updateBodies (dt) {
-        for (const body of this.world.allBodies()) {
+        for (const body of this.world.bodies.values()) {
             body.update(dt);
         }
     }

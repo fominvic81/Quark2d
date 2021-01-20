@@ -27,9 +27,7 @@ export class MouseConstraint {
         if (!this.mouse.leftButtonPressed) return;
         if (this.constraint) {
 
-            const bodies = this.engine.world.allBodies();
-
-            for (const body of bodies) {
+            for (const body of this.engine.world.bodies.values()) {
                 if (body.isStatic) continue;
                 if (body.getBounds().contains(event.position)) {
                     for (const shape of body.shapes) {

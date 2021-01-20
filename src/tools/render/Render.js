@@ -383,9 +383,7 @@ export class Render {
                 this.statusText += `tps: ${Math.round(this.engine.timestamp.tps)}   `;
             }
 
-            const allBodies = this.engine.world.allBodies();
-
-            this.statusText += `bodies: ${allBodies.length}   `
+            this.statusText += `bodies: ${this.engine.world.bodies.size}   `
 
             const allConstraints = this.engine.world.allConstraints();
 
