@@ -63,6 +63,10 @@ export class Broadphase extends Phase {
         }
 
         for (const pair of this.pairs.values()) {
+            if (pair.bodyA.isStatic && pair.bodyB.isStatic) {
+                pair.isActive = false;
+                continue;
+            }
             if (!(pair.isSleeping && pair.prev.isSleeping)) {
                 pair.isActive = false;
                 
