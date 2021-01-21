@@ -321,7 +321,9 @@ export class Body {
     }
 
     setStatic (value) {
+        if (this.isStatic === value) return;
         this.isStatic = value;
+
         if (value) {
             Vector.set(this.acceleration, 0, 0);
             Vector.set(this.velocity, 0, 0);
@@ -330,12 +332,16 @@ export class Body {
             this.angularVelocity = 0;
             this.torque = 0;
             Vector.set(this.positionImpulse, 0, 0);
+            this.events.trigger('become-static');
+        } else {
+            this.events.trigger('become-dynamic');
         }
         this.updateMass();
         this.updateInertia();
     }
 
     setSleeping (value) {
+        const prevState = this.sleepState;
         this.sleepState = value;
 
         if (this.sleepState === Sleeping.SLEEPING) {
@@ -347,8 +353,15 @@ export class Body {
             this.angularVelocity = 0;
 
             this.motion = 0;
+
+            if (this.sleepState !== prevState) {
+                this.events.trigger('sleep-start');
+            }
         } else if (this.sleepState === Sleeping.AWAKE) {
             this.sleepyTimer = 0;
+            if (this.sleepState !== prevState) {
+                this.events.trigger('sleep-end');
+            }
         }
 
     }
