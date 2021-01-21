@@ -105,8 +105,7 @@ export class Solver {
 
     postSolvePosition () {
 
-        for (const body of this.engine.world.bodies.values()) {
-            if (body.isStatic || body.sleepState === Sleeping.SLEEPING) continue;
+        for (const body of this.engine.world.activeBodies.values()) {
 
             body.translate(body.positionImpulse);
 
@@ -242,12 +241,11 @@ export class Solver {
 
     preSolveConstraints () {
 
-        for (const body of this.engine.world.bodies.values()) {
+        for (const body of this.engine.world.activeBodies.values()) {
 
             Vector.clone(body.dir, body.constraintDir);
             body.constraintAngle = body.angle;
 
-            if (body.isStatic || body.sleepState === Sleeping.SLEEPING) continue;
             body.constraintImpulse.x *= Solver.CONSTRAINT_IMPULSE_DAMPING;
             body.constraintImpulse.y *= Solver.CONSTRAINT_IMPULSE_DAMPING;
             body.constraintImpulse.angle *= Solver.CONSTRAINT_IMPULSE_DAMPING;
@@ -272,7 +270,7 @@ export class Solver {
 
     postSolveConstraints () {
 
-        for (const body of this.engine.world.bodies.values()) {
+        for (const body of this.engine.world.activeBodies.values()) {
             body.setAngle(body.constraintAngle);
         }
     }

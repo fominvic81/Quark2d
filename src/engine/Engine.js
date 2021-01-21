@@ -6,11 +6,12 @@ import { Narrowphase } from '../collision/phase/narrowphase/Narrowphase';
 import { Solver } from '../collision/solver/Solver';
 import { Events } from '../common/Events';
 import { Sleeping } from '../body/Sleeping';
+import { World } from '../common/World';
 
 export class Engine {
 
     constructor (options = {}) {
-        this.world = options.world || new Composite();
+        this.world = options.world || new World();
         this.gravity = options.gravity === undefined ? new Vector(0, 9.8) : Vector.clone(options.gravity);
         this.broadphase = options.broadphase || new Broadphase(this);
         this.midphase = options.midphase || new Midphase(this);
@@ -75,15 +76,14 @@ export class Engine {
     }
 
     applyGravity () {
-        for (const body of this.world.bodies.values()) {
-            if (body.isStatic || body.sleepState === Sleeping.SLEEPING) continue;
+        for (const body of this.world.activeBodies.values()) {
             body.force.x += this.gravity.x * body.mass;
             body.force.y += this.gravity.y * body.mass;
         }
     }
 
     updateBodies (dt) {
-        for (const body of this.world.bodies.values()) {
+        for (const body of this.world.activeBodies.values()) {
             body.update(dt);
         }
     }

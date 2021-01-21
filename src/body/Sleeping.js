@@ -15,15 +15,7 @@ export class Sleeping {
         if (this.type === Sleeping.NO_SLEEPING) return;
 
         if (this.type === Sleeping.BODY_SLEEPING) {
-            for (const body of this.engine.world.bodies.values()) {
-                if (body.isStatic && body.sleepState === Sleeping.SLEEPING) continue;
-                
-                if (body.force.x !== 0 || body.force.y !== 0) {
-                    body.setSleeping(Sleeping.AWAKE);
-                    continue;
-                }
-
-                if (body.sleepState == Sleeping.SLEEPING) continue;
+            for (const body of this.engine.world.activeBodies.values()) {
 
                 if (body.motion <= Sleeping.MOTION_SLEEP_LIMIT) {
                     body.sleepyTimer += delta;
@@ -33,6 +25,12 @@ export class Sleeping {
 
                 if (body.sleepyTimer >= Sleeping.SLEEPY_TIME_LIMIT) {
                     body.setSleeping(Sleeping.SLEEPING);
+                }
+            }
+            for (const body of this.engine.world.sleepingBodies.values()) {
+                if (body.force.x !== 0 || body.force.y !== 0) {
+                    body.setSleeping(Sleeping.AWAKE);
+                    continue;
                 }
             }
         } else if (this.type === Sleeping.ISLAND_SLEEPING) {

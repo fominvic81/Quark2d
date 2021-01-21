@@ -95,8 +95,6 @@ export class Body {
     }
 
     update (delta) {
-        if (this.isStatic || this.sleepState === Sleeping.SLEEPING) return;
-
         this.speedSquared = Vector.lengthSquared(this.velocity);
         this.angSpeedSquared = Math.pow(this.angularVelocity, 2);
         this.motion = this.speedSquared + this.angSpeedSquared;

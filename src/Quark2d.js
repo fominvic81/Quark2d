@@ -15,6 +15,7 @@ import { Common } from './common/Common';
 import { Grid } from './common/Grid';
 import { Events } from './common/Events';
 import { Composite } from './common/Composite';
+import { World } from './common/World';
 
 import { CircleVsCircle } from './collision/phase/narrowphase/CircleVsCircle';
 import { ConvexVsCircle } from './collision/phase/narrowphase/ConvexVsCircle';
@@ -52,10 +53,14 @@ import { Draw } from './tools/render/Draw';
 import { Runner } from './tools/runner/Runner';
 
 export {
+    Common,
     Composite,
-    Engine,
+    Grid,
     Events,
+    World,
 
+    Engine,
+    
     Body,
     Shape,
     Circle,
@@ -64,8 +69,6 @@ export {
     Sleeping,
 
     Bounds,
-    Common,
-    Grid,
     Vector,
     Vertices,
 
