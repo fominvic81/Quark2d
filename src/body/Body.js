@@ -106,7 +106,7 @@ export class Body {
 
         // update velocity
         Vector.add(Vector.scale(this.velocity, (1 - this.velocityDamping)), Vector.scale(this.acceleration, delta));
-        
+
         // update position 
         Vector.clone(this.position, this.positionPrev);
         this.translate(this.velocity);
@@ -120,7 +120,6 @@ export class Body {
         // update angle
         this.anglePrev = this.angle;
         this.rotate(this.angularVelocity);
-
         // clear forces
         Vector.set(this.force, 0, 0);
         this.torque = 0;
@@ -334,6 +333,7 @@ export class Body {
             Vector.set(this.positionImpulse, 0, 0);
             this.events.trigger('become-static');
         } else {
+            this.setSleeping(Sleeping.AWAKE);
             this.events.trigger('become-dynamic');
         }
         this.updateMass();
@@ -378,7 +378,7 @@ export class Body {
         Vector.add(this.velocity, velocity);
 
         if (move) {
-            Vector.add(this.position, velocity);
+            this.translate(velocity);
         }
         if (offset) {
             const angularVelocity = Vector.cross(offset, impusle) * this.inverseInertiaMultiplied;
