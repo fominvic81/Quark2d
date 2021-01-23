@@ -215,7 +215,7 @@ export class Solver {
                         normalImpulse = contact.normalImpulse - contactNormalImpulse;
                     }
 
-                    tangentVelocity = Vector.dot(relativeVelocity, shapePair.tangent);
+                    tangentVelocity = Vector.dot(relativeVelocity, shapePair.tangent) + shapePair.surfaceVelocity;
                     tangentImpulse = tangentVelocity * share;
 
                     if (Math.abs(tangentVelocity) > -shapePair.frictionStatic * normalVelocity) {

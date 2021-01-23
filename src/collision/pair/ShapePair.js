@@ -43,6 +43,7 @@ export class ShapePair {
         this.friction = Math.min(this.shapeA.friction, this.shapeB.friction);
         this.frictionStatic = Math.min(this.shapeA.frictionStatic, this.shapeB.frictionStatic);
         this.restitution = Math.max(this.shapeA.restitution, this.shapeB.restitution);
+        this.surfaceVelocity = this.shapeA.surfaceVelocity + this.shapeB.surfaceVelocity;
     }
 
     updatePrev () {

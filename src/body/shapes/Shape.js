@@ -25,6 +25,7 @@ export class Shape {
         this.restitution = options.restitution !== undefined ? options.restitution : 0.1;
         this.friction = options.friction !== undefined ? options.friction : 0.1;
         this.frictionStatic = options.frictionStatic !== undefined ? options.frictionStatic : 0.5;
+        this.surfaceVelocity = options.surfaceVelocity !== undefined ? options.surfaceVelocity : 0;
     }
 
     getWorldPosition () {
