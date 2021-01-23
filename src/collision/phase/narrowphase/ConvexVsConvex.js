@@ -108,15 +108,6 @@ export const ConvexVsConvex = (shapePair) => {
         Vector.clone(Vector.subtract(incSupports[0], offsetB, temp4), shapePair.contacts[0].vertex);
     }
 
-    // if (Vector.dot(
-    //     shapePair.normal,
-    //     Vector.subtract(
-    //         shapeA.getWorldPosition(),
-    //         shapeB.getWorldPosition(),
-    //         temp0,
-    //     )) > 0) {
-    //     Vector.neg(shapePair.normal);
-    // }
     if (flipped) {
         Vector.neg(shapePair.normal);
     }

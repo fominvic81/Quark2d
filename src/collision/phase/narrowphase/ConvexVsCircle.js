@@ -43,7 +43,7 @@ export const ConvexVsCircle = (shapePair) => {
             }
 
             const dist = Math.sqrt(distSquared);
-            
+
             shapePair.depth = radius - dist;
             Vector.divide(shapePair.normal, dist);
             if (flipped) {
@@ -97,6 +97,32 @@ export const ConvexVsCircle = (shapePair) => {
         if (dot1 <= 0) {
             
             Vector.clone(point1, closestPoint);
+            shapePair.vertexCol = true;
+
+        } else {
+            
+            const dot2 = Vector.dot(Vector.subtract(positionB, point2, temp2), Vector.subtract(point1, point2, temp3));
+
+            if (dot2 <= 0) {
+
+                Vector.clone(point2, closestPoint);
+                shapePair.vertexCol = true;
+
+            } else {
+
+                Vector.clone(normals[normalIndex], shapePair.normal);
+                if (!flipped) {
+                    Vector.neg(shapePair.normal);
+                }
+                shapePair.indexA = normalIndex;
+                shapePair.vertexCol = false;
+
+                Vector.clone(Vector.subtract(positionB, Vector.scale(normals[normalIndex], radius, temp2), temp2), closestPoint);
+                shapePair.depth = radius - maxDist;
+
+            }
+        }
+        if (shapePair.vertexCol) {
             Vector.subtract(closestPoint, positionB, shapePair.normal);
 
             const distSquared = Vector.lengthSquared(shapePair.normal);
@@ -110,58 +136,13 @@ export const ConvexVsCircle = (shapePair) => {
             }
 
             const dist = Math.sqrt(distSquared);
-            
+
             shapePair.depth = radius - dist;
             Vector.divide(shapePair.normal, dist);
             if (flipped) {
                 Vector.neg(shapePair.normal);
             }
             shapePair.indexA = normalIndex;
-            shapePair.vertexCol = true;
-
-        } else {
-            
-            const dot2 = Vector.dot(Vector.subtract(positionB, point2, temp2), Vector.subtract(point1, point2, temp3));
-
-            if (dot2 <= 0) {
-
-                Vector.clone(point2, closestPoint);
-                Vector.subtract(closestPoint, positionB, shapePair.normal);
-
-                const distSquared = Vector.lengthSquared(shapePair.normal);
-
-                if (Math.pow(radius, 2) < distSquared) {
-                    return shapePair;
-                }
-
-                if (distSquared === 0) {
-                    return shapePair;
-                }
-
-                const dist = Math.sqrt(distSquared);
-                
-                shapePair.depth = radius - dist;
-                Vector.divide(shapePair.normal, dist);
-                if (flipped) {
-                    Vector.neg(shapePair.normal);
-                }
-                shapePair.indexA = normalIndex;
-                shapePair.vertexCol = true;
-
-            } else {
-
-                Vector.clone(normals[normalIndex], shapePair.normal);
-                if (!flipped) {
-                    Vector.neg(shapePair.normal);
-                }
-
-                shapePair.indexA = normalIndex;
-                shapePair.vertexCol = false;
-
-                Vector.clone(Vector.subtract(positionB, Vector.scale(normals[normalIndex], radius, temp2), temp2), closestPoint);
-                shapePair.depth = radius - maxDist;
-
-            }
         }
     }
 
