@@ -78,7 +78,11 @@ export class Solver {
 
             for (const shapePair of pair.activeShapePairs) {
 
-                positionImpulse = (shapePair.separation - Solver.SLOP) * (pair.bodyA.isStatic || pair.bodyB.isStatic ? 1 : 0.5);
+                positionImpulse = (shapePair.separation - Solver.SLOP);
+
+                if (pair.bodyA.isStatic || pair.bodyB.isStatic) {
+                    positionImpulse *= 2;
+                }
                 
                 if (!(pair.bodyA.isStatic || pair.bodyA.sleepState === Sleeping.SLEEPING)) { 
                     const share = Solver.DEPTH_DAMPING / pair.bodyA.contactsCount;
