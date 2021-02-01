@@ -94,7 +94,7 @@ export const ConvexVsCircle = (shapePair) => {
 
         const dot1 = Vector.dot(Vector.subtract(positionB, point1, temp2), Vector.subtract(point2, point1, temp3));
 
-        if (dot1 <= 0) {
+        if (dot1 < 0) {
             
             Vector.clone(point1, closestPoint);
             shapePair.vertexCol = true;
@@ -103,7 +103,7 @@ export const ConvexVsCircle = (shapePair) => {
             
             const dot2 = Vector.dot(Vector.subtract(positionB, point2, temp2), Vector.subtract(point1, point2, temp3));
 
-            if (dot2 <= 0) {
+            if (dot2 < 0) {
 
                 Vector.clone(point2, closestPoint);
                 shapePair.vertexCol = true;

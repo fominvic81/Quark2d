@@ -19,7 +19,7 @@ export const CircleVsCircle = (shapePair) => {
     shapePair.isActive = true;
     shapePair.contactsCount = 1;
 
-    if (distSquared <= 0.00001) {
+    if (distSquared < 0.0000001) {
         Vector.set(shapePair.normal, 0, 1);
         shapePair.depth = shapeA.radius + shapeB.radius;
         Vector.clone(positionA, shapePair.contacts[0].vertex);
