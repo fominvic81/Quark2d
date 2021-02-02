@@ -150,14 +150,24 @@ export class Render {
             const color = (body.sleepState === Sleeping.AWAKE || !this.options.showSleeping) ? 'rgb(200, 200, 200)' : 'rgb(100, 100, 100)';
             for (const shape of body.shapes) {
                 const pos = shape.getWorldPosition();
-                if (shape.type === Shape.CIRCLE) {
-                    Draw.circle(this.ctx, pos, Math.max(shape.radius - Solver.SLOP / 2, 0.00001), color, false, this.options.lineWidth / 20);
-                } else if (shape.type === Shape.CONVEX) {
-                    if (this.options.showRadius) {
-                        this.convex(shape, color, false, this.options.lineWoidth / 20);
-                    } else {
-                        Draw.polygon(this.ctx, shape.getWorldVertices(), color, false, this.options.lineWidth / 20);
-                    }
+                switch (shape.type) {
+                    case Shape.CIRCLE:
+                        Draw.circle(this.ctx, pos, Math.max(shape.radius - Solver.SLOP / 2, 0.00001), color, false, this.options.lineWidth / 20);
+                        break;
+                    case Shape.CONVEX:
+                        if (this.options.showRadius) {
+                            this.convex(shape, color, false, this.options.lineWoidth / 20);
+                        } else {
+                            Draw.polygon(this.ctx, shape.getWorldVertices(), color, false, this.options.lineWidth / 20);
+                        }
+                        break;
+                        case Shape.EDGE:
+                            if (this.options.showRadius) {
+                                this.edge(shape, color, false, this.options.lineWoidth / 20);
+                            } else {
+                                Draw.line(this.ctx, shape.start, shape.end, color, this.options.lineWidth / 5);
+                            }
+                        break;
                 }
             }
         }
@@ -503,6 +513,90 @@ export class Render {
             this.ctx.strokeStyle = color;
             this.ctx.stroke();
         }
+    }
+
+    edge (edge, color, fill = true, lineWidth = 1) {
+        const radius = edge.radius - Solver.SLOP / 2;
+
+        if (radius <= 0.000001) {
+            Draw.line(this.ctx, edge.start, edge.end, color, fill, lineWidth);
+            return;
+        }
+        Draw.line(this.ctx, edge.start, edge.end, color, fill, lineWidth);
+
+        // const p1 = Vector.add(edge.start, Vector.scale(edge.normal, edge.radius, Vector.temp[0]), Vector.temp[0]);
+        // const p2 = Vector.add(p1, Vector.rotate90(Vector.scale(edge.normal, edge.radius, Vector.temp[1])), Vector.temp[1]);
+        // const p3 = Vector.subtract(p2, Vector.scale(edge.normal, 2 * edge.radius, Vector.temp[2]), Vector.temp[2]);
+        // const p4 = Vector.subtract(p1, Vector.scale(edge.normal, 2 * edge.radius, Vector.temp[3]), Vector.temp[3]);
+        // Draw.circle(this.ctx, p1, 0.1, 'rgb(200, 200, 200)', true);
+        // Draw.circle(this.ctx, p2, 0.2, 'rgb(200, 200, 200)', true);
+        // Draw.circle(this.ctx, p3, 0.3, 'rgb(200, 200, 200)', true);
+        // Draw.circle(this.ctx, p4, 0.4, 'rgb(200, 200, 200)', true);
+
+        // this.ctx.moveTo(p1.x, p1.y);
+        // this.ctx.arcTo(p2.x, p2.y, p3.x, p3.y, radius);
+        // this.ctx.moveTo(p4.x, p4.y);
+        // this.ctx.arcTo(p3.x, p3.y, p2.x, p2.y, radius);
+
+        // Vector.add(edge.end, Vector.scale(edge.normal, -edge.radius, Vector.temp[0]), p1);
+        // Vector.add(p1, Vector.rotate90(Vector.scale(edge.normal, -edge.radius, Vector.temp[1])), p2);
+        // Vector.subtract(p2, Vector.scale(edge.normal, -2 * edge.radius, Vector.temp[2]), p3);
+        // Vector.subtract(p1, Vector.scale(edge.normal, -2 * edge.radius, Vector.temp[3]), p4);
+
+        // this.ctx.lineTo(p1.x, p1.y);
+        // this.ctx.arcTo(p2.x, p2.y, p3.x, p3.y, radius);
+        // this.ctx.moveTo(p4.x, p4.y);
+        // this.ctx.arcTo(p3.x, p3.y, p2.x, p2.y, radius);
+
+        // Vector.add(edge.start, Vector.scale(edge.normal, edge.radius, Vector.temp[0]), p1);
+        // this.ctx.lineTo(p1.x, p1.y);
+
+        // const p1 = Vector.add(edge.end, Vector.scale(edge.normal, edge.radius, Vector.temp[1]), Vector.temp[1]);
+        // const p3 = Vector.add(edge.start, Vector.rotate90(Vector.scale(edge.normal, edge.radius, Vector.temp[2])), Vector.temp[2]);
+        // const p2 = Vector.add(p3, Vector.scale(edge.normal, edge.radius, Vector.temp[0]), Vector.temp[0]);
+        
+        
+        this.halfEdge(edge, radius, 1);
+        if (fill) {
+            this.ctx.fillStyle = color;
+            this.ctx.fill();
+        } else {
+            this.ctx.lineWidth = lineWidth;
+            this.ctx.strokeStyle = color;
+            this.ctx.stroke();
+        }
+
+        this.halfEdge(edge, radius, -1);
+        if (fill) {
+            this.ctx.fillStyle = color;
+            this.ctx.fill();
+        } else {
+            this.ctx.lineWidth = lineWidth;
+            this.ctx.strokeStyle = color;
+            this.ctx.stroke();
+        }
+    }
+
+    halfEdge (edge, radius, dir) {
+
+        const p1 = Vector.add(edge.start, Vector.rotate90(Vector.scale(edge.normal, edge.radius, Vector.temp[0])), Vector.temp[0]);
+        const p2 = Vector.add(edge.end, Vector.rotate90(Vector.scale(edge.normal, -edge.radius, Vector.temp[1])), Vector.temp[1]);
+        const p3 = Vector.add(edge.end, Vector.scale(edge.normal, edge.radius * dir, Vector.temp[2]), Vector.temp[2]);
+        const p4 = Vector.add(p1, Vector.scale(edge.normal, edge.radius * dir, Vector.temp[3]), Vector.temp[3]);
+        const p5 = Vector.add(p2, Vector.scale(edge.normal, edge.radius * dir, Vector.temp[4]), Vector.temp[4]);
+
+        // Draw.circle(this.ctx, p1, 0.1, 'rgb(200, 200, 200)', true);
+        // Draw.circle(this.ctx, p2, 0.2, 'rgb(200, 200, 200)', true);
+        // Draw.circle(this.ctx, p3, 0.3, 'rgb(200, 200, 200)', true);
+        // Draw.circle(this.ctx, p4, 0.4, 'rgb(200, 200, 200)', true);
+        // Draw.circle(this.ctx, p5, 0.5, 'rgb(200, 200, 200)', true);
+
+        this.ctx.moveTo(p1.x, p1.y);
+        this.ctx.arcTo(p4.x, p4.y, p3.x, p3.y, radius);
+        this.ctx.lineTo(p3.x, p3.y);
+        this.ctx.moveTo(p2.x, p2.y);
+        this.ctx.arcTo(p5.x, p5.y, p3.x, p3.y, radius);
+
     }
 
 }

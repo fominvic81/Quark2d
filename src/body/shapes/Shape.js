@@ -52,3 +52,4 @@ export class Shape {
 
 Shape.CIRCLE = Math.pow(2, 0);
 Shape.CONVEX = Math.pow(2, 1);
+Shape.EDGE = Math.pow(2, 2);

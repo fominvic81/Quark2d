@@ -269,31 +269,58 @@ export class Body {
             shape.worldPosition.x = dx * cos - dy * sin + this.position.x;
             shape.worldPosition.y = dx * sin + dy * cos + this.position.y;
 
-            if (shape.type === Shape.CONVEX) {
-                vertices = shape.worldVertices;
+            switch (shape.type) {
+                case Shape.CONVEX:
+                    vertices = shape.worldVertices;
 
-                for (const vertex of vertices) {
-                    delta = shape.deltaVertices[vertex.index];
+                    for (const vertex of vertices) {
+                        delta = shape.deltaVertices[vertex.index];
+    
+                        dx = delta.x;
+                        dy = delta.y;
+            
+                        delta.x = dx * cos - dy * sin;
+                        delta.y = dx * sin + dy * cos;
+    
+                        vertex.x = delta.x + this.position.x;
+                        vertex.y = delta.y + this.position.y;
+                    }
+    
+                    normals = shape.worldNormals;
+    
+                    for (const normal of normals) {
+                        dx = normal.x;
+                        dy = normal.y;
+            
+                        normal.x = dx * cos - dy * sin;
+                        normal.y = dx * sin + dy * cos;
+                    }
+                    break;
+                case Shape.EDGE:
 
-                    dx = delta.x;
-                    dy = delta.y;
+                    dx = shape.worldPosition.x - this.position.x;
+                    dy = shape.worldPosition.y - this.position.y;
+
+                    shape.worldPosition.x = dx * cos - dy * sin + this.position.x;
+                    shape.worldPosition.y = dx * sin + dy * cos + this.position.y;
+
+                    dx = shape.start.x - this.position.x;
+                    dy = shape.start.y - this.position.y;
+
+                    shape.start.x = dx * cos - dy * sin + this.position.x;
+                    shape.start.y = dx * sin + dy * cos + this.position.y;
+
+                    dx = shape.end.x - this.position.x;
+                    dy = shape.end.y - this.position.y;
+
+                    shape.end.x = dx * cos - dy * sin + this.position.x;
+                    shape.end.y = dx * sin + dy * cos + this.position.y;
+
+                    dx = shape.normal.x;
+                    dy = shape.normal.y;
         
-                    delta.x = dx * cos - dy * sin;
-                    delta.y = dx * sin + dy * cos;
-
-                    vertex.x = delta.x + this.position.x;
-                    vertex.y = delta.y + this.position.y;
-                }
-
-                normals = shape.worldNormals;
-
-                for (const normal of normals) {
-                    dx = normal.x;
-                    dy = normal.y;
-        
-                    normal.x = dx * cos - dy * sin;
-                    normal.y = dx * sin + dy * cos;
-                }
+                    shape.normal.x = dx * cos - dy * sin;
+                    shape.normal.y = dx * sin + dy * cos;
             }
         }
 

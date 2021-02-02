@@ -4,6 +4,7 @@ import { Body } from './body/Body';
 import { Shape } from './body/shapes/Shape';
 import { Circle } from './body/shapes/Circle';
 import { Convex } from './body/shapes/Convex';
+import { Edge } from './body/shapes/Edge';
 import { Filter } from './body/Filter';
 import { Sleeping } from './body/Sleeping';
 
@@ -65,6 +66,7 @@ export {
     Shape,
     Circle,
     Convex,
+    Edge,
     Filter,
     Sleeping,
 
