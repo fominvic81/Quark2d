@@ -153,6 +153,7 @@ export class Convex extends Shape {
     rotate (angle) {
         Vertices.rotate(this.worldVertices, angle, this.worldPosition);
         Vertices.rotate(this.worldNormals, angle);
+        Vertices.rotate(this.deltaVertices, angle);
     }
 
     updateArea () {
