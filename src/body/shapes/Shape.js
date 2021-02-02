@@ -12,7 +12,6 @@ export class Shape {
         this.body = undefined;
         this.worldPosition = new Vector();
         this.bounds = new Bounds();
-        this.angle = 0;
         this.inertia = options.inertia;
         this.area = 0;
         this.radius = options.radius !== undefined ? options.radius + Solver.SLOP / 2 : Solver.SLOP / 2;
@@ -30,10 +29,6 @@ export class Shape {
 
     getWorldPosition () {
         return this.worldPosition;
-    }
-
-    getWorldAngle () {
-        return this.angle + this.body.angle;
     }
 
     translate (offset) {}
