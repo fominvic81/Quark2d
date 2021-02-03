@@ -52,7 +52,7 @@ export class Edge extends Shape {
     }
 
     updateInertia () {
-        this.inertia = 0.1;
+        this.inertia = Math.pow(this.length, 2) / 12;
         return this.inertia;
     }
 
