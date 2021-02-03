@@ -114,6 +114,13 @@ export class Vector {
         return output;
     }
 
+    static rotate270 (vector, output = vector) {
+        const x = vector.x;
+        output.x = vector.y;
+        output.y = -x;
+        return output;
+    }
+
     static isCollinear (vectorA, vectorB) {
         return (Math.abs(vectorA.x / vectorA.y - vectorB.x / vectorB.y) < 0.0001) || (vectorA.y === 0 && vectorB.y === 0);
     }
