@@ -221,7 +221,9 @@ export class Body {
 
         Vector.subtract(this.position, cm);
         for (const shape of this.shapes) {
-            Vertices.translate(shape.deltaVertices, cm);
+            if (shape.type === Shape.CONVEX) {
+                Vertices.translate(shape.deltaVertices, cm);
+            }
         }
     }
 
