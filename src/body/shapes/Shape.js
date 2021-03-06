@@ -14,7 +14,7 @@ export class Shape {
         this.bounds = new Bounds();
         this.inertia = options.inertia;
         this.area = 0;
-        this.radius = options.radius !== undefined ? options.radius + Solver.SLOP / 2 : Solver.SLOP / 2;
+        this.radius = options.radius !== undefined ? options.radius : Solver.SLOP * 2;
         this.filter = new Filter();
         if (options.filter) {
             if (options.filter.category !== undefined) this.filter.category = options.filter.category;
@@ -25,10 +25,6 @@ export class Shape {
         this.friction = options.friction !== undefined ? options.friction : 0.1;
         this.frictionStatic = options.frictionStatic !== undefined ? options.frictionStatic : 0.5;
         this.surfaceVelocity = options.surfaceVelocity !== undefined ? options.surfaceVelocity : 0;
-    }
-
-    getWorldPosition () {
-        return this.worldPosition;
     }
 
     translate (offset) {}
@@ -47,6 +43,10 @@ export class Shape {
     }
 
     raycast (intersection, from, to, delta) {}
+
+    getPoint (index) {}
+
+    getNormal (index, output) {}
 
 }
 

@@ -65,9 +65,15 @@ export class Render {
         this.statusTimer += timestamp.delta;
         this.events.trigger('before-step', [{render: this, timestamp}]);
 
+        this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.ctx.fillStyle = this.options.backgroundColor;
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+        if (this.options.showStatus) {
+            this.status();
+        }
         
         this.ctx.translate(
             this.canvas.width / 2 + this.options.translate.x * this.options.scale.x,
@@ -129,11 +135,6 @@ export class Render {
         
         this.events.trigger('after-step', [{render: this, timestamp}]);
         
-        this.ctx.setTransform(1, 0, 0, 1, 0, 0);
-
-        if (this.options.showStatus) {
-            this.status();
-        }
     }
 
     updateBounds () {
@@ -149,23 +150,23 @@ export class Render {
         for (const body of bodies) {
             const color = (body.sleepState === Sleeping.AWAKE || !this.options.showSleeping) ? 'rgb(200, 200, 200)' : 'rgb(100, 100, 100)';
             for (const shape of body.shapes) {
-                const pos = shape.getWorldPosition();
+                const pos = shape.worldPosition;
                 switch (shape.type) {
                     case Shape.CIRCLE:
                         Draw.circle(this.ctx, pos, Math.max(shape.radius - Solver.SLOP / 2, 0.00001), color, false, this.options.lineWidth / 20);
                         break;
                     case Shape.CONVEX:
                         if (this.options.showRadius) {
-                            this.convex(shape, color, false, this.options.lineWoidth / 20);
+                            this.convex(shape, color, false, this.options.lineWidth / 20);
                         } else {
-                            Draw.polygon(this.ctx, shape.getWorldVertices(), color, false, this.options.lineWidth / 20);
+                            Draw.polygon(this.ctx, shape.worldVertices, color, false, this.options.lineWidth / 20);
                         }
                         break;
                         case Shape.EDGE:
                             if (this.options.showRadius) {
-                                this.edge(shape, color, false, this.options.lineWoidth / 20);
+                                this.edge(shape, color, false, this.options.lineWidth / 25);
                             } else {
-                                Draw.line(this.ctx, shape.start, shape.end, color, this.options.lineWidth / 5);
+                                Draw.line(this.ctx, shape.start, shape.end, color, this.options.lineWidth / 25);
                             }
                         break;
                 }
@@ -260,22 +261,25 @@ export class Render {
     angleIndicator (bodies) {
         for (const body of bodies) {
             for (const shape of body.shapes) {
-                const pos = shape.getWorldPosition();
-                const angle = shape.getWorldAngle();
+                const pos = shape.worldPosition;
+                const angle = shape.body.angle;
 
-                if (shape.type === Shape.CIRCLE) {
-                    Draw.line(this.ctx, pos, Vector.add(Vector.set(
-                        Vector.temp[0],
-                        Math.cos(angle) * shape.radius,
-                        Math.sin(angle) * shape.radius,
-                    ), pos), 'rgb(200, 200, 200)', this.options.lineWidth / 10);
-                } else if (shape.type === Shape.CONVEX) {
-                    const vertices = shape.getWorldVertices();
-                    Draw.line(this.ctx, pos, Vector.set(
-                        Vector.temp[0],
-                        (vertices[0].x + vertices[1].x) / 2,
-                        (vertices[0].y + vertices[1].y) / 2,
-                    ), 'rgb(200, 200, 200)', this.options.lineWidth / 10);
+                switch (shape.type) {
+                    case Shape.CIRCLE:
+                        Draw.line(this.ctx, pos, Vector.add(Vector.set(
+                            Vector.temp[0],
+                            Math.cos(angle) * shape.radius,
+                            Math.sin(angle) * shape.radius,
+                        ), pos), 'rgb(200, 200, 200)', this.options.lineWidth / 10);
+                        break;
+                    case Shape.CONVEX:
+                        const vertices = shape.worldVertices;
+                        Draw.line(this.ctx, pos, Vector.set(
+                            Vector.temp[0],
+                            (vertices[0].x + vertices[1].x) / 2,
+                            (vertices[0].y + vertices[1].y) / 2,
+                        ), 'rgb(200, 200, 200)', this.options.lineWidth / 10);
+                        break;
                 }
 
             }
@@ -292,7 +296,7 @@ export class Render {
                 if (!shapePair.isActive) continue;
                 for (let i = 0; i < shapePair.contactsCount; ++i) {
                     const contact = shapePair.contacts[i];
-                    Draw.circle(this.ctx, contact.vertex, this.options.lineWidth / 8,'rgb(200, 80, 80)');
+                    Draw.circle(this.ctx, contact.vertex, this.options.lineWidth / 8, 'rgb(200, 80, 80)');
                     Draw.line(this.ctx, contact.vertex, Vector.add(Vector.scale(shapePair.normal, 0.2, Vector.temp[0]), contact.vertex), 'rgb(200, 80, 80)', this.options.lineWidth / 8);
                 }
             }
@@ -303,8 +307,8 @@ export class Render {
         for (const body of bodies) {
             for (const shape of body.shapes) {
                 if (shape.type === Shape.CONVEX) {
-                    const pos = shape.getWorldPosition();
-                    const normals = shape.getWorldNormals();
+                    const pos = shape.worldPosition;
+                    const normals = shape.worldNormals;
                     for (const normal of normals) {
                         Draw.line(this.ctx, pos, Vector.add(pos, normal, Vector.temp[0]), 'rgb(200, 100, 100)', this.options.lineWidth / 8);
                     }
@@ -362,7 +366,7 @@ export class Render {
         for (const body of bodies) {
             Draw.circle(this.ctx, body.position, this.options.lineWidth / 4 , 'rgb(40, 160, 40)');
             for (const shape of body.shapes) {
-                Draw.circle(this.ctx, shape.getWorldPosition(), this.options.lineWidth / 8 , 'rgb(160, 40, 40)');
+                Draw.circle(this.ctx, shape.worldPosition, this.options.lineWidth / 8 , 'rgb(160, 40, 40)');
             }
         }
     }
@@ -371,7 +375,7 @@ export class Render {
         for (const body of bodies) {
             for (const shape of body.shapes) {
                 if (shape.type === Shape.CONVEX) {
-                    const vertices = shape.getWorldVertices();
+                    const vertices = shape.worldVertices;
                     for (const vertex of vertices) {
                         this.ctx.font = '0.5px Arial';
                         this.ctx.fillStyle = 'rgb(128, 128, 128)';
@@ -472,14 +476,14 @@ export class Render {
 
     convex (convex, color, fill = true, lineWidth = 1) {
 
-        const radius = convex.radius - Solver.SLOP / 2;
-        const vertices = convex.getWorldVertices();
-        if (radius <= 0.000001) {
+        const radius = convex.radius;
+        const vertices = convex.worldVertices;
+        if (radius <= Solver.SLOP * 2) {
             Draw.polygon(this.ctx, vertices, color, fill, lineWidth);
             return;
         }
         
-        const normals = convex.getWorldNormals();
+        const normals = convex.worldNormals;
     
         const first = Vector.add(vertices[0], Vector.scale(normals[vertices.length - 1], radius, Vector.temp[0]), Vector.temp[0]);
 
@@ -516,45 +520,13 @@ export class Render {
     }
 
     edge (edge, color, fill = true, lineWidth = 1) {
-        const radius = edge.radius - Solver.SLOP / 2;
+        const radius = edge.radius;
 
-        if (radius <= 0.000001) {
+        if (radius <= Solver.SLOP * 2) {
             Draw.line(this.ctx, edge.start, edge.end, color, fill, lineWidth);
             return;
         }
         Draw.line(this.ctx, edge.start, edge.end, color, fill, lineWidth);
-
-        // const p1 = Vector.add(edge.start, Vector.scale(edge.normal, edge.radius, Vector.temp[0]), Vector.temp[0]);
-        // const p2 = Vector.add(p1, Vector.rotate90(Vector.scale(edge.normal, edge.radius, Vector.temp[1])), Vector.temp[1]);
-        // const p3 = Vector.subtract(p2, Vector.scale(edge.normal, 2 * edge.radius, Vector.temp[2]), Vector.temp[2]);
-        // const p4 = Vector.subtract(p1, Vector.scale(edge.normal, 2 * edge.radius, Vector.temp[3]), Vector.temp[3]);
-        // Draw.circle(this.ctx, p1, 0.1, 'rgb(200, 200, 200)', true);
-        // Draw.circle(this.ctx, p2, 0.2, 'rgb(200, 200, 200)', true);
-        // Draw.circle(this.ctx, p3, 0.3, 'rgb(200, 200, 200)', true);
-        // Draw.circle(this.ctx, p4, 0.4, 'rgb(200, 200, 200)', true);
-
-        // this.ctx.moveTo(p1.x, p1.y);
-        // this.ctx.arcTo(p2.x, p2.y, p3.x, p3.y, radius);
-        // this.ctx.moveTo(p4.x, p4.y);
-        // this.ctx.arcTo(p3.x, p3.y, p2.x, p2.y, radius);
-
-        // Vector.add(edge.end, Vector.scale(edge.normal, -edge.radius, Vector.temp[0]), p1);
-        // Vector.add(p1, Vector.rotate90(Vector.scale(edge.normal, -edge.radius, Vector.temp[1])), p2);
-        // Vector.subtract(p2, Vector.scale(edge.normal, -2 * edge.radius, Vector.temp[2]), p3);
-        // Vector.subtract(p1, Vector.scale(edge.normal, -2 * edge.radius, Vector.temp[3]), p4);
-
-        // this.ctx.lineTo(p1.x, p1.y);
-        // this.ctx.arcTo(p2.x, p2.y, p3.x, p3.y, radius);
-        // this.ctx.moveTo(p4.x, p4.y);
-        // this.ctx.arcTo(p3.x, p3.y, p2.x, p2.y, radius);
-
-        // Vector.add(edge.start, Vector.scale(edge.normal, edge.radius, Vector.temp[0]), p1);
-        // this.ctx.lineTo(p1.x, p1.y);
-
-        // const p1 = Vector.add(edge.end, Vector.scale(edge.normal, edge.radius, Vector.temp[1]), Vector.temp[1]);
-        // const p3 = Vector.add(edge.start, Vector.rotate90(Vector.scale(edge.normal, edge.radius, Vector.temp[2])), Vector.temp[2]);
-        // const p2 = Vector.add(p3, Vector.scale(edge.normal, edge.radius, Vector.temp[0]), Vector.temp[0]);
-        
         
         this.halfEdge(edge, radius, 1);
         if (fill) {

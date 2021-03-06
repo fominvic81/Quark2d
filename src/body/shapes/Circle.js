@@ -39,13 +39,13 @@ export class Circle extends Shape {
         Vector.set(this.bounds.max,
             this.radius, this.radius,
         );
-        this.bounds.translate(this.getWorldPosition());
+        this.bounds.translate(this.worldPosition);
         return this.bounds;
     }
 
     raycast (intersection, from, to, delta) {
 
-        const position = this.getWorldPosition();
+        const position = this.worldPosition;
         const radius = this.radius;
 
         const posDelta = Vector.subtract(from, position, Vector.temp[0]);
@@ -86,6 +86,9 @@ export class Circle extends Shape {
             Vector.subtract(position, contact.point, contact.normal);
             Vector.divide(contact.normal, radius);
         }
+    }
 
+    getPoint (index) {
+        return this.worldPosition;
     }
 }

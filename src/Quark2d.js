@@ -20,8 +20,11 @@ import { World } from './common/World';
 
 import { CircleVsCircle } from './collision/phase/narrowphase/CircleVsCircle';
 import { ConvexVsCircle } from './collision/phase/narrowphase/ConvexVsCircle';
-import { ConvexVsConvex } from './collision/phase/narrowphase/ConvexVsConvex';
+import { EdgeVsCircle } from './collision/phase/narrowphase/EdgeVsCircle';
+import { collide } from './collision/phase/narrowphase/Collision';
 import { Colliders } from './collision/phase/narrowphase/Colliders';
+import { GJK } from './collision/phase/narrowphase/Distance';
+import { EPA } from './collision/phase/narrowphase/Distance';
 
 import { Phase } from './collision/phase/Phase';
 import { Broadphase } from './collision/phase/broadphase';
@@ -76,8 +79,11 @@ export {
 
     CircleVsCircle,
     ConvexVsCircle,
-    ConvexVsConvex,
+    EdgeVsCircle,
+    collide,
     Colliders,
+    GJK,
+    EPA,
 
     Phase,
     Broadphase,

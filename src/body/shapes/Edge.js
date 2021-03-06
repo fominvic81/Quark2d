@@ -15,6 +15,8 @@ export class Edge extends Shape {
         this.length = 1;
         this.delta = new Vector();
         this.normal = new Vector();
+        this.ngNormal = new Vector();
+        this.projection = {};
 
         this.set(options.start || this.start, options.end || this.end);
 
@@ -38,6 +40,24 @@ export class Edge extends Shape {
             this.start.x + this.delta.x / 2,
             this.start.y + this.delta.y / 2,
         );
+
+        Vector.neg(this.normal, this.ngNormal);
+    }
+
+    project (vector, output = this.projection) {
+
+        const sDot = Vector.dot(this.start, vector);
+        const eDot = Vector.dot(this.end, vector);
+
+        if (sDot > eDot) {
+            output.value = sDot;
+            output.index = 0;
+        } else {
+            output.value = eDot;
+            output.index = 1;
+        }
+
+        return output;
     }
 
     translate (offset) {
@@ -72,5 +92,13 @@ export class Edge extends Shape {
             this.bounds.max.y = this.start.y + this.radius;
         }
         return this.bounds;
+    }
+
+    getPoint (index) {
+        return index ? this.end : this.start;
+    }
+
+    getNormal (index, output) {
+        return Vector.clone((index ? this.normal : this.ngNormal), output);
     }
 }

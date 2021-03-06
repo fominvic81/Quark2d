@@ -323,6 +323,8 @@ export class Body {
         
                     shape.normal.x = dx * cos - dy * sin;
                     shape.normal.y = dx * sin + dy * cos;
+
+                    Vector.neg(shape.normal, shape.ngNormal);
             }
         }
 

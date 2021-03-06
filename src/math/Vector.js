@@ -1,3 +1,4 @@
+import { Common } from '../common/Common';
 
 export class Vector {
 
@@ -181,11 +182,38 @@ export class Vector {
         return b;
     };
 
-    static getSide (vector, point) {
-        const cross = Vector.cross(vector, point);
-        if (cross > 0.001) return 1; // right
-        if (cross < -0.001) return -1; // left
-        return 0; // on
+    static zeroT (vectorA, vectorB) {
+        const delta = Vector.subtract(vectorB, vectorA, Vector._prTemp[0]);
+        return -Common.clamp(
+            Vector.dot(delta, Vector.add(vectorA, vectorB, Vector._prTemp[1])) / (Vector.lengthSquared(delta)),
+            -1, 1,
+        );
+    }
+
+    static interpolateT (vectorA, vectorB, t, output = new Vector()) {
+        const halfT = 0.5 * t;
+        return Vector.add(
+            Vector.scale(vectorA, 0.5 - halfT, Vector._prTemp[0]),
+            Vector.scale(vectorB, 0.5 + halfT, Vector._prTemp[1]),
+            output,
+        );
+    }
+
+    static distSquaredToZero (v1, v2) {
+        return Vector.lengthSquared(Vector.interpolateT(v1, v2, Vector.zeroT(v1, v2), Vector._prTemp[0]));
+    }
+    
+    static side (a, b, c) {
+        return (b.y - a.y) * (a.x + b.x - 2 * c.x) > (b.x - a.x) * (a.y + b.y - 2 * c.y);
+    }
+    
+    static zeroSide (a, b) {
+        return (b.y - a.y) * (a.x + b.x) > (b.x - a.x) * (a.y + b.y);
+    }
+
+    static swap (vectorA, vectorB) {
+        [vectorA.x, vectorB.x] = [vectorB.x, vectorA.x];
+        [vectorA.y, vectorB.y] = [vectorB.y, vectorA.y];
     }
 };
 
@@ -197,3 +225,7 @@ Vector.temp = [
 ];
 
 Vector.zero = new Vector(0, 0);
+
+Vector._prTemp = [
+    new Vector(), new Vector,
+];

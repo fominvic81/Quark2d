@@ -5,27 +5,27 @@ import { Vector } from '../../../math/Vector';
 export const EdgeVsCircle = (shapePair) => {
 
     const flipped = shapePair.shapeA.type === Shape.EDGE;
-    const shapeA = flipped ? shapePair.shapeA : shapePair.shapeB; // edge
-    const shapeB = flipped ? shapePair.shapeB : shapePair.shapeA; // circle
+    const edge = flipped ? shapePair.shapeA : shapePair.shapeB;
+    const circle = flipped ? shapePair.shapeB : shapePair.shapeA;
 
     const temp0 = Vector.temp[0];
 
     const normal = shapePair.normal;
 
-    const radius = shapeA.radius + shapeB.radius;
-    const edgeLength = shapeA.length;
+    const radius = edge.radius + circle.radius;
+    const edgeLength = edge.length;
 
-    Vector.subtract(shapeA.start, shapeB.worldPosition, normal);
+    Vector.subtract(edge.start, circle.worldPosition, normal);
 
-    const dot = Vector.dot(normal, Vector.rotate90(shapeA.normal, temp0));
+    const dot = Vector.dot(normal, Vector.rotate90(edge.normal, temp0));
 
     if (dot > edgeLength) {
-        Vector.subtract(shapeA.end, shapeB.worldPosition, normal);
+        Vector.subtract(edge.end, circle.worldPosition, normal);
 
         const distSquared = Vector.lengthSquared(normal);
 
         if (distSquared > Math.pow(radius, 2)) {
-            return shapePair;
+            return;
         }
 
         const dist = Math.sqrt(distSquared);
@@ -37,7 +37,7 @@ export const EdgeVsCircle = (shapePair) => {
         const distSquared = Vector.lengthSquared(normal);
 
         if (distSquared > Math.pow(radius, 2)) {
-            return shapePair;
+            return;
         }
 
         const dist = Math.sqrt(distSquared);
@@ -46,30 +46,30 @@ export const EdgeVsCircle = (shapePair) => {
         shapePair.depth = radius - dist;
     } else {
 
-        const eDot = Vector.dot(shapeA.start, shapeA.normal);
-        const cDot = Vector.dot(shapeB.worldPosition, shapeA.normal);
+        const eDot = Vector.dot(edge.start, edge.normal);
+        const cDot = Vector.dot(circle.worldPosition, edge.normal);
 
         const dist = eDot - cDot;
 
         if (dist > 0) {
             if (dist > radius) {
-                return shapePair;
+                return;
             }
             shapePair.depth = radius - dist;
-            Vector.clone(shapeA.normal, normal);
+            Vector.clone(edge.normal, normal);
         } else {
             if (dist < -radius) {
-                return shapePair;
+                return;
             }
             shapePair.depth = radius + dist;
-            Vector.neg(shapeA.normal, normal);
+            Vector.neg(edge.normal, normal);
         }
 
     }
 
     shapePair.contactsCount = 1;
     Vector.clone(
-        Vector.add(shapeB.worldPosition, Vector.scale(normal, shapeB.radius, temp0), temp0),
+        Vector.add(Vector.scale(normal, circle.radius, temp0), circle.worldPosition),
         shapePair.contacts[0].vertex,
     );
 
@@ -78,7 +78,5 @@ export const EdgeVsCircle = (shapePair) => {
     }
 
     shapePair.isActive = true;
-
-
-    return shapePair;
+    return;
 }
