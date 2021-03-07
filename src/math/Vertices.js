@@ -20,19 +20,21 @@ export class Vertices {
         return vertices;
     }
 
-    static normals (vertices, output = []) {
+    static normals (vertices, normals = [], lengths = []) {
 
         for (let i = 0; i < vertices.length; ++i) {
             const j = (i + 1) % vertices.length;
             const normal = Vector.subtract(vertices[i], vertices[j], new Vector());
             Vector.rotate90(normal);
-            Vector.normalise(normal);
+            const length = Vector.length(normal);
+            Vector.divide(normal, length);
             normal.index = i;
-
-            output.push(normal);
+            
+            lengths.push(length);
+            normals.push(normal);
         }
 
-        return output;
+        return {normals, lengths};
     }
 
     static translate (vertices, vector) {

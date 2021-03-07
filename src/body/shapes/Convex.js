@@ -1,6 +1,7 @@
 import { Shape } from './Shape';
 import { Vector } from '../../math/Vector';
 import { Vertices } from '../../math/Vertices';
+import { Common } from '../../common/Common';
 
 export class Convex extends Shape {
 
@@ -14,43 +15,17 @@ export class Convex extends Shape {
         this.vertices = new Vertices(vertices);
         this.deltaVertices = new Vertices(vertices);
         this.projection = {};
-        this.axisProjection = {};
-        this.projections = [];
+
+        this.normals = [];
+        this.lengths = [];
+        Vertices.normals(this.vertices, this.normals, this.lengths);
 
         this.updateArea();
-
         this.updateCenterOfMass();
-
-        this.createNormals();
-
-        this.createProjections();
 
         if (!this.inertia) {
             this.inertia = this.updateInertia();
         }
-    }
-
-    createNormals () {
-        this.normals = [];
-        Vertices.normals(this.vertices, this.normals);
-    }
-
-    createProjections () {
-        for (const normal of this.normals) {
-            this.projections[normal.index] = this.project(normal, {});
-            const dot = Vector.dot(this.position, normal);
-            this.projections[normal.index].value -= dot;
-        }
-    }
-
-    projectOnOwn (index) {
-        const dot = Vector.dot(this.position, this.normals[index]);
-        const projection = this.projection;
-
-        projection.value = this.projections[index].value + dot;
-        projection.index = this.projections[index].index;
-
-        return projection;
     }
 
     project (vector, output = this.projection) {
@@ -79,54 +54,6 @@ export class Convex extends Shape {
         return output;
     }
 
-    projectOnAxisX () {
-        const vertices = this.vertices;
-        const min = vertices[0].x;
-        const projection = this.axisProjection;
-        projection.min = min;
-        projection.minIndex = 0;
-        projection.max = min;
-        projection.maxIndex = 0;
-
-        for (const vertex of vertices) {
-            const dot = vertex.x;
-
-            if (dot > projection.max) { 
-                projection.max = dot; 
-                projection.maxIndex = vertex.index;
-            } else if (dot < projection.min) { 
-                projection.min = dot; 
-                projection.minIndex = vertex.index;
-            }
-        }
-
-        return projection;
-    }
-
-    projectOnAxisY () {
-        const vertices = this.vertices;
-        const min = vertices[0].y;
-        const projection = this.axisProjection;
-        projection.min = min;
-        projection.minIndex = 0;
-        projection.max = min;
-        projection.maxIndex = 0;
-
-        for (const vertex of vertices) {
-            const dot = vertex.y;
-
-            if (dot > projection.max) { 
-                projection.max = dot; 
-                projection.maxIndex = vertex.index;
-            } else if (dot < projection.min) { 
-                projection.min = dot; 
-                projection.minIndex = vertex.index;
-            }
-        }
-
-        return projection;
-    }
-
     translate (offset) {
         Vector.add(this.position, offset);
         Vertices.translate(this.vertices, offset);
@@ -140,11 +67,49 @@ export class Convex extends Shape {
 
     updateArea () {
         this.area = Vertices.area(this.deltaVertices);
+
+        for (const length of this.lengths) {
+            this.area += length * this.radius;
+        }
+
+        this.area += Math.PI * Math.pow(this.radius, 2);
+
         return this.area;
     }
-    
+
     updateInertia () {
         this.inertia = Vertices.inertia(this.deltaVertices);
+
+        const radiusSquared = Math.pow(this.radius, 2);
+
+        for (const vertex of this.deltaVertices) {
+            const length = this.lengths[vertex.index];
+            const normal = this.normals[vertex.index];
+
+            const areaFraction = (length * this.radius) / this.area;
+            const i = (length * length + radiusSquared) / 12;
+            const distSquared = Math.pow(Vector.dot(vertex, normal) + this.radius * 0.5, 2);
+
+            this.inertia += (i + distSquared) * areaFraction;
+        }
+
+        for (const vertex of this.deltaVertices) {
+            const n1 = this.normals[vertex.index];
+            const n2 = this.normals[(vertex.index + 1) % this.normals.length];
+
+            const sin = Vector.cross(n1, n2);
+            const cos = Vector.dot(n1, n2);
+
+            const angle = Math.abs(Math.atan2(sin, cos));
+
+            const areaFraction = (radiusSquared * angle) / this.area;
+            // approximately I.z = (r^2 * a) / (2PI)
+            const i = radiusSquared * angle / Common.PI2;
+            const distSquared = Vector.lengthSquared(vertex);
+
+            this.inertia += (i + distSquared) * areaFraction;
+        }
+
         return this.inertia;
     }
 
