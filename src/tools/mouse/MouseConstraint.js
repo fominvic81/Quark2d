@@ -43,7 +43,7 @@ export class MouseConstraint {
                             }
 
                             if (shape.type === Shape.CONVEX) {
-                                if (Vertices.contains(shape.worldVertices, event.position)) {
+                                if (Vertices.contains(shape.vertices, event.position)) {
                                     this.constraint.bodyA = body;
                                     Vector.rotate(Vector.subtract(event.position, body.position, this.constraint.pointA), -body.angle);
                                     this.events.trigger('catch-body', [{body, shape}]);

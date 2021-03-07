@@ -273,7 +273,7 @@ export class Body {
 
             switch (shape.type) {
                 case Shape.CONVEX:
-                    vertices = shape.worldVertices;
+                    vertices = shape.vertices;
 
                     for (const vertex of vertices) {
                         delta = shape.deltaVertices[vertex.index];
@@ -288,7 +288,7 @@ export class Body {
                         vertex.y = delta.y + this.position.y;
                     }
     
-                    normals = shape.worldNormals;
+                    normals = shape.normals;
     
                     for (const normal of normals) {
                         dx = normal.x;

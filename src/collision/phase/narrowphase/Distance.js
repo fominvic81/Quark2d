@@ -34,7 +34,7 @@ const supportPoint = (shape, dir) => {
 
 const convexSupportPoint = (convex, dir) => {
     const projection = convex.project(dir);
-    return [convex.worldVertices[projection.index], projection.index];
+    return [convex.vertices[projection.index], projection.index];
 }
 
 const edgeSupportPoint = (edge, dir) => {

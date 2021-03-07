@@ -7,8 +7,8 @@ export const ConvexVsCircle = (shapePair) => {
     const convex = flipped ? shapePair.shapeA : shapePair.shapeB;
     const circle = flipped ? shapePair.shapeB : shapePair.shapeA;
 
-    const vertices = convex.worldVertices;
-    const normals = convex.worldNormals;
+    const vertices = convex.vertices;
+    const normals = convex.normals;
     const circlePosition = circle.position;
 
     const radius = convex.radius + circle.radius;

@@ -9,11 +9,10 @@ export class Convex extends Shape {
 
         this.label = 'convex'
         this.type = Shape.CONVEX;
-        this.vertices = options.vertices || Convex.DEFAULT_VERTICES;
+        const vertices = options.vertices || Convex.DEFAULT_VERTICES;
 
-        this.worldVertices = new Vertices(this.vertices);
-        this.vertices = new Vertices(this.vertices);
-        this.deltaVertices = new Vertices(this.vertices);
+        this.vertices = new Vertices(vertices);
+        this.deltaVertices = new Vertices(vertices);
         this.projection = {};
         this.axisProjection = {};
         this.projections = [];
@@ -32,20 +31,12 @@ export class Convex extends Shape {
     }
 
     createNormals () {
-        this.allNormals = [];
-
-        Vertices.normals(this.vertices, this.allNormals);
-        
-        this.worldNormals = [];
-        for (const normal of this.allNormals) {
-            const worldNormal = Vector.clone(normal);
-            worldNormal.index = normal.index;
-            this.worldNormals.push(worldNormal);
-        }
+        this.normals = [];
+        Vertices.normals(this.vertices, this.normals);
     }
 
     createProjections () {
-        for (const normal of this.worldNormals) {
+        for (const normal of this.normals) {
             this.projections[normal.index] = this.project(normal, {});
             const dot = Vector.dot(this.position, normal);
             this.projections[normal.index].value -= dot;
@@ -53,7 +44,7 @@ export class Convex extends Shape {
     }
 
     projectOnOwn (index) {
-        const dot = Vector.dot(this.position, this.worldNormals[index]);
+        const dot = Vector.dot(this.position, this.normals[index]);
         const projection = this.projection;
 
         projection.value = this.projections[index].value + dot;
@@ -63,20 +54,20 @@ export class Convex extends Shape {
     }
 
     project (vector, output = this.projection) {
-        const worldVertices = this.worldVertices;
-        let dot = Vector.dot(worldVertices[0], vector);
+        const vertices = this.vertices;
+        let dot = Vector.dot(vertices[0], vector);
 
         output.value = dot;
         output.index = 0;
 
-        const ld = Vector.dot(worldVertices[worldVertices.length - 1], vector);
+        const ld = Vector.dot(vertices[vertices.length - 1], vector);
 
         if (Math.abs(ld - dot) < 0.000001) {
-            output.index = worldVertices.length - 1;
+            output.index = vertices.length - 1;
         }
 
-        for (let i = 1; i < worldVertices.length; ++i) {
-            const vertex = worldVertices[i];
+        for (let i = 1; i < vertices.length; ++i) {
+            const vertex = vertices[i];
             dot = Vector.dot(vertex, vector);
 
             if (dot > output.value + 0.000001) {
@@ -89,15 +80,15 @@ export class Convex extends Shape {
     }
 
     projectOnAxisX () {
-        const worldVertices = this.worldVertices;
-        const min = worldVertices[0].x;
+        const vertices = this.vertices;
+        const min = vertices[0].x;
         const projection = this.axisProjection;
         projection.min = min;
         projection.minIndex = 0;
         projection.max = min;
         projection.maxIndex = 0;
 
-        for (const vertex of worldVertices) {
+        for (const vertex of vertices) {
             const dot = vertex.x;
 
             if (dot > projection.max) { 
@@ -113,15 +104,15 @@ export class Convex extends Shape {
     }
 
     projectOnAxisY () {
-        const worldVertices = this.worldVertices;
-        const min = worldVertices[0].y;
+        const vertices = this.vertices;
+        const min = vertices[0].y;
         const projection = this.axisProjection;
         projection.min = min;
         projection.minIndex = 0;
         projection.max = min;
         projection.maxIndex = 0;
 
-        for (const vertex of worldVertices) {
+        for (const vertex of vertices) {
             const dot = vertex.y;
 
             if (dot > projection.max) { 
@@ -138,27 +129,27 @@ export class Convex extends Shape {
 
     translate (offset) {
         Vector.add(this.position, offset);
-        Vertices.translate(this.worldVertices, offset);
+        Vertices.translate(this.vertices, offset);
     }
 
     rotate (angle) {
-        Vertices.rotate(this.worldVertices, angle, this.position);
-        Vertices.rotate(this.worldNormals, angle);
+        Vertices.rotate(this.vertices, angle, this.position);
+        Vertices.rotate(this.normals, angle);
         Vertices.rotate(this.deltaVertices, angle);
     }
 
     updateArea () {
-        this.area = Vertices.area(this.vertices);
+        this.area = Vertices.area(this.deltaVertices);
         return this.area;
     }
     
     updateInertia () {
-        this.inertia = Vertices.inertia(this.vertices);
+        this.inertia = Vertices.inertia(this.deltaVertices);
         return this.inertia;
     }
 
     updateBounds () {
-        this.bounds.fromVertices(this.worldVertices);
+        this.bounds.fromVertices(this.vertices);
         this.bounds.min.x -= this.radius;
         this.bounds.min.y -= this.radius;
         this.bounds.max.x += this.radius;
@@ -167,14 +158,14 @@ export class Convex extends Shape {
     }
 
     updateCenterOfMass () {
-        const center = Vertices.center(this.worldVertices);
+        const center = Vertices.center(this.vertices);
 
         Vector.clone(center, this.position);
     }
 
     raycast (intersection, from, to, delta) {
-        const vertices = this.worldVertices;
-        const normals = this.worldNormals;
+        const vertices = this.vertices;
+        const normals = this.normals;
 
         let contact = intersection.contacts[intersection.contactsCount];
 
@@ -203,11 +194,11 @@ export class Convex extends Shape {
     }
 
     getPoint (index) {
-        return this.worldVertices[index];
+        return this.vertices[index];
     }
 
     getNormal (index, output) {
-        return Vector.clone(this.worldNormals[index], output);
+        return Vector.clone(this.normals[index], output);
     }
 }
 

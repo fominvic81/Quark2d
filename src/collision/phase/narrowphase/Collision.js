@@ -3,7 +3,7 @@ import { Vector } from '../../../math/Vector';
 import { GJK } from './Distance';
 
 const convexSupportEdge = (convex, index, normal) => {
-    const vertices = convex.worldVertices;
+    const vertices = convex.vertices;
     const vertex1 = Vector.temp[5];
     const vertex2 = Vector.temp[6];
 
@@ -34,7 +34,7 @@ const supportEdge = (shape, index, normal) => {
 
 const findRefFace = (shape, points, flipped) => {
     switch (shape.type) {
-        case Shape.CONVEX: return [shape.worldVertices[flipped ? points[0].indexA : points[0].indexB], shape.worldVertices[flipped ? points[1].indexA : points[1].indexB]];
+        case Shape.CONVEX: return [shape.vertices[flipped ? points[0].indexA : points[0].indexB], shape.vertices[flipped ? points[1].indexA : points[1].indexB]];
         case Shape.EDGE: return [shape.getPoint(flipped ? points[0].indexA : points[0].indexB), shape.getPoint(flipped ? points[1].indexA : points[1].indexB)];
     }
 }

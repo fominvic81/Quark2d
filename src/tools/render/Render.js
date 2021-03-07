@@ -159,7 +159,7 @@ export class Render {
                         if (this.options.showRadius) {
                             this.convex(shape, color, false, this.options.lineWidth / 20);
                         } else {
-                            Draw.polygon(this.ctx, shape.worldVertices, color, false, this.options.lineWidth / 20);
+                            Draw.polygon(this.ctx, shape.vertices, color, false, this.options.lineWidth / 20);
                         }
                         break;
                         case Shape.EDGE:
@@ -273,7 +273,7 @@ export class Render {
                         ), pos), 'rgb(200, 200, 200)', this.options.lineWidth / 10);
                         break;
                     case Shape.CONVEX:
-                        const vertices = shape.worldVertices;
+                        const vertices = shape.vertices;
                         Draw.line(this.ctx, pos, Vector.set(
                             Vector.temp[0],
                             (vertices[0].x + vertices[1].x) / 2,
@@ -308,7 +308,7 @@ export class Render {
             for (const shape of body.shapes) {
                 if (shape.type === Shape.CONVEX) {
                     const pos = shape.position;
-                    const normals = shape.worldNormals;
+                    const normals = shape.normals;
                     for (const normal of normals) {
                         Draw.line(this.ctx, pos, Vector.add(pos, normal, Vector.temp[0]), 'rgb(200, 100, 100)', this.options.lineWidth / 8);
                     }
@@ -375,7 +375,7 @@ export class Render {
         for (const body of bodies) {
             for (const shape of body.shapes) {
                 if (shape.type === Shape.CONVEX) {
-                    const vertices = shape.worldVertices;
+                    const vertices = shape.vertices;
                     for (const vertex of vertices) {
                         this.ctx.font = '0.5px Arial';
                         this.ctx.fillStyle = 'rgb(128, 128, 128)';
@@ -477,13 +477,13 @@ export class Render {
     convex (convex, color, fill = true, lineWidth = 1) {
 
         const radius = convex.radius;
-        const vertices = convex.worldVertices;
+        const vertices = convex.vertices;
         if (radius <= Solver.SLOP * 2) {
             Draw.polygon(this.ctx, vertices, color, fill, lineWidth);
             return;
         }
         
-        const normals = convex.worldNormals;
+        const normals = convex.normals;
     
         const first = Vector.add(vertices[0], Vector.scale(normals[vertices.length - 1], radius, Vector.temp[0]), Vector.temp[0]);
 
