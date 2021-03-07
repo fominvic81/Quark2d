@@ -15,12 +15,12 @@ export const EdgeVsCircle = (shapePair) => {
     const radius = edge.radius + circle.radius;
     const edgeLength = edge.length;
 
-    Vector.subtract(edge.start, circle.worldPosition, normal);
+    Vector.subtract(edge.start, circle.position, normal);
 
     const dot = Vector.dot(normal, Vector.rotate90(edge.normal, temp0));
 
     if (dot > edgeLength) {
-        Vector.subtract(edge.end, circle.worldPosition, normal);
+        Vector.subtract(edge.end, circle.position, normal);
 
         const distSquared = Vector.lengthSquared(normal);
 
@@ -47,7 +47,7 @@ export const EdgeVsCircle = (shapePair) => {
     } else {
 
         const eDot = Vector.dot(edge.start, edge.normal);
-        const cDot = Vector.dot(circle.worldPosition, edge.normal);
+        const cDot = Vector.dot(circle.position, edge.normal);
 
         const dist = eDot - cDot;
 
@@ -69,7 +69,7 @@ export const EdgeVsCircle = (shapePair) => {
 
     shapePair.contactsCount = 1;
     Vector.clone(
-        Vector.add(Vector.scale(normal, circle.radius, temp0), circle.worldPosition),
+        Vector.add(Vector.scale(normal, circle.radius, temp0), circle.position),
         shapePair.contacts[0].vertex,
     );
 

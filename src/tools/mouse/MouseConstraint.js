@@ -34,7 +34,7 @@ export class MouseConstraint {
                         if (shape.getBounds().contains(event.position)) {
 
                             if (shape.type === Shape.CIRCLE) {
-                                if (Vector.lengthSquared(Vector.subtract(event.position, shape.worldPosition, Vector.temp[0])) < Math.pow(shape.radius, 2)) {
+                                if (Vector.lengthSquared(Vector.subtract(event.position, shape.position, Vector.temp[0])) < Math.pow(shape.radius, 2)) {
                                     this.constraint.bodyA = body;
                                     Vector.rotate(Vector.subtract(event.position, body.position, this.constraint.pointA), -body.angle);
                                     this.events.trigger('catch-body', [{body, shape}]);

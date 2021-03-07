@@ -47,13 +47,13 @@ export class Convex extends Shape {
     createProjections () {
         for (const normal of this.worldNormals) {
             this.projections[normal.index] = this.project(normal, {});
-            const dot = Vector.dot(this.worldPosition, normal);
+            const dot = Vector.dot(this.position, normal);
             this.projections[normal.index].value -= dot;
         }
     }
 
     projectOnOwn (index) {
-        const dot = Vector.dot(this.worldPosition, this.worldNormals[index]);
+        const dot = Vector.dot(this.position, this.worldNormals[index]);
         const projection = this.projection;
 
         projection.value = this.projections[index].value + dot;
@@ -137,12 +137,12 @@ export class Convex extends Shape {
     }
 
     translate (offset) {
-        Vector.add(this.worldPosition, offset);
+        Vector.add(this.position, offset);
         Vertices.translate(this.worldVertices, offset);
     }
 
     rotate (angle) {
-        Vertices.rotate(this.worldVertices, angle, this.worldPosition);
+        Vertices.rotate(this.worldVertices, angle, this.position);
         Vertices.rotate(this.worldNormals, angle);
         Vertices.rotate(this.deltaVertices, angle);
     }
@@ -169,7 +169,7 @@ export class Convex extends Shape {
     updateCenterOfMass () {
         const center = Vertices.center(this.worldVertices);
 
-        Vector.clone(center, this.worldPosition);
+        Vector.clone(center, this.position);
     }
 
     raycast (intersection, from, to, delta) {

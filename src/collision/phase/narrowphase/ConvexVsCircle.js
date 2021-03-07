@@ -9,7 +9,7 @@ export const ConvexVsCircle = (shapePair) => {
 
     const vertices = convex.worldVertices;
     const normals = convex.worldNormals;
-    const circlePosition = circle.worldPosition;
+    const circlePosition = circle.position;
 
     const radius = convex.radius + circle.radius;
 

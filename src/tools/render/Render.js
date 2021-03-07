@@ -150,7 +150,7 @@ export class Render {
         for (const body of bodies) {
             const color = (body.sleepState === Sleeping.AWAKE || !this.options.showSleeping) ? 'rgb(200, 200, 200)' : 'rgb(100, 100, 100)';
             for (const shape of body.shapes) {
-                const pos = shape.worldPosition;
+                const pos = shape.position;
                 switch (shape.type) {
                     case Shape.CIRCLE:
                         Draw.circle(this.ctx, pos, Math.max(shape.radius - Solver.SLOP / 2, 0.00001), color, false, this.options.lineWidth / 20);
@@ -261,7 +261,7 @@ export class Render {
     angleIndicator (bodies) {
         for (const body of bodies) {
             for (const shape of body.shapes) {
-                const pos = shape.worldPosition;
+                const pos = shape.position;
                 const angle = shape.body.angle;
 
                 switch (shape.type) {
@@ -307,7 +307,7 @@ export class Render {
         for (const body of bodies) {
             for (const shape of body.shapes) {
                 if (shape.type === Shape.CONVEX) {
-                    const pos = shape.worldPosition;
+                    const pos = shape.position;
                     const normals = shape.worldNormals;
                     for (const normal of normals) {
                         Draw.line(this.ctx, pos, Vector.add(pos, normal, Vector.temp[0]), 'rgb(200, 100, 100)', this.options.lineWidth / 8);
@@ -366,7 +366,7 @@ export class Render {
         for (const body of bodies) {
             Draw.circle(this.ctx, body.position, this.options.lineWidth / 4 , 'rgb(40, 160, 40)');
             for (const shape of body.shapes) {
-                Draw.circle(this.ctx, shape.worldPosition, this.options.lineWidth / 8 , 'rgb(160, 40, 40)');
+                Draw.circle(this.ctx, shape.position, this.options.lineWidth / 8 , 'rgb(160, 40, 40)');
             }
         }
     }

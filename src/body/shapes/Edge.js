@@ -36,7 +36,7 @@ export class Edge extends Shape {
         Vector.rotate90(this.normal);
         
         Vector.set(
-            this.worldPosition,
+            this.position,
             this.start.x + this.delta.x / 2,
             this.start.y + this.delta.y / 2,
         );
@@ -61,7 +61,7 @@ export class Edge extends Shape {
     }
 
     translate (offset) {
-        Vector.add(this.worldPosition, offset);
+        Vector.add(this.position, offset);
         Vector.add(this.start, offset);
         Vector.add(this.end, offset);
     }

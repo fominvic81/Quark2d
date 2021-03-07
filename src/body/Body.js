@@ -213,7 +213,7 @@ export class Body {
         Vector.set(sum, 0, 0);
     
         for (const shape of this.shapes){
-            Vector.subtract(this.position, shape.worldPosition, offset);
+            Vector.subtract(this.position, shape.position, offset);
             Vector.add(sum, Vector.scale(offset, shape.area, Vector.temp[2]));
         }
     
@@ -265,11 +265,11 @@ export class Body {
 
         for (const shape of this.shapes) {
 
-            dx = shape.worldPosition.x - this.position.x;
-            dy = shape.worldPosition.y - this.position.y;
+            dx = shape.position.x - this.position.x;
+            dy = shape.position.y - this.position.y;
 
-            shape.worldPosition.x = dx * cos - dy * sin + this.position.x;
-            shape.worldPosition.y = dx * sin + dy * cos + this.position.y;
+            shape.position.x = dx * cos - dy * sin + this.position.x;
+            shape.position.y = dx * sin + dy * cos + this.position.y;
 
             switch (shape.type) {
                 case Shape.CONVEX:
@@ -300,11 +300,11 @@ export class Body {
                     break;
                 case Shape.EDGE:
 
-                    dx = shape.worldPosition.x - this.position.x;
-                    dy = shape.worldPosition.y - this.position.y;
+                    dx = shape.position.x - this.position.x;
+                    dy = shape.position.y - this.position.y;
 
-                    shape.worldPosition.x = dx * cos - dy * sin + this.position.x;
-                    shape.worldPosition.y = dx * sin + dy * cos + this.position.y;
+                    shape.position.x = dx * cos - dy * sin + this.position.x;
+                    shape.position.y = dx * sin + dy * cos + this.position.y;
 
                     dx = shape.start.x - this.position.x;
                     dy = shape.start.y - this.position.y;

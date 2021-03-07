@@ -7,7 +7,7 @@ export const CircleVsCircle = (shapePair) => {
 
     const normal = shapePair.normal;
 
-    Vector.subtract(circleB.worldPosition, circleA.worldPosition, normal);
+    Vector.subtract(circleB.position, circleA.position, normal);
 
     const radius = circleA.radius + circleB.radius;
 
@@ -23,7 +23,7 @@ export const CircleVsCircle = (shapePair) => {
     Vector.divide(normal, dist)
 
     Vector.clone(
-        Vector.add(Vector.scale(shapePair.normal, circleA.radius, Vector.temp[0]), circleA.worldPosition),
+        Vector.add(Vector.scale(shapePair.normal, circleA.radius, Vector.temp[0]), circleA.position),
         shapePair.contacts[0].vertex,
     );
 
