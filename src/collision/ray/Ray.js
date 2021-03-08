@@ -43,17 +43,14 @@ export class Ray {
         }
 
         Vector.clone(this.delta, result.delta);
-        Vector.clone(this.to, result.delta);
-        Vector.clone(this.from, result.delta);
+        Vector.clone(this.to, result.to);
+        Vector.clone(this.from, result.from);
 
         if (!composite) {
             composite = engine.world;
         }
 
         const intersections = result.intersections;
-        for (const intersection of intersections.values()) {
-            intersection.isActive = false;
-        }
 
         if (useGrid) {
             const gridSize = engine.broadphase.gridSize;

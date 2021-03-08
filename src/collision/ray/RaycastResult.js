@@ -12,7 +12,7 @@ export class RaycastResult {
     }
 
     reset () {
-        for (const intersection of this.intersections) {
+        for (const intersection of this.intersections.values()) {
             intersection.isActive = false;
         }
     }

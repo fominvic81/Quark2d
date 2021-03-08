@@ -112,6 +112,23 @@ export class Edge extends Shape {
         return this.bounds;
     }
 
+    raycast (intersection, from, to, delta) {
+
+        const contact = intersection.contacts[0];
+
+        const point = Vector.lineLineIntersection(this.start, this.end, from, to, contact.point);
+        if (point) {
+
+            Vector.clone(this.normal, contact.normal);
+            if (Vector.dot(delta, contact.normal) > 0) {
+                Vector.neg(contact.normal);
+            }
+            ++intersection.contactsCount;
+
+        }
+
+    }
+
     getPoint (index) {
         return index ? this.end : this.start;
     }
