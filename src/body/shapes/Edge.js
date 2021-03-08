@@ -1,3 +1,4 @@
+import { Common } from '../../common/Common';
 import { Vector } from '../../math/Vector';
 import { Shape } from './Shape';
 
@@ -72,7 +73,24 @@ export class Edge extends Shape {
     }
 
     updateInertia () {
-        this.inertia = Math.pow(this.length, 2) / 12;
+        this.inertia = 0;
+
+        // https://www.efunda.com/math/areas/CircleHalf.cfm
+
+        const width = this.length;
+        const height = this.radius * 2;
+
+        const rectArea = width * height;
+        const rectInertia = rectArea * (Math.pow(width, 2) + Math.pow(height, 2)) / 12;
+
+        // ((Math.PI / 4) - 8 / (9 * Math.PI)) * 2 = 1.0049120846903796
+        const circleArea = Math.PI * Math.pow(this.radius, 2);
+        const circleInertia = 1.0049120846903796 * Math.pow(this.radius, 4);
+
+        const distSquared = Math.pow(this.length * 0.5 + (4 * this.radius) / (Common.PI3), 2);
+
+        this.inertia = (rectInertia + circleInertia + circleArea * distSquared) / this.area;
+
         return this.inertia;
     }
 
