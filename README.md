@@ -11,6 +11,10 @@
 
 ## Example
 
+Use the left mouse button to move the bodies.
+
+Right mouse button to move the camera.
+
     import {
         Engine,
         Render,
@@ -20,10 +24,15 @@
         Body,
         Circle,
         Convex,
+        Factory,
+        Sleeping,
     } from 'quark2d';
-    
+
     // Create engine
     const engine = new Engine();
+
+    // Disable sleeping
+    engine.sleeping.type = Sleeping.NO_SLEEPING;
 
     // Create an empty body
     const circleBody = new Body({
@@ -35,11 +44,19 @@
         radius: 0.5
     });
 
-    // Add the circle shape to body
+    // Add the circle shape to the body
     circleBody.addShape(circleShape);
 
     // Add the the body to the world
     engine.world.add(circleBody);
+
+    // Create a rounded rectangular body
+    const rectBody = Factory.rectangle(new Vector(0.2, -2), 1, 1, {}, {
+        radius: 0.1, // Rounding radius. All shapes can have a rounding radius
+    });
+
+    // Add the the rect body to the world
+    engine.world.add(rectBody);
 
     // Create an empty body
     const ground = new Body({
@@ -47,17 +64,18 @@
         isStatic: true
     });
 
-    // Create rectangle shape
+    // Create rectangular shape
     const groundShape = new Convex({
         vertices: [
-            new Vector(-10, -0.5),
-            new Vector(10, -0.5),
-            new Vector(10, 0.5),
-            new Vector(-10, 0.5),
-        ]
+            new Vector(-15, -0.5),
+            new Vector(15, -0.5),
+            new Vector(15, 0.5),
+            new Vector(-15, 0.5),
+        ],
+        radius: 0.1, // Rounding radius
     });
 
-    // Add the circle shape to body
+    // Add the rectangular shape to the body
     ground.addShape(groundShape);
 
     // Add the the body to the world
@@ -80,6 +98,6 @@
         render.step(ts);
     });
 
-    // Run runner
+    // Run the runner
     runner.run();
     runner.runRender();
