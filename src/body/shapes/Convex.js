@@ -1,7 +1,6 @@
 import { Shape } from './Shape';
 import { Vector } from '../../math/Vector';
 import { Vertices } from '../../math/Vertices';
-import { Common } from '../../common/Common';
 
 export class Convex extends Shape {
 
@@ -157,6 +156,35 @@ export class Convex extends Shape {
         }
 
         return intersection;
+    }
+
+    contains (point) {
+        let maxDist = -Infinity;
+        let maxI = 0;
+
+        for (const vertex of this.vertices) {
+            const normal = this.normals[vertex.index];
+
+            const dist = Vector.dot(point, normal) - Vector.dot(vertex, normal);
+            if (dist > this.radius) return false;
+            if (dist > maxDist) {
+                maxDist = dist;
+                maxI = vertex.index;
+            }
+        }
+        if (maxDist < 0) return true;
+
+        const p1 = this.vertices[maxI];
+        const p2 = this.vertices[(maxI + 1) % this.vertices.length];
+
+        const v = Vector.subtract(point, p1, Vector.temp[0]);
+        const delta = Vector.subtract(p2, p1, Vector.temp[1]);
+
+        const dot = Vector.dot(v, delta);
+        
+        if (dot < 0) return Vector.lengthSquared(v) < Math.pow(this.radius, 2);
+        if (dot > Math.pow(this.lengths[maxI], 2)) return Vector.lengthSquared(Vector.subtract(point, p2, v)) < Math.pow(this.radius, 2);
+        return true;
     }
 
     getPoint (index) {

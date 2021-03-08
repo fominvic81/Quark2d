@@ -44,6 +44,8 @@ export class Shape {
 
     raycast (intersection, from, to, delta) {}
 
+    contains (point) {}
+
     getPoint (index) {}
 
     getNormal (index, output) {}

@@ -129,6 +129,20 @@ export class Edge extends Shape {
 
     }
 
+    contains (point) {
+
+        const v = Vector.subtract(point, this.start, Vector.temp[0]);
+        const delta = Vector.subtract(this.end, this.start, Vector.temp[1]);
+
+        if (Math.abs(Vector.dot(v, this.normal)) > this.radius) return false;
+
+        const dot = Vector.dot(v, delta);
+
+        if (dot < 0) return Vector.lengthSquared(v) < Math.pow(this.radius, 2);
+        if (dot > this.length) return Vector.lengthSquared(Vector.subtract(point, this.end, v)) < Math.pow(this.radius, 2);
+        return true;
+    }
+
     getPoint (index) {
         return index ? this.end : this.start;
     }

@@ -88,6 +88,10 @@ export class Circle extends Shape {
         }
     }
 
+    contains (point) {
+        return Vector.distSquared(this.position, point) < Math.pow(this.radius, 2);
+    }
+
     getPoint (index) {
         return this.position;
     }
