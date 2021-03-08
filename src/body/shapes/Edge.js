@@ -139,7 +139,7 @@ export class Edge extends Shape {
         const dot = Vector.dot(v, delta);
 
         if (dot < 0) return Vector.lengthSquared(v) < Math.pow(this.radius, 2);
-        if (dot > this.length) return Vector.lengthSquared(Vector.subtract(point, this.end, v)) < Math.pow(this.radius, 2);
+        if (dot > Math.pow(this.length, 2)) return Vector.lengthSquared(Vector.subtract(point, this.end, v)) < Math.pow(this.radius, 2);
         return true;
     }
 
