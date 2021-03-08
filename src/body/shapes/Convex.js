@@ -81,12 +81,13 @@ export class Convex extends Shape {
         this.inertia = Vertices.inertia(this.deltaVertices);
 
         const radiusSquared = Math.pow(this.radius, 2);
+        const inverseArea = 1/this.area;
 
         for (const vertex of this.deltaVertices) {
             const length = this.lengths[vertex.index];
             const normal = this.normals[vertex.index];
 
-            const areaFraction = (length * this.radius) / this.area;
+            const areaFraction = (length * this.radius) * inverseArea;
             const i = (length * length + radiusSquared) / 12;
             const distSquared = Math.pow(Vector.dot(vertex, normal) + this.radius * 0.5, 2);
 
@@ -102,9 +103,9 @@ export class Convex extends Shape {
 
             const angle = Math.abs(Math.atan2(sin, cos));
 
-            const areaFraction = (radiusSquared * angle) / this.area;
-            // approximately I.z = (r^2 * a) / (2PI)
-            const i = radiusSquared * angle / Common.PI2;
+            const areaFraction = (radiusSquared * angle * 0.5) * inverseArea;
+
+            const i = radiusSquared / 2;
             const distSquared = Vector.lengthSquared(vertex);
 
             this.inertia += (i + distSquared) * areaFraction;
