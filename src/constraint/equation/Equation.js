@@ -17,6 +17,4 @@ Equation.vecTemp = [
     new Vector(),
     new Vector(),
     new Vector(),
-    new Vector(),
-    new Vector(),
 ];

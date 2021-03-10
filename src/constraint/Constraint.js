@@ -38,30 +38,24 @@ export class Constraint {
         const offsetA = this.bodyA ? Vector.subtract(this.worldPointA, this.bodyA.position, Constraint.vecTemp[1]) : undefined;
         const offsetB = this.bodyB ? Vector.subtract(this.worldPointB, this.bodyB.position, Constraint.vecTemp[2]) : undefined;
         
-        const mass = Vector.add(
-            this.bodyA ? this.bodyA.inverseMassMultiplied : Vector.zero,
-            this.bodyB ? this.bodyB.inverseMassMultiplied : Vector.zero,
-            Constraint.vecTemp[3],
-        );
+        const mass = (this.bodyA ? this.bodyA.inverseMass : 0) +
+                     (this.bodyB ? this.bodyB.inverseMass : 0);
+
         const inertia = (
-            (this.bodyA ? this.bodyA.inverseInertiaMultiplied : 0) +
-            (this.bodyB ? this.bodyB.inverseInertiaMultiplied : 0) +
-            (this.bodyA ? this.bodyA.inverseMass : 0) +
-            (this.bodyB ? this.bodyB.inverseMass : 0)
+            (this.bodyA ? this.bodyA.inverseInertia : 0) +
+            (this.bodyB ? this.bodyB.inverseInertia : 0) +
+            mass
         );
 
-        const ratioA = Constraint.vecTemp[4];
+        let ratioA, ratioB, inertiaRatioA, inertiaRatioB;
         if (this.bodyA && !this.bodyA.isStatic) {
-            ratioA.x = this.bodyA.inverseMassMultiplier.x === 0 ? 0 : this.bodyA.inverseMassMultiplied.x / mass.x;
-            ratioA.y = this.bodyA.inverseMassMultiplier.y === 0 ? 0 : this.bodyA.inverseMassMultiplied.y / mass.y;
-            ratioA.inertia = this.bodyA.inverseInertiaMultiplier === 0 ? 0 : this.bodyA.inverseInertiaMultiplied / inertia;
+            ratioA = this.bodyA.inverseMass / mass;
+            inertiaRatioA = this.bodyA.inertia === 0 ? 0 : (this.bodyA.inverseInertia / inertia);
         }
 
-        const ratioB = Constraint.vecTemp[5];
         if (this.bodyB && !this.bodyB.isStatic) {
-            ratioB.x = this.bodyB.inverseMassMultiplier.x === 0 ? 0 : this.bodyB.inverseMassMultiplied.x / mass.x;
-            ratioB.y = this.bodyB.inverseMassMultiplier.y === 0 ? 0 : this.bodyB.inverseMassMultiplied.y / mass.y;
-            ratioB.inertia = this.bodyB.inverseInertiaMultiplier === 0 ? 0 : this.bodyB.inverseInertiaMultiplied / inertia;
+            ratioB = this.bodyB.inverseMass / mass;
+            inertiaRatioB = this.bodyB.inertia === 0 ? 0 : (this.bodyB.inverseInertia / inertia);
         }
 
         const angle = Vector.angle(this.worldPointB, this.worldPointA);
@@ -75,6 +69,8 @@ export class Constraint {
             worldPointB: this.worldPointB,
             ratioA,
             ratioB,
+            inertiaRatioA,
+            inertiaRatioB,
             angle,
         };
 
@@ -85,9 +81,9 @@ export class Constraint {
         if (this.bodyA && !this.bodyA.isStatic) {
             this.bodyA.setSleeping(Sleeping.AWAKE);
 
-            const impulseX = this.impulseA.x * ratioA.x;
-            const impulseY = this.impulseA.y * ratioA.y;
-            const impulseAngle = this.impulseA.angle * ratioA.inertia;
+            const impulseX = this.impulseA.x * ratioA;
+            const impulseY = this.impulseA.y * ratioA;
+            const impulseAngle = this.impulseA.angle * inertiaRatioA;
 
             this.bodyA.constraintImpulse.x -= impulseX;
             this.bodyA.constraintImpulse.y -= impulseY;
@@ -105,9 +101,9 @@ export class Constraint {
         if (this.bodyB && !this.bodyB.isStatic) {
             this.bodyB.setSleeping(Sleeping.AWAKE);
 
-            const impulseX = this.impulseB.x * ratioB.x;
-            const impulseY = this.impulseB.y * ratioB.y;
-            const impulseAngle = this.impulseB.angle * ratioB.inertia;
+            const impulseX = this.impulseB.x * ratioB;
+            const impulseY = this.impulseB.y * ratioB;
+            const impulseAngle = this.impulseB.angle * inertiaRatioB;
             
             this.bodyB.constraintImpulse.x += impulseX;
             this.bodyB.constraintImpulse.y += impulseY;
@@ -161,9 +157,6 @@ export class Constraint {
 }
 
 Constraint.vecTemp = [
-    new Vector(),
-    new Vector(),
-    new Vector(),
     new Vector(),
     new Vector(),
     new Vector(),

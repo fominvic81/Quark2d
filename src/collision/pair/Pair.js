@@ -10,22 +10,11 @@ export class Pair {
         this.shapePairs = new Map();
         this.activeShapePairs = [];
         this.isActiveBroadphase = false;
+        this.activeShapePairsCount = 0;
         this.isActive = false;
+        this.isActivePrev = false;
         this.isSleeping = false;
-        this.contacts = [];
-        this.prev = {
-            isActive: false,
-            isSleeping: false,
-        }
-    }
-
-    reset () {
-        this.contacts.length = 0;
-    }
-
-    updatePrev () {
-        this.prev.isActive = this.isActive;
-        this.prev.isSleeping = this.isSleeping;
+        this.contactsCount = 0;
     }
     
 };

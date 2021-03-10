@@ -1,21 +1,16 @@
-import { Composite } from '../common/Composite';
 import { Vector } from '../math/Vector';
-import { Broadphase } from '../collision/phase/broadphase';
-import { Midphase } from '../collision/phase/Midphase';
-import { Narrowphase } from '../collision/phase/narrowphase/Narrowphase';
 import { Solver } from '../collision/solver/Solver';
 import { Events } from '../common/Events';
 import { Sleeping } from '../body/Sleeping';
 import { World } from '../common/World';
+import { Manager } from '../collision/phase/Manager';
 
 export class Engine {
 
     constructor (options = {}) {
         this.world = options.world || new World();
         this.gravity = options.gravity === undefined ? new Vector(0, 9.8) : Vector.clone(options.gravity);
-        this.broadphase = options.broadphase || new Broadphase(this);
-        this.midphase = options.midphase || new Midphase(this);
-        this.narrowphase = options.narrowphase || new Narrowphase(this);
+        this.manager = new Manager(this, options);
         this.solver = options.solver || new Solver(this);
         this.sleeping = options.sleeping || new Sleeping(this);
         this.events = new Events();
@@ -37,37 +32,35 @@ export class Engine {
         this.applyGravity();
 
         this.updateBodies(timestamp.delta);
-        
-        this.broadphase.update();
-        this.midphase.update();
-        this.narrowphase.update();
+
+        this.manager.update();
 
         this.sleeping.afterCollisions();
 
-        if (this.narrowphase.startedPairs.length) {
-            this.events.trigger('started-collisions', [{pairs: this.narrowphase.startedPairs}]);
+        if (this.manager.startedPairs.length) {
+            this.events.trigger('started-collisions', [{pairs: this.manager.startedPairs}]);
         }
 
-        if (this.narrowphase.activePairs.length) {
-            this.events.trigger('active-collisions', [{pairs: this.narrowphase.activePairs}]);
+        if (this.manager.activePairs.length) {
+            this.events.trigger('active-collisions', [{pairs: this.manager.activePairs}]);
         }
 
-        if (this.narrowphase.endedPairs.length) {
-            this.events.trigger('ended-collisions', [{pairs: this.narrowphase.endedPairs}]);
+        if (this.manager.endedPairs.length) {
+            this.events.trigger('ended-collisions', [{pairs: this.manager.endedPairs}]);
         }
 
         this.solver.update();
 
-        if (this.narrowphase.startedPairs.length) {
-            this.events.trigger('started-collisions-after-solve', [{pairs: this.narrowphase.startedPairs}]);
+        if (this.manager.startedPairs.length) {
+            this.events.trigger('started-collisions-after-solve', [{pairs: this.manager.startedPairs}]);
         }
 
-        if (this.narrowphase.activePairs.length) {
-            this.events.trigger('active-collisions-after-solve', [{pairs: this.narrowphase.activePairs}]);
+        if (this.manager.activePairs.length) {
+            this.events.trigger('active-collisions-after-solve', [{pairs: this.manager.activePairs}]);
         }
 
-        if (this.narrowphase.endedPairs.length) {
-            this.events.trigger('ended-collisions-after-solve', [{pairs: this.narrowphase.endedPairs}]);
+        if (this.manager.endedPairs.length) {
+            this.events.trigger('ended-collisions-after-solve', [{pairs: this.manager.endedPairs}]);
         }
 
 

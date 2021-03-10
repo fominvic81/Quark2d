@@ -1,44 +1,47 @@
-import { Phase } from './Phase';
 import { Filter } from '../../body/Filter';
+import { Sleeping } from '../../body/Sleeping';
 
-export class Midphase extends Phase {
+export class Midphase {
 
-    constructor (engine) {
-        super(engine);
+    constructor (manager) {
+        this.manager = manager;
+        this.engine = manager.engine;
+
+        this.activePairs = [];
     }
 
     update () {
-        super.update();
-        const broadphasePairs = this.engine.broadphase.pairs;
+        this.activePairs.length = 0;
+        const broadphasePairs = this.manager.broadphase.activePairs.values();
 
-        for (const pair of broadphasePairs.values()) {
-            if (!pair.isActive) continue;
-            
-            if (!(pair.isSleeping && pair.prev.isSleeping)) {
+        for (const pair of broadphasePairs) {
+            pair.isActivePrev = pair.isActive;
+            if (pair.bodyA.isStatic && pair.bodyB.isStatic) {
                 pair.isActive = false;
-                
-                if (pair.bodyA.getBounds().overlaps(pair.bodyB.getBounds())) {
-                    
-                    for (const shapePair of pair.shapePairs.values()) {
-                        if (!shapePair.isActive) continue;
-                        shapePair.isActive = false;
-                        if (!Filter.canCollide(shapePair.shapeA.filter, shapePair.shapeB.filter)) continue;
+                continue;
+            }
 
-                        if (shapePair.shapeA.getBounds().overlaps(shapePair.shapeB.getBounds())) {
-                            shapePair.isActive = true;
-                            pair.isActive = true;
-                        }
+            pair.isSleeping = pair.bodyA.sleepState === Sleeping.SLEEPING && pair.bodyB.sleepState === Sleeping.SLEEPING;
+            if (!pair.isSleeping) {
+                pair.isActive = false;
+
+                for (const shapePair of pair.shapePairs.values()) {
+                    if (!shapePair.isActiveBroadphase) continue;
+                    shapePair.isActive = false;
+                    if (!Filter.canCollide(shapePair.shapeA.filter, shapePair.shapeB.filter)) continue;
+
+                    if (shapePair.shapeA.getBounds().overlaps(shapePair.shapeB.getBounds())) {
+                        shapePair.isActive = true;
+                        pair.isActive = true;
                     }
                 }
             }
 
             if (pair.isActive) {
-                this.activePairsCount += 1;
-                if (!this.pairs.has(pair.id)) {
-                    this.pairs.set(pair.id, pair);
-                }
+                this.activePairs.push(pair);
+            } else if (pair.isActivePrev) {
+                this.manager.endedPairs.push(pair);
             }
         }
-        return this.pairs;
     }
 }

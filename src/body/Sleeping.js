@@ -1,4 +1,3 @@
-import { Vector } from '../math/Vector';
 
 // TODO: Island sleeping
 
@@ -40,7 +39,7 @@ export class Sleeping {
 
     afterCollisions () {
 
-        const pairs = this.engine.narrowphase.activePairs;
+        const pairs = this.engine.manager.activePairs;
 
         for (const pair of pairs) {
 
@@ -58,14 +57,14 @@ export class Sleeping {
             }
         }
 
-        const endedPairs = this.engine.narrowphase.endedPairs;
+        const endedPairs = this.engine.manager.endedPairs;
 
         for (const pair of endedPairs) {
             if (!pair.bodyA.isStatic) pair.bodyA.setSleeping(Sleeping.AWAKE);
             if (!pair.bodyB.isStatic) pair.bodyB.setSleeping(Sleeping.AWAKE);
         }
 
-        const startedPairs = this.engine.narrowphase.startedPairs;
+        const startedPairs = this.engine.manager.startedPairs;
 
         for (const pair of startedPairs) {
             if (!pair.bodyA.isStatic) pair.bodyA.setSleeping(Sleeping.AWAKE);

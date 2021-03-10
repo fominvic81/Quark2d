@@ -62,7 +62,7 @@ export class DistanceEquation extends Equation {
             this.constraint.impulseA.angle += Vector.cross(offsetA, impulse);
 
             if (this.damping) {
-                const damping = Vector.mult(relativeVelocity, Vector.scale(args.ratioA, this.damping, Equation.vecTemp[4]), Equation.vecTemp[4]);
+                const damping = Vector.scale(relativeVelocity, args.ratioA * this.damping, Equation.vecTemp[3]);
 
                 this.constraint.bodyA.velocity.x += damping.x;
                 this.constraint.bodyA.velocity.y += damping.y;
@@ -76,7 +76,7 @@ export class DistanceEquation extends Equation {
             this.constraint.impulseB.angle += Vector.cross(offsetB, impulse);
 
             if (this.damping) {
-                const damping = Vector.mult(relativeVelocity, Vector.scale(args.ratioB, this.damping, Equation.vecTemp[4]), Equation.vecTemp[4]);
+                const damping = Vector.mult(relativeVelocity, args.ratioB * this.damping, Equation.vecTemp[3]);
 
                 this.constraint.bodyB.velocity.x -= damping.x;
                 this.constraint.bodyB.velocity.y -= damping.y;

@@ -26,8 +26,8 @@ import { Colliders } from './collision/phase/narrowphase/Colliders';
 import { GJK } from './collision/phase/narrowphase/Distance';
 import { EPA } from './collision/phase/narrowphase/Distance';
 
-import { Phase } from './collision/phase/Phase';
-import { Broadphase } from './collision/phase/broadphase';
+import { Manager } from './collision/phase/Manager';
+import { Broadphase } from './collision/phase/Broadphase';
 import { Midphase } from './collision/phase/Midphase';
 import { Narrowphase } from './collision/phase/narrowphase/Narrowphase';
 
@@ -85,7 +85,7 @@ export {
     GJK,
     EPA,
 
-    Phase,
+    Manager,
     Broadphase,
     Midphase,
     Narrowphase,

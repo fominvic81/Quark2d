@@ -287,10 +287,9 @@ export class Render {
     }
 
     collisions () {
-        const pairs = this.engine.narrowphase.pairs;
+        const pairs = this.engine.manager.activePairs;
 
-        for (const pair of pairs.values()) {
-            if (!pair.isActive) continue;
+        for (const pair of pairs) {
 
             for (const shapePair of pair.shapePairs.values()) {
                 if (!shapePair.isActive) continue;
@@ -352,7 +351,7 @@ export class Render {
     }
 
     grid () {
-        const broadphase = this.engine.broadphase;
+        const broadphase = this.engine.manager.broadphase;
         const grid = broadphase.grid;
 
         for (const position of grid.keys()) {
@@ -403,9 +402,9 @@ export class Render {
 
             this.statusText += `constraints: ${allConstraints.length}   `
 
-            this.statusText += `broadphasePairs: ${this.engine.broadphase.activePairsCount}   `;
-            this.statusText += `midphasePairs: ${this.engine.midphase.activePairsCount}   `;
-            this.statusText += `narrowphasePairs: ${this.engine.narrowphase.activePairsCount}   `;
+            this.statusText += `broadphasePairs: ${this.engine.manager.broadphase.activePairs.size}   `;
+            this.statusText += `midphasePairs: ${this.engine.manager.midphase.activePairs.length}   `;
+            this.statusText += `narrowphasePairs: ${this.engine.manager.activePairs.length}   `;
 
             this.statusText += `positionIterations: ${this.engine.solver.positionIterations}   `;
             this.statusText += `velocityIterations: ${this.engine.solver.velocityIterations}   `;

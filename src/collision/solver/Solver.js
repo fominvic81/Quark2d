@@ -12,7 +12,7 @@ export class Solver {
 
     update () {
 
-        const pairs = this.engine.narrowphase.activePairs;
+        const pairs = this.engine.manager.activePairs;
 
         for (const pair of pairs) {
             if (pair.isSleeping) continue;
@@ -45,20 +45,20 @@ export class Solver {
     }
 
     preSolvePosition () {
-        const pairs = this.engine.narrowphase.activePairs;
+        const pairs = this.engine.manager.activePairs;
 
         for (const body of this.engine.world.bodies.values()) {
             body.contactsCount = 0;
         }
 
         for (const pair of pairs) {
-            pair.bodyA.contactsCount += pair.contacts.length;
-            pair.bodyB.contactsCount += pair.contacts.length;
+            pair.bodyA.contactsCount += pair.contactsCount;
+            pair.bodyB.contactsCount += pair.contactsCount;
         }
     }
 
     solvePosition () {
-        const pairs = this.engine.narrowphase.activePairs;
+        const pairs = this.engine.manager.activePairs;
 
         let positionImpulse;
 
@@ -86,22 +86,14 @@ export class Solver {
                 
                 if (!(pair.bodyA.isStatic || pair.bodyA.sleepState === Sleeping.SLEEPING)) { 
                     const share = Solver.DEPTH_DAMPING / pair.bodyA.contactsCount;
-                    if (pair.bodyA.inverseMassMultiplier.x !== 0) {
-                        pair.bodyA.positionImpulse.x -= shapePair.normal.x * positionImpulse * share;
-                    }
-                    if (pair.bodyA.inverseMassMultiplier.y !== 0) {
-                        pair.bodyA.positionImpulse.y -= shapePair.normal.y * positionImpulse * share;
-                    }
+                    pair.bodyA.positionImpulse.x -= shapePair.normal.x * positionImpulse * share;
+                    pair.bodyA.positionImpulse.y -= shapePair.normal.y * positionImpulse * share;
                 }
                 
                 if (!(pair.bodyB.isStatic || pair.bodyB.sleepState === Sleeping.SLEEPING)) {
                     const share = Solver.DEPTH_DAMPING / pair.bodyB.contactsCount;
-                    if (pair.bodyB.inverseMassMultiplier.x !== 0) {
-                        pair.bodyB.positionImpulse.x += shapePair.normal.x * positionImpulse * share;
-                    }
-                    if (pair.bodyB.inverseMassMultiplier.y !== 0) {
-                        pair.bodyB.positionImpulse.y += shapePair.normal.y * positionImpulse * share;
-                    }
+                    pair.bodyB.positionImpulse.x += shapePair.normal.x * positionImpulse * share;
+                    pair.bodyB.positionImpulse.y += shapePair.normal.y * positionImpulse * share;
                 }
             }
         }
@@ -122,7 +114,7 @@ export class Solver {
     }
 
     preSolveVelocity () {
-        const pairs = this.engine.narrowphase.activePairs;
+        const pairs = this.engine.manager.activePairs;
 
         const impulse = Solver.vecTemp[0];
         const offset = Solver.vecTemp[2];
@@ -153,7 +145,7 @@ export class Solver {
     }
 
     solveVelocity () {
-        const pairs = this.engine.narrowphase.activePairs;
+        const pairs = this.engine.manager.activePairs;
 
         const offsetA = Solver.vecTemp[0];
         const offsetB = Solver.vecTemp[1];
@@ -179,7 +171,7 @@ export class Solver {
 
             if (pair.isSleeping) continue;
 
-            const contactShare = 1 / pair.contacts.length;
+            const contactShare = 1 / pair.contactsCount;
 
             Vector.clone(pair.bodyA.velocity, velocityA);
             angularVelocityA = pair.bodyA.angularVelocity;
@@ -204,8 +196,8 @@ export class Solver {
                     share = contactShare / (
                         pair.bodyA.inverseMass +
                         pair.bodyB.inverseMass +
-                        pair.bodyA.inverseInertiaMultiplied * Math.pow(crossA, 2) +
-                        pair.bodyB.inverseInertiaMultiplied * Math.pow(crossB, 2)
+                        pair.bodyA.inverseInertia * Math.pow(crossA, 2) +
+                        pair.bodyB.inverseInertia * Math.pow(crossB, 2)
                     );
 
                     normalVelocity = Vector.dot(relativeVelocity, shapePair.normal);

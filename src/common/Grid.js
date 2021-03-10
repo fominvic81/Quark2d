@@ -22,11 +22,12 @@ export class Grid {
     }
 
     getId (position) {
-        return position.x + 'o' + position.y;
+        return (position.x << 20) + position.y;
     }
 
     getPositionById (id) {
-        const [x, y] = id.split('o').map(i => Number(i));
+        const x = (id + 524288) >> 20;
+        const y = id - (x << 20);
 
         return new Vector(x, y);
     }

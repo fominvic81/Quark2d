@@ -26,9 +26,9 @@ Common.nextId = (name = 'id') => {
 
 Common.combineId = (idA, idB) => {
     if (idA < idB) {
-        return 'A' + idA + 'B' + idB;
+        return (idA << 20) + idB;
     }
-    return 'A' + idB + 'B' + idA;
+    return (idB << 20) + idA;
 }
 
 Common.clamp = (value, min, max) => {

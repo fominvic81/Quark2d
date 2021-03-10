@@ -1,46 +1,25 @@
-import { Phase } from './Phase';
 import { Pair } from '../pair/Pair';
 import { ShapePair } from '../pair/ShapePair';
 import { Common } from '../../common/Common';
 import { Grid } from '../../common/Grid';
 import { Vector } from '../../math/Vector';
 import { Bounds } from '../../math/Bounds';
-import { Sleeping } from '../../body/Sleeping';
 
-export class Broadphase extends Phase {
+export class Broadphase {
 
-    constructor (engine) {
-        super(engine);
+    constructor (manager) {
+        this.manager = manager;
+        this.engine = manager.engine;
 
         this.grid = new Grid();
         this.gridSize = 1;
+        this.activePairs = new Set();
     }
 
     update () {
-        super.update();
+        const bodies = this.engine.world.bodies.values();
 
-
-        for (const pair of this.pairs.values()) {
-            const isSleeping =
-            pair.bodyA.sleepState === Sleeping.SLEEPING &&
-            pair.bodyB.sleepState === Sleeping.SLEEPING;
-
-            if (pair.isSleeping && isSleeping) {
-                pair.prev.isSleeping = true;
-                continue;
-            }
-            pair.updatePrev();
-
-            pair.isSleeping = isSleeping;
-
-            pair.activeShapePairs.length = 0;
-
-            for (const shapePair of pair.shapePairs.values()) {
-                shapePair.updatePrev();
-            }
-        }
-
-        for (const body of this.engine.world.bodies.values()) {
+        for (const body of bodies) {
             for (const shape of body.shapes) {
 
                 const region = this.createRegion(shape.getBounds(), Bounds.temp[0]);
@@ -58,34 +37,8 @@ export class Broadphase extends Phase {
 
                 region.clone(shape.region);
                 shape.region.id = region.id;
-
             }
         }
-
-        for (const pair of this.pairs.values()) {
-            if (pair.bodyA.isStatic && pair.bodyB.isStatic) {
-                pair.isActive = false;
-                continue;
-            }
-            if (!(pair.isSleeping && pair.prev.isSleeping)) {
-                pair.isActive = false;
-                
-                for (const shapePair of pair.shapePairs.values()) {
-                    shapePair.isActive = shapePair.isActiveBroadphase;
-
-                    if (shapePair.isActiveBroadphase) {
-                        pair.isActive = true;
-                    }
-                }
-            }
-
-            if (pair.isActive) {
-                this.activePairsCount += 1;
-            }
-
-        }
-        
-        return this.pairs;
     }
 
     createRegion (bounds, output) {
@@ -103,7 +56,7 @@ export class Broadphase extends Phase {
     }
 
     regionId (region) {
-        return region.min.x + '|' + region.min.y + '|' + region.max.x + '|' + region.max.y;
+        return (region.min.x << 30) + (region.min.y << 20) + (region.max.x << 10) + region.max.y;
     }
 
     combineRegions (regionA, regionB, output) {
@@ -124,26 +77,28 @@ export class Broadphase extends Phase {
         const bodyB = shapeB.body;
 
         if ((bodyA === bodyB) || (bodyA.isStatic && bodyB.isStatic)) return;
-        
-        const PairId = Common.combineId(bodyA.id, bodyB.id);
-        const c = this.pairs.get(PairId);
+
+        const pairId = Common.combineId(bodyA.id, bodyB.id);
+        const c = this.manager.pairs.get(pairId);
         
         const pair = c || new Pair(bodyA, bodyB);
         if (!c) {
-            this.pairs.set(PairId, pair);
+            this.manager.pairs.set(pairId, pair);
         }
 
-        if (!(pair.isSleeping && pair.prev.isSleeping)) {
-            const shapePairId = Common.combineId(shapeA.id, shapeB.id);
-            const s = pair.shapePairs.get(shapePairId);
-            const shapePair = s || new ShapePair(shapeA, shapeB);
-            shapePair.isActiveBroadphase = true;
+        const shapePairId = Common.combineId(shapeA.id, shapeB.id);
+        const s = pair.shapePairs.get(shapePairId);
+        const shapePair = s || new ShapePair(shapeA, shapeB);
+        shapePair.isActiveBroadphase = true;
+        pair.isActiveBroadphase = true;
 
-            if (!s) {
-                pair.shapePairs.set(shapePairId, shapePair);
-            }
-            return shapePair;
+        this.activePairs.add(pair);
+        ++pair.activeShapePairsCount;
+
+        if (!s) {
+            pair.shapePairs.set(shapePairId, shapePair);
         }
+        return shapePair;
     }
 
     getShapePair (shapeA, shapeB) {
@@ -153,7 +108,7 @@ export class Broadphase extends Phase {
         if ((bodyA === bodyB) || (bodyA.isStatic && bodyB.isStatic)) return;
 
         const pairId = Common.combineId(bodyA.id, bodyB.id);
-        const pair = this.pairs.get(pairId);
+        const pair = this.manager.pairs.get(pairId);
         if (!pair) return;
 
         const shapePairId = Common.combineId(shapeA.id, shapeB.id);
@@ -189,13 +144,25 @@ export class Broadphase extends Phase {
         if (!cell) return;
         cell.delete(shape.id);
 
+        const bodyA = shape.body;
+
         for (const shapeB of cell.values()) {
+            const bodyB = shapeB.body;
+
+            const pairId = Common.combineId(bodyA.id, bodyB.id);
+            const pair = this.manager.pairs.get(pairId);
+
             const shapePair = this.getShapePair(shape, shapeB);
             if (shapePair) {
                 shapePair.broadphaseCellsCount -= 1;
 
                 if (shapePair.broadphaseCellsCount <= 0) {
                     shapePair.isActiveBroadphase = false;
+                    --pair.activeShapePairsCount;
+                    if (pair.activeShapePairsCount <= 0) {
+                        pair.isActiveBroadphase = false;
+                        this.activePairs.delete(pairId);
+                    }                    
                 }
             }
         }
@@ -206,16 +173,19 @@ export class Broadphase extends Phase {
     }
 
     updateRegion (region, newRegion, shape) {
+        if (!shape.region) {
+            for (let x = region.min.x; x <= region.max.x; ++x) {
+                for (let y = region.min.y; y <= region.max.y; ++y) {
+                    this.addShapeToCell(Vector.set(Vector.temp[2], x, y), shape);
+                }
+            }
+            return;
+        }
         for (let x = region.min.x; x <= region.max.x; ++x) {
             for (let y = region.min.y; y <= region.max.y; ++y) {
 
                 const position = Vector.set(Vector.temp[2], x, y);
 
-                if (!shape.region) {
-                    this.addShapeToCell(position, shape);
-                    continue;
-                }
-                
                 const insideOldRegion = shape.region.contains(position);
                 const insideNewRegion = newRegion.contains(position);
 
@@ -248,5 +218,4 @@ export class Broadphase extends Phase {
             this.removeShapeFromGrid(shape);
         }
     }
-
 }

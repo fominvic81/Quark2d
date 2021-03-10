@@ -20,13 +20,6 @@ export class ShapePair {
             new Contact(),
             new Contact(),
         ];
-        this.prev = {
-            isActive: false,
-            normal: new Vector(),
-            tangent: new Vector(),
-            penetration: new Vector(),
-            depth: 0,
-        }
         this.isActiveBroadphase = false;
         this.broadphaseCellsCount = 0;
     }
@@ -38,14 +31,6 @@ export class ShapePair {
         this.frictionStatic = Math.min(this.shapeA.frictionStatic, this.shapeB.frictionStatic);
         this.restitution = Math.max(this.shapeA.restitution, this.shapeB.restitution);
         this.surfaceVelocity = this.shapeA.surfaceVelocity + this.shapeB.surfaceVelocity;
-    }
-
-    updatePrev () {
-        this.prev.isActive = this.isActive;
-        this.prev.depth = this.depth;
-        Vector.clone(this.normal, this.prev.normal);
-        Vector.clone(this.tangent, this.prev.tangent);
-        Vector.clone(this.penetration, this.prev.penetration);
     }
 
 }
