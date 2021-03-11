@@ -35,12 +35,8 @@ export class Edge extends Shape {
 
         Vector.divide(this.delta, this.length, this.normal);
         Vector.rotate90(this.normal);
-        
-        Vector.set(
-            this.position,
-            this.start.x + this.delta.x / 2,
-            this.start.y + this.delta.y / 2,
-        );
+
+        Vector.interpolate(this.start, this.end, 0.5, this.position);
 
         Vector.neg(this.normal, this.ngNormal);
     }
@@ -65,6 +61,20 @@ export class Edge extends Shape {
         Vector.add(this.position, offset);
         Vector.add(this.start, offset);
         Vector.add(this.end, offset);
+    }
+
+    rotate (angle) {
+        const delta = Vector.temp[0];
+        Vector.subtract(this.position, this.start, delta);
+        Vector.rotate(delta, angle);
+        Vector.subtract(this.position, delta, this.start);
+
+        Vector.subtract(this.position, this.end, delta);
+        Vector.rotate(delta, angle);
+        Vector.subtract(this.position, delta, this.end);
+
+        Vector.rotate(this.normal, angle);
+        Vector.neg(this.normal, this.ngNormal);
     }
 
     updateArea () {
