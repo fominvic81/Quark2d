@@ -15,6 +15,8 @@ Use the left mouse button to move the bodies.
 
 Right mouse button to move the camera.
 
+Mouse wheel to zoom.
+
     import {
         Engine,
         Render,
@@ -51,7 +53,7 @@ Right mouse button to move the camera.
     engine.world.add(circleBody);
 
     // Create a rounded rectangular body
-    const rectBody = Factory.rectangle(new Vector(0.2, -2), 1, 1, {}, {
+    const rectBody = Factory.Body.rectangle(new Vector(0.4, -2), 0, 1, 1, {}, {
         radius: 0.1, // Rounding radius. All shapes can have a rounding radius
     });
 
