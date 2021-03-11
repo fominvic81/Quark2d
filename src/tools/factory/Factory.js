@@ -5,21 +5,115 @@ import { Vector } from '../../math/Vector';
 import { Body } from '../../body/Body';
 import { Circle } from '../../body/shapes/Circle';
 import { Convex } from '../../body/shapes/Convex';
+import { Edge } from '../../body/shapes/Edge';
 import { Filter } from '../../body/Filter';
-import { Vertices } from '../../math/Vertices';
 import { Common } from '../../common/Common';
+import { Vertices } from '../../math/Vertices';
 
 export const Factory = {};
 
-Factory.rectangle = (position, width, heigth, bodyOptions = {}, shapeOptions = {}) => {
+Factory.Shape = {};
+Factory.Body = {};
+Factory.Composite = {};
+
+//////////////////////////// Shape ////////////////////////////
+
+Factory.Shape.circle = (radius, options) => {
+    options.radius = radius;
+    return new Circle(options);
+}
+
+Factory.Shape.capsule = (length, radius, options) => {
+
+    options.start = new Vector(-length * 0.5, 0);
+    options.end = new Vector(length * 0.5, 0);
+    options.radius = radius;
+
+    return new Edge(options);
+}
+
+Factory.Shape.rectangle = (width, heigth, options) => {
+    options.vertices = [
+        new Vector(-width / 2, -heigth / 2),
+        new Vector(width / 2, -heigth / 2),
+        new Vector(width / 2, heigth / 2),
+        new Vector(-width / 2, heigth / 2),
+    ];
+
+    return new Convex(options);
+}
+
+Factory.Shape.polygon = (sides = 4, radius = 1, options = {}) => {
+
+    if (sides === 1) {
+        return Factory.Shape.circle(radius, options);
+    } else if (sides === 2) {
+        return Factory.Shape.capsule(radius * 2, undefined, options);
+    }
+
+    const delta = Common.PI2 / sides;
+    const initAngle = (delta + Math.PI) * 0.5;
+    const vertices = [];
+
+    for (let i = 0; i < sides; ++i) {
+        const angle = initAngle + delta * i;
+        vertices.push(new Vector(
+            Math.cos(angle) * radius,
+            Math.sin(angle) * radius,
+        ));
+    }
+    
+    options.vertices = vertices;
+    return new Convex(options);
+}
+
+Factory.Shape.fromVertices = (vertices, options = {}) => {
+
+    const output = [];
+    const parts = Vertices.decomp(vertices);
+
+    for (const part of parts) {
+        options.vertices = part;
+        output.push(new Convex(options));
+    }
+
+    return output;
+}
+
+//////////////////////////// Body ////////////////////////////
+
+Factory.Body.circle = (position, radius, bodyOptions = {}, shapeOptions = {}) => {
 
     bodyOptions.position = position;
+    const body = new Body(bodyOptions);
+
+    shapeOptions.radius = radius;
+    body.addShape(new Circle(shapeOptions));
+
+    return body;
+}
+
+Factory.Body.capsule = (position, angle, length, radius, bodyOptions = {}, shapeOptions ={}) => {
+
+    bodyOptions.position = position;
+    bodyOptions.angle = angle;
+    const body = new Body(bodyOptions);
+    const shape = Factory.Shape.capsule(length, radius, shapeOptions);
+    body.addShape(shape);
+
+    return body;
+}
+
+Factory.Body.rectangle = (position, angle, width, heigth, bodyOptions = {}, shapeOptions = {}) => {
+
+    bodyOptions.position = position;
+    bodyOptions.angle = angle;
     shapeOptions.vertices = [
         new Vector(-width / 2, -heigth / 2),
         new Vector(width / 2, -heigth / 2),
         new Vector(width / 2, heigth / 2),
         new Vector(-width / 2, heigth / 2),
-    ]
+    ];
 
     const rectangle = new Body(bodyOptions);
     rectangle.addShape(new Convex(shapeOptions));
@@ -27,68 +121,34 @@ Factory.rectangle = (position, width, heigth, bodyOptions = {}, shapeOptions = {
     return rectangle;
 }
 
-Factory.circle = (position, radius, bodyOptions = {}, shapeOptions = {}) => {
+Factory.Body.polygon = (position, sides = 4, radius = 1, bodyOptions = {}, shapeOptions = {}) => {
 
     bodyOptions.position = position;
     const body = new Body(bodyOptions);
-    shapeOptions.radius = radius;
-    body.addShape(new Circle(shapeOptions));
-
-    return body;
-
-}
-
-Factory.polygon = (position, sides = 4, radius = 2, bodyOptions = {}, shapeOptions = {}) => {
-
-    const delta = Common.PI2 / sides;
-    const vertices = [];
-
-    for (let i = 0; i < sides; ++i) {
-        const angle = delta * i;
-        vertices.push(new Vector(
-            Math.cos(angle) * radius,
-            Math.sin(angle) * radius,
-        ));
-    }
-
-    bodyOptions.position = position;
-    shapeOptions.vertices = vertices;
-    const body = new Body(bodyOptions);
-    body.addShape(new Convex(shapeOptions));
+    const shape = Factory.Shape.polygon(sides, radius, shapeOptions);
+    body.addShape(shape);
 
     return body;
 }
 
-Factory.chain = (composite, offsetA, offsetB, constraintOptions = {}, equationOptions = {}) => {
+Factory.Body.fromVertices = (position, vertices, bodyOptions = {}, shapeOptions = {}) => {
 
-    const bodies = composite.allBodies();
+    bodyOptions.position = position;
+    const body = new Body(bodyOptions);
+    const shapes = Factory.Shape.fromVertices(vertices, shapeOptions);
 
-    for (let i = 1; i < bodies.length; ++i) {
-        const bodyA = bodies[i - 1];
-        const bodyB = bodies[i];
-        const boundsA = bodyA.getBounds();
-        const boundsB = bodyB.getBounds();
-
-        constraintOptions.bodyA = bodyA;
-        constraintOptions.bodyB = bodyB;
-        if (offsetA) {
-            constraintOptions.pointA = Vector.set(Vector.temp[0], boundsA.getWidth() * offsetA.x * 0.5, boundsA.getHeight() * offsetA.y * 0.5);
-        }
-        if (offsetB) {
-            constraintOptions.pointB = Vector.set(Vector.temp[1], boundsB.getWidth() * offsetB.x * 0.5, boundsB.getHeight() * offsetB.y * 0.5);
-        }
-
-        const constraint = new Constraint (constraintOptions);
-        const equation = new DistanceEquation(equationOptions);
-        constraint.addEquation(equation);
-
-        composite.addConstraint(constraint);
+    for (const shape of shapes) {
+        body.addShape(shape, false);
     }
 
-    return composite;
+    body.updateCenterOfMass();
+
+    return body;
 }
 
-Factory.car = (position, size = 1, composite = new Composite()) => {
+//////////////////////////// Composite ////////////////////////////
+
+Factory.Composite.car = (position, size = 1, composite = new Composite()) => {
     
     const group = Filter.nextGroup(true);
 
@@ -96,7 +156,7 @@ Factory.car = (position, size = 1, composite = new Composite()) => {
     car.addShape(new Convex({
         vertices: [
             new Vector(-1.5 * size, -0.2 * size),
-            new Vector(-1.15 * size, -0.9 * size),
+            new Vector(-1.2 * size, -0.9 * size),
             new Vector(0.0, -0.9 * size),
             new Vector(1.5 * size, 0.0),
             new Vector(1.5 * size, 0.5 * size),
@@ -143,7 +203,7 @@ Factory.car = (position, size = 1, composite = new Composite()) => {
     return composite;
 }
 
-Factory.newtonsCradle = (position, count, radius, length, leftCount = 1, rightCount = 0, composite = new Composite()) => {
+Factory.Composite.newtonsCradle = (position, count, radius, length, leftCount = 1, rightCount = 0, composite = new Composite()) => {
 
     const halfWidth = radius * count - radius;
     const halfHeight = length / 2 + radius;
@@ -166,11 +226,9 @@ Factory.newtonsCradle = (position, count, radius, length, leftCount = 1, rightCo
         }));
 
         if (i < leftCount) {
-            circle.position.x -= halfHeight * 2;
-            circle.position.y -= halfHeight * 2;
+            circle.translate(new Vector(-halfHeight * 2, -halfHeight * 2));
         } else if (i > count - rightCount - 1) {
-            circle.position.x += halfHeight * 2;
-            circle.position.y -= halfHeight * 2;
+            circle.translate(new Vector(halfHeight * 2, -halfHeight * 2));
         }
         
         const constraint = new Constraint({
@@ -187,21 +245,4 @@ Factory.newtonsCradle = (position, count, radius, length, leftCount = 1, rightCo
     }
 
     return composite;
-}
-
-Factory.fromVertices = (position, vertices, bodyOptions = {}, shapeOptions = {}) => {
-
-    const parts = Vertices.decomp(vertices);
-
-    bodyOptions.position = position;
-    const body = new Body(bodyOptions);
-
-    for (const part of parts) {
-        shapeOptions.vertices = part;
-        body.addShape(new Convex(shapeOptions), false);
-    }
-
-    body.updateCenterOfMass();
-
-    return body;
 }
