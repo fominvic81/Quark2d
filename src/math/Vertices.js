@@ -196,4 +196,33 @@ export class Vertices {
 
         }
     }
+
+    static hull (vertices) {
+        const upper = [];
+        const lower = []; 
+
+        const verts = [...vertices];
+
+        verts.sort((vertexA, vertexB) => (vertexA.x - vertexB.x || vertexA.y - vertexB.y));
+
+        for (const vertex of verts) {
+
+            while (lower.length >= 2 && Vector.side(lower[lower.length - 1], lower[lower.length - 2], vertex)) lower.pop();
+
+            lower.push(vertex);
+        }
+
+        for (let i = verts.length - 1; i >= 0; --i) {
+            const vertex = verts[i];
+
+            while (upper.length >= 2 && Vector.side(upper[upper.length - 1], upper[upper.length - 2], vertex)) upper.pop();
+
+            upper.push(vertex);
+        }
+
+        upper.pop();
+        lower.pop();
+
+        return upper.concat(lower);
+    }
 }
