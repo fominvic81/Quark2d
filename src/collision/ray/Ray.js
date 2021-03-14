@@ -53,7 +53,7 @@ export class Ray {
         const intersections = result.intersections;
 
         if (useGrid) {
-            const gridSize = engine.broadphase.gridSize;
+            const gridSize = engine.manager.broadphase.gridSize;
             const from = Ray.vecTemp[0];
             const to = Ray.vecTemp[1];
             
@@ -210,7 +210,7 @@ export class Ray {
 
     addCell (engine, composite, position, result) {
         const intersections = result.intersections;
-        const cell = engine.broadphase.grid.get(position);
+        const cell = engine.manager.broadphase.grid.get(position);
         if (cell) {
             for (const shape of cell.values()) {
                 const body = shape.body;
