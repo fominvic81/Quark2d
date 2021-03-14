@@ -91,8 +91,11 @@ export class Render {
         const bodies = [];
 
         for (const body of allBodies) {
-            if (this.options.bounds.overlaps(body.getBounds())) {
-                bodies.push(body);
+            for (const shape of body.shapes) {
+                if (this.options.bounds.overlaps(shape.getBounds())) {
+                    bodies.push(body);
+                    break;
+                }
             }
         }
 
@@ -318,11 +321,6 @@ export class Render {
 
     bounds (bodies) {
         for (const body of bodies) {
-            const bounds = body.getBounds();
-            const width = bounds.max.x - bounds.min.x;
-            const height = bounds.max.y - bounds.min.y;
-            Draw.rect(this.ctx, Vector.set(Vector.temp[0], bounds.min.x + width / 2, bounds.min.y + height / 2), width, height, 0, 'rgb(96, 96, 96)', false, this.options.lineWidth / 25);
-
             for (const shape of body.shapes) {
                 const shapeBounds = shape.getBounds();
                 const shapeWidth = shapeBounds.max.x - shapeBounds.min.x;

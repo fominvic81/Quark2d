@@ -29,15 +29,13 @@ export class MouseConstraint {
 
             for (const body of this.engine.world.bodies.values()) {
                 if (body.isStatic) continue;
-                if (body.getBounds().contains(event.position)) {
-                    for (const shape of body.shapes) {
-                        if (shape.getBounds().contains(event.position)) {
-                            if (shape.contains(event.position)) {
-                                this.constraint.bodyA = body;
-                                Vector.rotate(Vector.subtract(event.position, body.position, this.constraint.pointA), -body.angle);
-                                this.events.trigger('catch-body', [{body, shape}]);
-                                break;
-                            }
+                for (const shape of body.shapes) {
+                    if (shape.getBounds().contains(event.position)) {
+                        if (shape.contains(event.position)) {
+                            this.constraint.bodyA = body;
+                            Vector.rotate(Vector.subtract(event.position, body.position, this.constraint.pointA), -body.angle);
+                            this.events.trigger('catch-body', [{body, shape}]);
+                            break;
                         }
                     }
                 }

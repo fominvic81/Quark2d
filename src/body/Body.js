@@ -1,5 +1,4 @@
 import { Vector } from '../math/Vector';
-import { Bounds } from '../math/Bounds';
 import { Common } from '../common/Common';
 import { Events } from '../common/Events';
 import { Sleeping } from './Sleeping';
@@ -13,9 +12,6 @@ export class Body {
         this.id = Common.nextId();
         this.name = 'body';
         this.shapes = [];
-        this.shapesBounds = [];
-        this.bounds = new Bounds();
-        this.boundsNeedsUpdate = true;
         this.events = new Events();
         this.positionImpulse = new Vector();
         this.constraintImpulse = new Vector();
@@ -112,7 +108,9 @@ export class Body {
         Vector.set(this.force, 0, 0);
         this.torque = 0;
 
-        this.boundsNeedsUpdate = true;
+        for (const shape of this.shapes) {
+            shape.updateBounds();
+        }
     }
 
     addShape (shape, updateCenterOfMass = false, offset = new Vector(), angle = 0) {
@@ -120,6 +118,9 @@ export class Body {
         shape.rotate(this.angle + angle);
         shape.translate(this.position);
         shape.translate(offset);
+
+        shape.updateBounds();
+
         if (shape.type === Shape.CONVEX) {
             Vertices.translate(shape.deltaVertices, offset);
         }
@@ -136,8 +137,6 @@ export class Body {
 
         this.updateMass();
         this.updateInertia();
-        
-        this.boundsNeedsUpdate = true;
 
         this.events.trigger('add-shape', [{shape, updateCenterOfMass, offset, angle, body: this}])
     }
@@ -165,8 +164,7 @@ export class Body {
                 inertia += shapeInertia;
             }
         }
-        
-        
+
         this.inertia = this.mass * inertia;
         this.inverseInertia = this.inertia === 0 ? 0 : 1 / this.inertia;
     }
@@ -179,18 +177,6 @@ export class Body {
         } else {
             this.mass = this.area * this.density;
             this.inverseMass = this.mass === 0 ? 0 : (1 / this.mass);
-        }
-    }
-
-    updateBounds () {
-        if (this.boundsNeedsUpdate) {
-            this.shapesBounds.length = 0;
-
-            for (const shape of this.shapes) {
-                this.shapesBounds.push(shape.updateBounds());
-            }
-            Bounds.combine(this.shapesBounds, this.bounds);
-            this.boundsNeedsUpdate = false;
         }
     }
 
@@ -224,8 +210,6 @@ export class Body {
         for (const shape of this.shapes) {
             shape.translate(offset);
         }
-
-        this.boundsNeedsUpdate = true;
     }
 
     setAngle (angle) {
@@ -314,8 +298,6 @@ export class Body {
                     Vector.neg(shape.normal, shape.ngNormal);
             }
         }
-
-        this.boundsNeedsUpdate = true;
     }
 
     setMass (mass) {
@@ -328,11 +310,6 @@ export class Body {
         this.density = density;
         this.updateMass();
         this.updateInertia();
-    }
-
-    getBounds () {
-        this.updateBounds();
-        return this.bounds;
     }
 
     setStatic (value) {

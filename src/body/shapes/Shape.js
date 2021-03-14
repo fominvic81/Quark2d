@@ -37,7 +37,6 @@ export class Shape {
     updateBounds () {}
 
     getBounds () {
-        this.updateBounds();
         return this.bounds;
     }
 
