@@ -222,7 +222,6 @@ Factory.Composite.newtonsCradle = (position, count, radius, length, leftCount = 
             inertia: Infinity,
             restitution: 1,
             friction: 0,
-            frictionStatic: 0,
         }));
 
         if (i < leftCount) {

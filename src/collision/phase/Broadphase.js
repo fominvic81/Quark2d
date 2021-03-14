@@ -88,7 +88,7 @@ export class Broadphase {
 
         const shapePairId = Common.combineId(shapeA.id, shapeB.id);
         const s = pair.shapePairs.get(shapePairId);
-        const shapePair = s || new ShapePair(shapeA, shapeB);
+        const shapePair = s || new ShapePair(shapeA, shapeB, pair);
         shapePair.isActiveBroadphase = true;
         pair.isActiveBroadphase = true;
 

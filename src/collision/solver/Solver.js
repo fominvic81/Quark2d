@@ -1,5 +1,6 @@
 import { Vector } from '../../math/Vector';
 import { Sleeping } from '../../body/Sleeping';
+import { Common } from '../../common/Common';
 
 export class Solver {
 
@@ -70,7 +71,7 @@ export class Solver {
                     shapePair.normal,
                     Vector.subtract(shapePair.penetration, Vector.subtract(pair.bodyB.positionImpulse, pair.bodyA.positionImpulse, Solver.vecTemp[0]), Solver.vecTemp[1]),
                 );
-            }   
+            }
         }
 
         for (const pair of pairs) {
@@ -117,8 +118,7 @@ export class Solver {
         const pairs = this.engine.manager.activePairs;
 
         const impulse = Solver.vecTemp[0];
-        const offset = Solver.vecTemp[2];
-        const temp3 = Solver.vecTemp[3];
+        const temp = Solver.vecTemp[1];
 
         for (const pair of pairs) {
 
@@ -130,14 +130,13 @@ export class Solver {
                     const contact = shapePair.contacts[i];
 
                     Vector.scale(shapePair.normal, contact.normalImpulse, impulse);
+                    Vector.add(impulse, Vector.scale(shapePair.tangent, contact.tangentImpulse, temp));
 
                     if (!(pair.bodyA.isStatic || pair.bodyA.sleepState === Sleeping.SLEEPING)) {
-                        Vector.subtract(contact.vertex, pair.bodyA.position, offset);
-                        pair.bodyA.applyImpulse(Vector.neg(impulse, temp3), offset, false);
+                        pair.bodyA.applyImpulse(Vector.neg(impulse, temp), contact.offsetA, false);
                     }
                     if (!(pair.bodyB.isStatic || pair.bodyB.sleepState === Sleeping.SLEEPING)) {
-                        Vector.subtract(contact.vertex, pair.bodyB.position, offset);
-                        pair.bodyB.applyImpulse(impulse, offset, false);
+                        pair.bodyB.applyImpulse(impulse, contact.offsetB, false);
                     }        
                 }
             }
@@ -147,19 +146,15 @@ export class Solver {
     solveVelocity () {
         const pairs = this.engine.manager.activePairs;
 
-        const offsetA = Solver.vecTemp[0];
-        const offsetB = Solver.vecTemp[1];
-        const contactVelocityA = Solver.vecTemp[2];
-        const contactVelocityB = Solver.vecTemp[3];
-        const relativeVelocity = Solver.vecTemp[4];
-        const impulse = Solver.vecTemp[5];
-        const velocityA = Solver.vecTemp[6];
-        const velocityB = Solver.vecTemp[7];
+        const contactVelocityA = Solver.vecTemp[0];
+        const contactVelocityB = Solver.vecTemp[1];
+        const relativeVelocity = Solver.vecTemp[2];
+        const impulse = Solver.vecTemp[3];
+        const velocityA = Solver.vecTemp[4];
+        const velocityB = Solver.vecTemp[5];
+        const temp = Solver.vecTemp[6];
 
         let contact,
-            crossA,
-            crossB,
-            share,
             normalVelocity,
             normalImpulse,
             tangentVelocity,
@@ -168,67 +163,68 @@ export class Solver {
             angularVelocityB;
 
         for (const pair of pairs) {
-
             if (pair.isSleeping) continue;
-
-            const contactShare = 1 / pair.contactsCount;
-
-            Vector.clone(pair.bodyA.velocity, velocityA);
-            angularVelocityA = pair.bodyA.angularVelocity;
-            Vector.clone(pair.bodyB.velocity, velocityB);
-            angularVelocityB = pair.bodyB.angularVelocity;
 
             for (const shapePair of pair.activeShapePairs) {
 
                 for (let i = 0; i < shapePair.contactsCount; ++i) {
                     contact = shapePair.contacts[i];
 
-                    Vector.subtract(contact.vertex, pair.bodyA.position, offsetA);
-                    Vector.subtract(contact.vertex, pair.bodyB.position, offsetB);
+                    Vector.add(pair.bodyA.velocity, Vector.scale(Vector.rotate90(contact.offsetA, contactVelocityA), pair.bodyA.angularVelocity), contactVelocityA);
+                    Vector.add(pair.bodyB.velocity, Vector.scale(Vector.rotate90(contact.offsetB, contactVelocityB), pair.bodyB.angularVelocity), contactVelocityB);
 
-                    Vector.add(velocityA, Vector.scale(Vector.rotate90(offsetA, contactVelocityA), angularVelocityA), contactVelocityA);
-                    Vector.add(velocityB, Vector.scale(Vector.rotate90(offsetB, contactVelocityB), angularVelocityB), contactVelocityB);
-                    
                     Vector.subtract(contactVelocityA, contactVelocityB, relativeVelocity);
-                    
-                    crossA = Vector.cross(offsetA, shapePair.normal);
-                    crossB = Vector.cross(offsetB, shapePair.normal);
-                    share = contactShare / (
-                        pair.bodyA.inverseMass +
-                        pair.bodyB.inverseMass +
-                        pair.bodyA.inverseInertia * Math.pow(crossA, 2) +
-                        pair.bodyB.inverseInertia * Math.pow(crossB, 2)
-                    );
+
+                    tangentVelocity = Vector.dot(shapePair.tangent, relativeVelocity) + shapePair.surfaceVelocity;
+                    tangentImpulse = tangentVelocity * contact.tangentShare;
+
+                    const maxFriction = shapePair.friction * contact.normalImpulse;
+
+                    const newImpulse = Common.clamp(contact.tangentImpulse + tangentImpulse, -maxFriction, maxFriction);
+                    tangentImpulse = newImpulse - contact.tangentImpulse;
+                    contact.tangentImpulse = newImpulse;
+
+                    Vector.scale(shapePair.tangent, tangentImpulse, impulse);
+
+                    if (!(pair.bodyA.isStatic || pair.bodyA.sleepState === Sleeping.SLEEPING)) {
+                        pair.bodyA.applyImpulse(Vector.neg(impulse, temp), contact.offsetA, false);
+                    }
+                    if (!(pair.bodyB.isStatic || pair.bodyB.sleepState === Sleeping.SLEEPING)) {
+                        pair.bodyB.applyImpulse(impulse, contact.offsetB, false);
+                    }
+                }
+
+                Vector.clone(pair.bodyA.velocity, velocityA);
+                angularVelocityA = pair.bodyA.angularVelocity;
+                Vector.clone(pair.bodyB.velocity, velocityB);
+                angularVelocityB = pair.bodyB.angularVelocity;
+
+                for (let i = 0; i < shapePair.contactsCount; ++i) {
+                    contact = shapePair.contacts[i];
+
+                    Vector.add(velocityA, Vector.scale(Vector.rotate90(contact.offsetA, contactVelocityA), angularVelocityA), contactVelocityA);
+                    Vector.add(velocityB, Vector.scale(Vector.rotate90(contact.offsetB, contactVelocityB), angularVelocityB), contactVelocityB);
+
+                    Vector.subtract(contactVelocityA, contactVelocityB, relativeVelocity);
 
                     normalVelocity = Vector.dot(relativeVelocity, shapePair.normal);
-                    normalImpulse = (1 + shapePair.restitution) * normalVelocity * share;
+                    normalImpulse = (normalVelocity) * (1 + shapePair.restitution) * contact.normalShare;
 
                     if (normalVelocity > Solver.RESTING_THRESHOLD) {
                         contact.normalImpulse = 0;
                     } else {
-                        const contactNormalImpulse = contact.normalImpulse;
-                        contact.normalImpulse = Math.max(contact.normalImpulse + normalImpulse, 0);
-                        normalImpulse = contact.normalImpulse - contactNormalImpulse;
+                        const newImpulse = Math.max(contact.normalImpulse + normalImpulse, 0);
+                        normalImpulse = newImpulse - contact.normalImpulse;
+                        contact.normalImpulse = newImpulse;
                     }
 
-                    tangentVelocity = Vector.dot(relativeVelocity, shapePair.tangent) + shapePair.surfaceVelocity;
-                    tangentImpulse = tangentVelocity * share;
+                    Vector.scale(shapePair.normal, normalImpulse, impulse);
 
-                    if (Math.abs(tangentVelocity) > -shapePair.frictionStatic * normalVelocity) {
-                        tangentImpulse *= shapePair.friction;
-                    }
-
-                    Vector.add(
-                        Vector.scale(shapePair.normal, normalImpulse, Vector.temp[0]),
-                        Vector.scale(shapePair.tangent, tangentImpulse, Vector.temp[1]),
-                        impulse,
-                    );
-                    
                     if (!(pair.bodyA.isStatic || pair.bodyA.sleepState === Sleeping.SLEEPING)) {
-                        pair.bodyA.applyImpulse(Vector.neg(impulse, Vector.temp[0]), offsetA, false);
+                        pair.bodyA.applyImpulse(Vector.neg(impulse, temp), contact.offsetA, false);
                     }
                     if (!(pair.bodyB.isStatic || pair.bodyB.sleepState === Sleeping.SLEEPING)) {
-                        pair.bodyB.applyImpulse(impulse, offsetB, false);
+                        pair.bodyB.applyImpulse(impulse, contact.offsetB, false);
                     }
                 }
             }
