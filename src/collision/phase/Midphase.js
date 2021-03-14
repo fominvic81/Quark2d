@@ -25,8 +25,7 @@ export class Midphase {
             if (!pair.isSleeping) {
                 pair.isActive = false;
 
-                for (const shapePair of pair.shapePairs.values()) {
-                    if (!shapePair.isActiveBroadphase) continue;
+                for (const shapePair of pair.activeShapePairsBroadphase.values()) {
                     shapePair.isActive = false;
                     if (!Filter.canCollide(shapePair.shapeA.filter, shapePair.shapeB.filter)) continue;
 

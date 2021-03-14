@@ -9,8 +9,8 @@ export class Pair {
         this.id = Common.combineId(this.bodyA.id, this.bodyB.id);
         this.shapePairs = new Map();
         this.activeShapePairs = [];
+        this.activeShapePairsBroadphase = new Set();
         this.isActiveBroadphase = false;
-        this.activeShapePairsCount = 0;
         this.isActive = false;
         this.isActivePrev = false;
         this.isSleeping = false;

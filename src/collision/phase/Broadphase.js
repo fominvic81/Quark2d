@@ -93,7 +93,8 @@ export class Broadphase {
         pair.isActiveBroadphase = true;
 
         this.activePairs.add(pair);
-        ++pair.activeShapePairsCount;
+
+        pair.activeShapePairsBroadphase.add(shapePair)
 
         if (!s) {
             pair.shapePairs.set(shapePairId, shapePair);
@@ -158,10 +159,10 @@ export class Broadphase {
 
                 if (shapePair.broadphaseCellsCount <= 0) {
                     shapePair.isActiveBroadphase = false;
-                    --pair.activeShapePairsCount;
-                    if (pair.activeShapePairsCount <= 0) {
+                    pair.activeShapePairsBroadphase.delete(shapePair);
+                    if (pair.activeShapePairsBroadphase.size <= 0) {
                         pair.isActiveBroadphase = false;
-                        this.activePairs.delete(pairId);
+                        this.activePairs.delete(pair);
                     }                    
                 }
             }
