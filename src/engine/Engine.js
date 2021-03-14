@@ -31,7 +31,9 @@ export class Engine {
 
         this.applyGravity();
 
-        this.updateBodies(timestamp.delta);
+        for (const body of this.world.activeBodies.values()) {
+            body.updateVelocity(timestamp.delta);
+        }
 
         this.manager.update();
 
@@ -63,6 +65,9 @@ export class Engine {
             this.events.trigger('ended-collisions-after-solve', [{pairs: this.manager.endedPairs}]);
         }
 
+        for (const body of this.world.activeBodies.values()) {
+            body.updatePosition();
+        }
 
         this.events.trigger('after-update', [{engine: this, timestamp}]);
         
@@ -72,12 +77,6 @@ export class Engine {
         for (const body of this.world.activeBodies.values()) {
             body.force.x += this.gravity.x * body.mass;
             body.force.y += this.gravity.y * body.mass;
-        }
-    }
-
-    updateBodies (dt) {
-        for (const body of this.world.activeBodies.values()) {
-            body.update(dt);
         }
     }
 };

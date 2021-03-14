@@ -80,7 +80,7 @@ export class Body {
 
     }
 
-    update (delta) {
+    updateVelocity (delta) {
         this.speedSquared = Vector.lengthSquared(this.velocity);
         this.angSpeedSquared = Math.pow(this.angularVelocity, 2);
         this.motion = this.speedSquared + this.angSpeedSquared;
@@ -91,23 +91,27 @@ export class Body {
         // update velocity
         Vector.add(Vector.scale(this.velocity, (1 - this.velocityDamping)), Vector.scale(this.acceleration, delta));
 
-        // update position 
-        Vector.clone(this.position, this.positionPrev);
-        this.translate(this.velocity);
-
         // update angularAcceleration
         this.angularAcceleration = this.torque * this.inverseInertia * delta;
 
         // update angularVelocity
         this.angularVelocity = this.angularVelocity * (1 - this.velocityDamping) + this.angularAcceleration * delta;
 
-        // update angle
-        this.anglePrev = this.angle;
-        this.rotate(this.angularVelocity);
         // clear forces
         Vector.set(this.force, 0, 0);
         this.torque = 0;
+    }
 
+    updatePosition () {
+        // update position 
+        Vector.clone(this.position, this.positionPrev);
+        this.translate(this.velocity);
+
+        // update angle
+        this.anglePrev = this.angle;
+        this.rotate(this.angularVelocity);
+
+        // update bounds
         for (const shape of this.shapes) {
             shape.updateBounds();
         }
