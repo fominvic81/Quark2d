@@ -33,13 +33,13 @@ const supportPoint = (shape, dir) => {
 }
 
 const convexSupportPoint = (convex, dir) => {
-    const projection = convex.project(dir);
-    return [convex.vertices[projection.index], projection.index];
+    const index = convex.project(dir);
+    return [convex.vertices[index], index];
 }
 
 const edgeSupportPoint = (edge, dir) => {
-    const projection = edge.project(dir);
-    return [projection.index ? edge.end : edge.start, projection.index];
+    const index = edge.project(dir);
+    return [index ? edge.end : edge.start, index];
 }
 
 const pts = (p1, p2) => {

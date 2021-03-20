@@ -27,30 +27,23 @@ export class Convex extends Shape {
         }
     }
 
-    project (vector, output = this.projection) {
+    project (vector) {
         const vertices = this.vertices;
-        let dot = Vector.dot(vertices[0], vector);
 
-        output.value = dot;
-        output.index = 0;
-
-        const ld = Vector.dot(vertices[vertices.length - 1], vector);
-
-        if (Math.abs(ld - dot) < 0.000001) {
-            output.index = vertices.length - 1;
-        }
+        let max = Vector.dot(vertices[0], vector);
+        let index = 0;
 
         for (let i = 1; i < vertices.length; ++i) {
             const vertex = vertices[i];
-            dot = Vector.dot(vertex, vector);
+            const dot = Vector.dot(vertex, vector);
 
-            if (dot > output.value + 0.000001) {
-                output.value = dot;
-                output.index = vertex.index;
+            if (dot > max) {
+                max = dot;
+                index = vertex.index;
             }
         }
 
-        return output;
+        return index;
     }
 
     translate (offset) {
@@ -82,32 +75,39 @@ export class Convex extends Shape {
         const radiusSquared = Math.pow(this.radius, 2);
         const inverseArea = 1/this.area;
 
-        for (const vertex of this.deltaVertices) {
-            const length = this.lengths[vertex.index];
-            const normal = this.normals[vertex.index];
+        const vertex = Vector.temp[0];
+        for (const v of this.vertices) {
+            Vector.subtract(v, this.position, vertex);
+            const vertex2 = Vector.subtract(this.vertices[(v.index + 1) % this.vertices.length], this.position, Vector.temp[1]);
 
-            const areaFraction = (length * this.radius) * inverseArea;
-            const i = (length * length + radiusSquared) / 12;
-            const distSquared = Math.pow(Vector.dot(vertex, normal) + this.radius * 0.5, 2);
+            const length = this.lengths[v.index];
+            const normal = this.normals[v.index];
 
-            this.inertia += (i + distSquared) * areaFraction;
+            const point = Vector.interpolate(vertex, vertex2, 0.5, Vector.temp[2]);
+            Vector.add(point, Vector.scale(normal, this.radius * 0.5, Vector.temp[3]));
+
+            const areaFraction = length * this.radius * inverseArea;
+            const inertia = (Math.pow(length, 2) + radiusSquared) / 12;
+            const distSquared = Vector.lengthSquared(point);
+
+            this.inertia += (inertia + distSquared) * areaFraction;
         }
 
-        for (const vertex of this.deltaVertices) {
-            const n1 = this.normals[vertex.index];
-            const n2 = this.normals[(vertex.index + 1) % this.normals.length];
+        for (const v of this.vertices) {
+            Vector.subtract(v, this.position, vertex);
+            const n1 = this.normals[v.index];
+            const n2 = this.normals[(v.index - 1 + this.normals.length) % this.normals.length];
 
-            const sin = Vector.cross(n1, n2);
-            const cos = Vector.dot(n1, n2);
+            const sin = Vector.cross(n2, n1);
+            const cos = Vector.dot(n2, n1);
+            const angle = Math.atan2(sin, cos);
 
-            const angle = Math.abs(Math.atan2(sin, cos));
+            const areaFraction = radiusSquared * angle * 0.5 * inverseArea;
 
-            const areaFraction = (radiusSquared * angle * 0.5) * inverseArea;
-
-            const i = radiusSquared / 2;
+            const inertia = radiusSquared / 2;
             const distSquared = Vector.lengthSquared(vertex);
 
-            this.inertia += (i + distSquared) * areaFraction;
+            this.inertia += (inertia + distSquared) * areaFraction;
         }
 
         return this.inertia;

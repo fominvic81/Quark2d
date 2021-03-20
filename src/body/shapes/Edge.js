@@ -41,20 +41,8 @@ export class Edge extends Shape {
         Vector.neg(this.normal, this.ngNormal);
     }
 
-    project (vector, output = this.projection) {
-
-        const sDot = Vector.dot(this.start, vector);
-        const eDot = Vector.dot(this.end, vector);
-
-        if (sDot > eDot) {
-            output.value = sDot;
-            output.index = 0;
-        } else {
-            output.value = eDot;
-            output.index = 1;
-        }
-
-        return output;
+    project (vector) {
+        return Vector.dot(this.start, vector) < Vector.dot(this.end, vector);
     }
 
     translate (offset) {
