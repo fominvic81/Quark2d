@@ -18,12 +18,12 @@ Factory.Composite = {};
 
 //////////////////////////// Shape ////////////////////////////
 
-Factory.Shape.circle = (radius, options) => {
+Factory.Shape.circle = (radius, options = {}) => {
     options.radius = radius;
     return new Circle(options);
 }
 
-Factory.Shape.capsule = (length, radius, options) => {
+Factory.Shape.capsule = (length, radius, options = {}) => {
 
     options.start = new Vector(-length * 0.5, 0);
     options.end = new Vector(length * 0.5, 0);
@@ -32,7 +32,7 @@ Factory.Shape.capsule = (length, radius, options) => {
     return new Edge(options);
 }
 
-Factory.Shape.rectangle = (width, heigth, options) => {
+Factory.Shape.rectangle = (width, heigth, options = {}) => {
     options.vertices = [
         new Vector(-width / 2, -heigth / 2),
         new Vector(width / 2, -heigth / 2),
