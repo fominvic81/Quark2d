@@ -17,7 +17,6 @@ export class Edge extends Shape {
         this.delta = new Vector();
         this.normal = new Vector();
         this.ngNormal = new Vector();
-        this.projection = {};
 
         this.set(options.start || this.start, options.end || this.end);
 

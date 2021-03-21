@@ -13,7 +13,6 @@ export class Convex extends Shape {
 
         this.vertices = new Vertices(vertices);
         this.deltaVertices = new Vertices(vertices);
-        this.projection = {};
 
         this.normals = [];
         this.lengths = [];
