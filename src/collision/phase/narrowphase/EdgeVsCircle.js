@@ -17,7 +17,7 @@ export const EdgeVsCircle = (shapePair) => {
 
     Vector.subtract(edge.start, circle.position, normal);
 
-    const dot = Vector.dot(normal, Vector.rotate90(edge.normal, temp0));
+    const dot = Vector.cross(edge.normal, normal);
 
     if (dot > edgeLength) {
         Vector.subtract(edge.end, circle.position, normal);
