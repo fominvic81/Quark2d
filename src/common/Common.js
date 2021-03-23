@@ -45,16 +45,12 @@ Common.contains = (value, min, max) => {
     return !(min > value || max < value);
 }
 
-Common.normaliseAngle = (angle) => {
-    return ((angle % Common.PI2) + Common.PI3) % Common.PI2 - Common.PI
-}
+Common.normaliseAngle = angle => (((angle % Common.PI2) + Common.PI3) % Common.PI2 - Common.PI);
 
-Common.angleDiff = (angleA, angleB) => {
-    return Common.normaliseAngle(angleA - angleB);
-};
+Common.angleDiff = (angleA, angleB) => Common.normaliseAngle(angleA - angleB);
 
 Common.clampAngle = (angle, minAngle, maxAngle) => {
-    if (maxAngle - minAngle < 0.01) return maxAngle;
+    // if (Math.abs(maxAngle - minAngle) < 0.01) return maxAngle;
 
     var minDiff = Common.angleDiff(angle, minAngle);
     var maxDiff = Common.angleDiff(angle, maxAngle);

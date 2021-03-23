@@ -1,21 +1,17 @@
 import { Events } from '../../common/Events';
-import { Shape } from '../../body/shapes/Shape';
 import { Vector } from '../../math/Vector';
-import { Vertices } from '../../math/Vertices';
-import { DistanceEquation } from '../../constraint/equation/DistanceEquation';
-import { Constraint } from '../../constraint/Constraint';
+import { DistanceConstraint } from '../../constraint/DistanceConstraint';
 
 export class MouseConstraint {
     
-    constructor (engine, mouse, equations = [new DistanceEquation({stiffness: 0.2, length: 0})]) {
+    constructor (engine, mouse, constraints = [new DistanceConstraint({stiffness: 0.2, length: 0})]) {
 
         this.engine = engine;
         this.mouse = mouse;
-        this.constraint = new Constraint();
-        this.constraint.addEquation(equations);
+        this.constraints = constraints;
         this.events = new Events();
 
-        engine.world.addConstraint(this.constraint);
+        engine.world.addConstraint(this.constraints);
 
         this.mouse.events.on('mouse-down', (event) => {this.mouseDown(event)});
         this.mouse.events.on('mouse-up', (event) => {this.mouseUp(event)});
@@ -25,18 +21,17 @@ export class MouseConstraint {
 
     mouseDown (event) {
         if (!this.mouse.leftButtonPressed) return;
-        if (this.constraint) {
-
-            for (const body of this.engine.world.bodies.values()) {
-                if (body.isStatic) continue;
-                for (const shape of body.shapes) {
-                    if (shape.getBounds().contains(event.position)) {
-                        if (shape.contains(event.position)) {
-                            this.constraint.bodyA = body;
-                            Vector.rotate(Vector.subtract(event.position, body.position, this.constraint.pointA), -body.angle);
+        for (const body of this.engine.world.bodies.values()) {
+            if (body.isStatic) continue;
+            for (const shape of body.shapes) {
+                if (shape.getBounds().contains(event.position)) {
+                    if (shape.contains(event.position)) {
+                        for (const constraint of this.constraints) {
+                            constraint.bodyA = body;
+                            Vector.rotate(Vector.subtract(event.position, body.position, constraint.pointA), -body.angle);
                             this.events.trigger('catch-body', [{body, shape}]);
-                            break;
                         }
+                        break;
                     }
                 }
             }
@@ -45,11 +40,15 @@ export class MouseConstraint {
 
     mouseUp (event) {
         if (this.mouse.leftButtonPressed) return;
-        this.constraint.bodyA = undefined
+        for (const constraint of this.constraints) {
+            constraint.bodyA = undefined;
+        }
     }
 
     mouseMove (event) {
-        Vector.clone(event.position, this.constraint.pointB);
+        for (const constraint of this.constraints) {
+            Vector.clone(event.position, constraint.pointB);
+        }
     }
 
 }

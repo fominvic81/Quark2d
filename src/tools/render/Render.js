@@ -4,9 +4,9 @@ import { Shape } from '../../body/shapes/Shape';
 import { Events } from '../../common/Events';
 import { Mouse } from '../mouse/Mouse';
 import { Sleeping } from '../../body/Sleeping';
-import { Equation } from '../../constraint/equation/Equation';
 import { Bounds } from '../../math/Bounds';
 import { Solver } from '../../collision/solver/Solver';
+import { Constraint } from '../../Quark2d';
 
 export class Render {
 
@@ -182,77 +182,52 @@ export class Render {
         for (const constraint of constraints) {
             const start = constraint.getWorldPointA();
             const end = constraint.getWorldPointB();
-            
-            for (const equation of constraint.equations) {
-                switch (equation.type) {
-                    case Equation.DISTANCE_EQUATION:
 
-                        if (this.options.showConstraintBounds) {
-                            if (equation.length && equation.length > 0.01) {
-                                if (!constraint.bodyA) Draw.circle(this.ctx, start, equation.length, 'rgb(100, 200, 100)', false, this.options.lineWidth / 20);
-                                if (!constraint.bodyB) Draw.circle(this.ctx, end, equation.length, 'rgb(100, 200, 100)', false, this.options.lineWidth / 20);
-                            }
-                            if (equation.minLength && equation.minLength > 0.01) {
-                                if (!constraint.bodyA) Draw.circle(this.ctx, start, equation.minLength, 'rgb(100, 200, 100)', false, this.options.lineWidth / 20);
-                                if (!constraint.bodyB) Draw.circle(this.ctx, end, equation.minLength, 'rgb(100, 200, 100)', false, this.options.lineWidth / 20);
-                            }
+            switch (constraint.type) {
+                case Constraint.DISTANCE_CONSTRAINT:
+
+                    if (this.options.showConstraintBounds) {
+                        if (constraint.length && constraint.length > 0.01) {
+                            if (!constraint.bodyA) Draw.circle(this.ctx, start, constraint.length, 'rgb(100, 200, 100)', false, this.options.lineWidth / 20);
+                            if (!constraint.bodyB) Draw.circle(this.ctx, end, constraint.length, 'rgb(100, 200, 100)', false, this.options.lineWidth / 20);
                         }
-
-                        if (equation.length <= 1 || equation.stiffness > 0.8) {
-                            Draw.line(this.ctx, start, end, 'rgb(128, 128, 128)', this.options.lineWidth / 20);
-                        } else {
-                            const n = Vector.subtract(end, start, Vector.temp[0]);
-                            const len = Vector.length(n);
-
-                            const normal = Vector.rotate90(Vector.divide(n, len, Vector.temp[1]));
-                            const count = Math.max(equation.length * 2, 4);
-
-                            this.ctx.beginPath();
-                            this.ctx.moveTo(start.x, start.y);
-
-                            for (let i = 1; i < count; ++i) {
-                                const side = i % 2 === 0 ? 1 : -1;
-                                const offset = Vector.scale(normal, side * 0.25, Vector.temp[2]);
-                                const p = i / count;
-
-                                this.ctx.lineTo(
-                                    start.x + n.x * p + offset.x,
-                                    start.y + n.y * p + offset.y,
-                                );
-
-                            }
-
-                            this.ctx.lineTo(end.x, end.y);
-
-                            this.ctx.strokeStyle = 'rgb(128, 128, 128)';
-                            this.ctx.lineWidth = this.options.lineWidth / 20;
-                            this.ctx.stroke();
+                        if (constraint.minLength && constraint.minLength > 0.01) {
+                            if (!constraint.bodyA) Draw.circle(this.ctx, start, constraint.minLength, 'rgb(100, 200, 100)', false, this.options.lineWidth / 20);
+                            if (!constraint.bodyB) Draw.circle(this.ctx, end, constraint.minLength, 'rgb(100, 200, 100)', false, this.options.lineWidth / 20);
                         }
-                        break;
-                    case Equation.ANGLE_EQUATION:
+                    }
+
+                    if (constraint.length <= 1 || constraint.stiffness > 0.8) {
+                        Draw.line(this.ctx, start, end, 'rgb(128, 128, 128)', this.options.lineWidth / 20);
+                    } else {
+                        const n = Vector.subtract(end, start, Vector.temp[0]);
+                        const len = Vector.length(n);
+
+                        const normal = Vector.rotate90(Vector.divide(n, len, Vector.temp[1]));
+                        const count = Math.max(constraint.length * 2, 4);
+
+                        this.ctx.beginPath();
                         this.ctx.moveTo(start.x, start.y);
-                        if (constraint.bodyA) {
-                            this.ctx.arc(start.x, start.y, 0.4, equation.minAngleA + constraint.bodyA.angle + Math.PI, equation.maxAngleA + constraint.bodyA.angle + Math.PI, true);
-                        } else {
-                            this.ctx.arc(start.x, start.y, 0.4, equation.minAngleA + Math.PI, equation.maxAngleA + Math.PI, true);
-                        }
-                        this.ctx.lineTo(start.x, start.y);
 
-                        
-                        this.ctx.moveTo(end.x, end.y);
-                        if (constraint.bodyB) {
-                            this.ctx.arc(end.x, end.y, 0.4, equation.minAngleB + constraint.bodyB.angle, equation.maxAngleB + constraint.bodyB.angle, true);
-                        } else {
-                            this.ctx.arc(end.x, end.y, 0.4, equation.minAngleB, equation.maxAngleB, true);
+                        for (let i = 1; i < count; ++i) {
+                            const side = i % 2 === 0 ? 1 : -1;
+                            const offset = Vector.scale(normal, side * 0.25, Vector.temp[2]);
+                            const p = i / count;
+
+                            this.ctx.lineTo(
+                                start.x + n.x * p + offset.x,
+                                start.y + n.y * p + offset.y,
+                            );
+
                         }
+
                         this.ctx.lineTo(end.x, end.y);
 
-
-                        this.ctx.strokeStyle = 'rgb(200, 200, 200)';
+                        this.ctx.strokeStyle = 'rgb(128, 128, 128)';
                         this.ctx.lineWidth = this.options.lineWidth / 20;
                         this.ctx.stroke();
-                        break
-                }
+                    }
+                    break;
             }
 
             Draw.circle(this.ctx, start, this.options.lineWidth / 10, 'rgb(100, 100, 100)');

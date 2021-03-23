@@ -41,10 +41,8 @@ import { Ray } from './collision/ray/Ray';
 import { RaycastResult } from './collision/ray/RaycastResult';
 import { Intersection } from './collision/ray/Intersection';
 
-import { Equation } from './constraint/equation/Equation';
-import { DistanceEquation } from './constraint/equation/DistanceEquation';
-import { AngleEquation } from './constraint/equation/AngleEquation';
 import { Constraint } from './constraint/Constraint';
+import { DistanceConstraint } from './constraint/DistanceConstraint';
 
 import { Factory } from './tools/factory/Factory';
 
@@ -100,10 +98,8 @@ export {
     RaycastResult,
     Intersection,
 
-    Equation,
-    DistanceEquation,
-    AngleEquation,
     Constraint,
+    DistanceConstraint,
 
     Factory,
 

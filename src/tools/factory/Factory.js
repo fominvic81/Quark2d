@@ -9,6 +9,7 @@ import { Edge } from '../../body/shapes/Edge';
 import { Filter } from '../../body/Filter';
 import { Common } from '../../common/Common';
 import { Vertices } from '../../math/Vertices';
+import { DistanceConstraint } from '../../constraint/DistanceConstraint';
 
 export const Factory = {};
 
@@ -177,25 +178,19 @@ Factory.Composite.car = (position, size = 1, composite = new Composite()) => {
         filter: {group},
     }));
 
-    const frontConstraint = new Constraint({
+    const frontConstraint = new DistanceConstraint({
         bodyA: car,
         bodyB: frontWheel,
         pointA: new Vector(size, 0.5 * size),
-    });
-    const frontDistEquation = new DistanceEquation({
         stiffness: 1,
     });
-    frontConstraint.addEquation(frontDistEquation);
 
-    const backConstraint = new Constraint({
+    const backConstraint = new DistanceConstraint({
         bodyA: car,
         bodyB: backWheel,
         pointA: new Vector(-size, 0.5 * size),
-    });
-    const backDistEquation = new DistanceEquation({
         stiffness: 1,
     });
-    backConstraint.addEquation(backDistEquation);
 
     composite.addBody([car, frontWheel, backWheel]);
     composite.addConstraint([frontConstraint, backConstraint]);
@@ -230,14 +225,11 @@ Factory.Composite.newtonsCradle = (position, count, radius, length, leftCount = 
             circle.translate(new Vector(halfHeight * 2, -halfHeight * 2));
         }
         
-        const constraint = new Constraint({
+        const constraint = new DistanceConstraint({
             bodyA: circle,
             pointB: new Vector(i * radius * 2 + position.x - halfWidth, position.y - halfHeight),
-        });
-        const equation = new DistanceEquation({
             stiffness: 1,
         });
-        constraint.addEquation(equation);
 
         composite.addBody(circle);
         composite.addConstraint(constraint);
