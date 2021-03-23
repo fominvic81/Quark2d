@@ -195,16 +195,13 @@ export class Ray {
         if (!intersection.isActive) return;
         intersection.isActive = false;
 
-        const body = intersection.body;
         const shape = intersection.shape;
-        if (this.bounds.overlaps(body.getBounds())) {
 
-            if (this.bounds.overlaps(shape.getBounds())) {
+        if (this.bounds.overlaps(shape.getBounds())) {
 
-                intersection.reset();
-                shape.raycast(intersection, this.from, this.to, this.delta);
-                if (intersection.contactsCount > 0) intersection.isActive = true;
-            }
+            intersection.reset();
+            shape.raycast(intersection, this.from, this.to, this.delta);
+            if (intersection.contactsCount > 0) intersection.isActive = true;
         }
     }
 
