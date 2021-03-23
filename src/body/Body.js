@@ -31,7 +31,7 @@ export class Body {
         this.constraintDir = Vector.clone(this.dir);
         this.constraintAngle = this.angle;
         this.isStatic = false;
-        this.velocityDamping = 0.0005;
+        this.velocityDamping = 0;
         this.density = 100;
         this.mass = 0;
         this.inverseMass = 0;
@@ -162,9 +162,13 @@ export class Body {
             this.inertia = 0;
             this.inverseInertia = 0;
         } else {
+            const inverseArea = 1/this.area;
             for(const shape of this.shapes) {
-                // now this code is wrong
-                const shapeInertia = shape.inertia;
+
+                const areaFraction = shape.area * inverseArea;
+                const distSquared = Vector.distSquared(this.position, shape.position);
+                const shapeInertia = (shape.inertia + distSquared) * areaFraction;
+    
                 inertia += shapeInertia;
             }
         }
