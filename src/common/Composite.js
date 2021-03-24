@@ -24,9 +24,6 @@ export class Composite {
                 case 'constraint':
                     this.addConstraint(object);
                     break;
-                case 'composite':
-                    this.addComposite(object);
-                    break;
             }
         }
 
@@ -102,28 +99,6 @@ export class Composite {
 
     allConstraints () {
         return [...this.constraints.values()];
-    }
-
-    addComposite (composites) {
-        if (!Array.isArray(composites)) {
-            composites = [composites];
-        }
-
-        for (const composite of composites) {
-            this.addBody(composite.allBodies());
-            this.addConstraint(composite.allConstraints());
-        }
-    }
-
-    removeComposite (composites) {
-        if (!Array.isArray(composites)) {
-            composites = [composites];
-        }
-
-        for (const composite of composites) {
-            this.removeBody(composite.allBodies());
-            this.removeConstraint(composite.allConstraints());
-        }
     }
 
     all () {
