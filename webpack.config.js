@@ -1,7 +1,5 @@
 const path = require('path');
 
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-
 const dev = process.env.NODE_ENV === 'development';
 
 module.exports = {
@@ -12,10 +10,4 @@ module.exports = {
         filename: 'Quark2d.js',
         path: path.resolve(__dirname, 'build'),
     },
-
-    plugins: [
-        new HtmlWebpackPlugin({
-            template: 'index.html',
-        }),
-    ],
 };
