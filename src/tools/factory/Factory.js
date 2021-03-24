@@ -1,6 +1,4 @@
 import { Composite } from '../../common/Composite';
-import { Constraint } from '../../constraint/Constraint';
-import { DistanceEquation } from '../../constraint/equation/DistanceEquation';
 import { Vector } from '../../math/Vector';
 import { Body } from '../../body/Body';
 import { Circle } from '../../body/shapes/Circle';
