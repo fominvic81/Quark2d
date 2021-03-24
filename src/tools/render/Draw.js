@@ -1,4 +1,4 @@
-import { Common } from "../../common/Common";
+import { Common } from '../../common/Common';
 
 
 export const Draw = {};
