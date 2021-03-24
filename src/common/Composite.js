@@ -75,7 +75,7 @@ export class Composite {
         }
     }
 
-    removeConstraint (constraints, deep = true) {
+    removeConstraint (constraints) {
         if (!Array.isArray(constraints)) {
             constraints = [constraints];
         }
