@@ -5,9 +5,10 @@ export class Runner {
 
     constructor (options = {}) {
 
-        this.setTps(options.tps || 60);
         this.tps = 0;
         this.delta = 0;
+        this.fixedTps = 60;
+        this.fixedDelta = 1 / this.fixedTps;
         this.deltaAccumulator = 0;
         this.time = performance.now() / 1000;
         this.events = new Events();
@@ -25,21 +26,27 @@ export class Runner {
         
         this.renderTime = performance.now() / 1000;
         this.enabledRender = false;
+
+        this.tickRequestId;
+        this.renderRequestId;
+
+        if (options.tps) this.setTps(options.tps);
     }
 
     run () {
         if (this.enabled) return;
         this.enabled = true;
+        this.time = performance.now() / 1000 - this.fixedDelta;
         this.tick();
     }
 
     stop () {
         this.enabled = false;
+        if (this.tickRequestId) window.cancelAnimationFrame(this.tickRequestId);
     }
 
     tick () {
-        if (!this.enabled) return;
-
+        this.tickRequestId = window.requestAnimationFrame(() => {this.tick()});
         const now = performance.now() / 1000;
         this.delta = now - this.time;
         this.tps = 1 / this.delta;
@@ -68,8 +75,7 @@ export class Runner {
         }
 
         this.events.trigger('before-tick', [this.event]);
-        
-        setTimeout(() => {this.tick()}, 0);
+
     }
 
     setTps (tps) {
@@ -80,15 +86,17 @@ export class Runner {
     runRender () {
         if (this.enabledRender) return;
         this.enabledRender = true;
+        this.renderTime = performance.now() - this.renderDelta;
         this.render();
     }
 
     stopRender () {
         this.enabledRender = false;
+        if (this.renderRequestId) window.cancelAnimationFrame(this.renderRequestId);
     }
 
     render () {
-        if (!this.enabledRender) return;
+        this.renderRequestId = window.requestAnimationFrame(() => {this.render()});
 
         const now = performance.now() / 1000;
         this.renderDelta = now - this.renderTime;
@@ -102,8 +110,5 @@ export class Runner {
         this.events.trigger('before-render', [this.renderEvent]);
         this.events.trigger('render', [this.renderEvent]);
         this.events.trigger('after-render', [this.renderEvent]);
-
-        window.requestAnimationFrame(() => {this.render()});
     }
-
 }
