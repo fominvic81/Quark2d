@@ -374,19 +374,13 @@ export class Body {
         }
     }
 
-    applyImpulse (impusle, offset = undefined, move = false) {
+    applyImpulse (impusle, offset = undefined) {
         const velocity = Vector.scale(impusle, this.inverseMass, Body.vecTemp[0]);
         Vector.add(this.velocity, velocity);
 
-        if (move) {
-            this.translate(velocity);
-        }
         if (offset) {
             const angularVelocity = Vector.cross(offset, impusle) * this.inverseInertia;
             this.angularVelocity += angularVelocity;
-            if (move) {
-                this.angle += angularVelocity;
-            }
         }
     }
 
