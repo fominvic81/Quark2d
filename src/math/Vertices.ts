@@ -1,16 +1,16 @@
 import { Vector } from './Vector';
+import { Vertex } from './Vertex';
 import { Decomp } from './Polydecomp';
 
 
 export class Vertices {
 
-    constructor (points) {
-        const vertices = [];
+    static create (points: Array<Vector>): Array<Vertex> {
+        const vertices: Array<Vertex> = [];
 
-        let index = 0;
+        let index: number = 0;
         for (const point of points) {
-            const vertex = new Vector(point.x, point.y);
-            vertex.index = index;
+            const vertex = new Vertex(point.x, point.y, index);
             vertices.push(vertex);
             ++index;
         }
@@ -18,16 +18,15 @@ export class Vertices {
         return vertices;
     }
 
-    static normals (vertices, normals = [], lengths = []) {
+    static normals (vertices: Array<Vector>, normals: Array<Vector> = [], lengths: Array<number> = []) {
 
         for (let i = 0; i < vertices.length; ++i) {
             const j = (i + 1) % vertices.length;
-            const normal = Vector.subtract(vertices[i], vertices[j], new Vector());
+            const normal = new Vertex(vertices[i].x - vertices[j].x, vertices[i].y - vertices[j].y, i);
             normal.rotate90();
             const length = normal.length();
             normal.divide(length);
-            normal.index = i;
-            
+
             lengths.push(length);
             normals.push(normal);
         }
@@ -35,16 +34,15 @@ export class Vertices {
         return {normals, lengths};
     }
 
-    static translate (vertices, vector) {
+    static translate (vertices: Array<Vector>, vector: Vector): Array<Vector> {
 
-        for (let i = 0; i < vertices.length; i++) {
+        for (let i = 0; i < vertices.length; ++i) {
             Vector.add(vertices[i], vector);
         }
-
         return vertices;
-    };
+    }
 
-    static rotate (vertices, angle, point = Vector.zero, output = vertices) {
+    static rotate (vertices: Array<Vector>, angle: number, point: Vector = Vector.zero, output: Array<Vector> = vertices): Array<Vector> {
 
         const cos = Math.cos(angle);
         const sin = Math.sin(angle);
@@ -59,17 +57,17 @@ export class Vertices {
             outputVertex.y = x * sin + y * cos + point.y;
         }
         return output;
-    };
+    }
 
-    static scale (vertices, scalar) {
-        for (let i = 0; i < vertices.length; i++) {
+    static scale (vertices: Array<Vector>, scalar: number): Array<Vector> {
+        for (let i = 0; i < vertices.length; ++i) {
             vertices[i].scale(scalar);
         }
 
         return vertices;
     }
 
-    static area (vertices, signed = false) {
+    static area (vertices: Array<Vector>): number {
         let area = 0;
         let j = vertices.length - 1;
 
@@ -79,15 +77,15 @@ export class Vertices {
         }
 
         return area / 2;
-    };
+    }
 
-    static inertia (vertices) {
-        let numerator = 0;
-        let denominator = 0;
+    static inertia (vertices: Array<Vector>): number {
+        let numerator: number = 0;
+        let denominator: number = 0;
 
         for (let i = 0; i < vertices.length; ++i) {
-            const j = (i + 1) % vertices.length;
-            const cross = Math.abs(
+            const j: number = (i + 1) % vertices.length;
+            const cross: number = Math.abs(
                 Vector.cross(vertices[j],
                 vertices[i])
             );
@@ -100,15 +98,15 @@ export class Vertices {
         }
 
         return (numerator / denominator) / 6;
-    };
+    }
 
-    static center (vertices) {
-        const center = new Vector();
+    static center (vertices: Array<Vector>): Vector {
+        const center: Vector = new Vector();
 
         for (let i = 0; i < vertices.length; ++i) {
             const j = (i + 1) % vertices.length;
-            const cross = Vector.cross(vertices[i], vertices[j]);
-            const temp = Vector.add(vertices[i], vertices[j], Vector.temp[0]).scale(cross);
+            const cross: number = Vector.cross(vertices[i], vertices[j]);
+            const temp: Vector = Vector.add(vertices[i], vertices[j], Vector.temp[0]).scale(cross);
             Vector.add(center, temp);
         }
 
@@ -117,7 +115,7 @@ export class Vertices {
         return center;
     }
 
-    static contains (vertices, point) {
+    static contains (vertices: Array<Vector>, point: Vector): boolean {
         for (let i = 0; i < vertices.length; ++i) {
             const vertex = vertices[i];
             const nextVertex = vertices[(i + 1) % vertices.length];
@@ -127,15 +125,15 @@ export class Vertices {
         }
 
         return true;
-    };
+    }
 
-    static isConvex (vertices) {
+    static isConvex (vertices: Array<Vector>): boolean | undefined {
         // http://paulbourke.net/geometry/polygonmesh/
         // Copyright (c) Paul Bourke (use permitted)
         let flag = 0;
 
         if (vertices.length < 3) {
-            return null;
+            return undefined;
         }
 
         for (let i = 0; i < vertices.length; ++i) {
@@ -162,29 +160,29 @@ export class Vertices {
         if (flag !== 0) {
             return true;
         } else {
-            return null;
+            return undefined;
         }
 
     }
 
-    static decomp (vertices, removeCollinearPoints = true, minArea = 0) {
+    static decomp (vertices: Array<Vector>, removeCollinearPoints: boolean = true, minArea: number = 0): Array<Array<Vertex>> {
         
-        const poly = vertices.map((vertex) => [vertex.x, vertex.y]);
+        const poly = vertices.map((vertex: Vector) => [vertex.x, vertex.y]);
         Decomp.makeCCW(poly);
 
         if (Vertices.isConvex(vertices)) {
-            const part = poly.map((vertex) => new Vector(vertex[0], vertex[1]));
+            const part = Vertices.create(poly.map((vertex: Array<number>) => new Vector(vertex[0], vertex[1])));
             return [part];
         } else {
             
             const parts = [];
-            const decomposed = Decomp.quickDecomp(poly);
+            const decomposed = Decomp.quickDecomp(poly, [], [], [], 25, 100, 0);
 
             for (const p of decomposed) {
                 if (removeCollinearPoints) {
                     Decomp.removeCollinearPoints(p, 0.01);
                 }
-                const part = p.map((vertex) => new Vector(vertex[0], vertex[1]));
+                const part = Vertices.create(p.map((vertex: Array<number>) => new Vector(vertex[0], vertex[1])));
                 if (Math.abs(Vertices.area(part)) > minArea) {
                     parts.push(part);
                 }
@@ -195,7 +193,7 @@ export class Vertices {
         }
     }
 
-    static hull (vertices) {
+    static hull (vertices: Array<Vector>) {
         const upper = [];
         const lower = []; 
 

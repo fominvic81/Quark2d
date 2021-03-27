@@ -11,8 +11,8 @@ export class Convex extends Shape {
         this.type = Shape.CONVEX;
         const vertices = options.vertices || Convex.DEFAULT_VERTICES;
 
-        this.vertices = new Vertices(vertices);
-        this.deltaVertices = new Vertices(vertices);
+        this.vertices = Vertices.create(vertices);
+        this.deltaVertices = Vertices.create(vertices);
 
         this.normals = [];
         this.lengths = [];
