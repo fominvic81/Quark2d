@@ -42,8 +42,8 @@ export class Broadphase {
     }
 
     createRegion (bounds, output) {
-        Vector.divide(bounds.min, this.gridSize, output.min),
-        Vector.divide(bounds.max, this.gridSize, output.max),
+        bounds.min.divide(this.gridSize, output.min);
+        bounds.max.divide(this.gridSize, output.max);
 
         output.min.x = Math.floor(output.min.x);
         output.min.y = Math.floor(output.min.y);
@@ -61,8 +61,8 @@ export class Broadphase {
 
     combineRegions (regionA, regionB, output) {
 
-        Vector.set(output.min, Math.min(regionA.min.x, regionB.min.x), Math.min(regionA.min.y, regionB.min.y));
-        Vector.set(output.max, Math.max(regionA.max.x, regionB.max.x), Math.max(regionA.max.y, regionB.max.y));
+        output.min.set(Math.min(regionA.min.x, regionB.min.x), Math.min(regionA.min.y, regionB.min.y));
+        output.max.set(Math.max(regionA.max.x, regionB.max.x), Math.max(regionA.max.y, regionB.max.y));
         output.id = this.regionId(output);
         
         return output;
@@ -177,7 +177,7 @@ export class Broadphase {
         if (!shape.region) {
             for (let x = region.min.x; x <= region.max.x; ++x) {
                 for (let y = region.min.y; y <= region.max.y; ++y) {
-                    this.addShapeToCell(Vector.set(Vector.temp[2], x, y), shape);
+                    this.addShapeToCell(Vector.temp[2].set(x, y), shape);
                 }
             }
             return;
@@ -185,7 +185,7 @@ export class Broadphase {
         for (let x = region.min.x; x <= region.max.x; ++x) {
             for (let y = region.min.y; y <= region.max.y; ++y) {
 
-                const position = Vector.set(Vector.temp[2], x, y);
+                const position = Vector.temp[2].set(x, y);
 
                 const insideOldRegion = shape.region.contains(position);
                 const insideNewRegion = newRegion.contains(position);
@@ -208,7 +208,7 @@ export class Broadphase {
 
         for (let x = shape.region.min.x; x <= shape.region.max.x; ++x) {
             for (let y = shape.region.min.y; y <= shape.region.max.y; ++y) {
-                const position = Vector.set(Vector.temp[2], x, y);
+                const position = Vector.temp[2].set(x, y);
                 this.removeShapeFromCell(position, shape);
             }
         }

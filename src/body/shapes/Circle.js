@@ -33,12 +33,8 @@ export class Circle extends Shape {
     }
 
     updateBounds () {
-        Vector.set(this.bounds.min,
-            -this.radius, -this.radius,
-        );
-        Vector.set(this.bounds.max,
-            this.radius, this.radius,
-        );
+        this.bounds.min.set(-this.radius, -this.radius);
+        this.bounds.max.set(this.radius, this.radius);
         this.bounds.translate(this.position);
         return this.bounds;
     }
@@ -50,9 +46,9 @@ export class Circle extends Shape {
 
         const posDelta = Vector.subtract(from, position, Vector.temp[0]);
 
-        const a = Vector.lengthSquared(delta);
+        const a = delta.lengthSquared();
         const b = 2 * Vector.dot(delta, posDelta);
-        const c = Vector.lengthSquared(posDelta) - Math.pow(radius, 2);
+        const c = posDelta.lengthSquared() - Math.pow(radius, 2);
         const d = Math.pow(b, 2) - 4 * a * c;
 
         if (d < 0) {
@@ -74,7 +70,7 @@ export class Circle extends Shape {
             Vector.interpolate(from, to, p1, contact.point);
             
             Vector.subtract(contact.point, position, contact.normal);
-            Vector.divide(contact.normal, radius);
+            contact.normal.divide(radius);
         }
 
         if (p2 >= 0 && p2 <= 1) {
@@ -84,7 +80,7 @@ export class Circle extends Shape {
             Vector.interpolate(from, to, p2, contact.point);
             
             Vector.subtract(position, contact.point, contact.normal);
-            Vector.divide(contact.normal, radius);
+            contact.normal.divide(radius);
         }
     }
 

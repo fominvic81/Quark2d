@@ -83,11 +83,11 @@ export class Convex extends Shape {
             const normal = this.normals[v.index];
 
             const point = Vector.interpolate(vertex, vertex2, 0.5, Vector.temp[2]);
-            Vector.add(point, Vector.scale(normal, this.radius * 0.5, Vector.temp[3]));
+            Vector.add(point, normal.scale(this.radius * 0.5, Vector.temp[3]));
 
             const areaFraction = length * this.radius * inverseArea;
             const inertia = (Math.pow(length, 2) + radiusSquared) / 12;
-            const distSquared = Vector.lengthSquared(point);
+            const distSquared = point.lengthSquared();
 
             this.inertia += (inertia + distSquared) * areaFraction;
         }
@@ -104,7 +104,7 @@ export class Convex extends Shape {
             const areaFraction = radiusSquared * angle * 0.5 * inverseArea;
 
             const inertia = radiusSquared / 2;
-            const distSquared = Vector.lengthSquared(vertex);
+            const distSquared = vertex.lengthSquared();
 
             this.inertia += (inertia + distSquared) * areaFraction;
         }
@@ -124,7 +124,7 @@ export class Convex extends Shape {
     updateCenterOfMass () {
         const center = Vertices.center(this.vertices);
 
-        Vector.clone(center, this.position);
+        center.clone(this.position);
     }
 
     raycast (intersection, from, to, delta) {
@@ -140,9 +140,9 @@ export class Convex extends Shape {
             const point = Vector.lineLineIntersection(prevVertex, vertex, from, to, contact.point);
             if (point) {
 
-                Vector.clone(normals[prevVertex.index], contact.normal);
+                normals[prevVertex.index].clone(contact.normal);
                 if (Vector.dot(delta, contact.normal) > 0) {
-                    Vector.neg(contact.normal);
+                    contact.normal.neg();
                 }
 
                 intersection.contactsCount += 1;
@@ -181,8 +181,8 @@ export class Convex extends Shape {
 
         const dot = Vector.dot(v, delta);
         
-        if (dot < 0) return Vector.lengthSquared(v) < Math.pow(this.radius, 2);
-        if (dot > Math.pow(this.lengths[maxI], 2)) return Vector.lengthSquared(Vector.subtract(point, p2, v)) < Math.pow(this.radius, 2);
+        if (dot < 0) return v.lengthSquared() < Math.pow(this.radius, 2);
+        if (dot > Math.pow(this.lengths[maxI], 2)) return Vector.subtract(point, p2, v).lengthSquared() < Math.pow(this.radius, 2);
         return true;
     }
 
@@ -191,7 +191,7 @@ export class Convex extends Shape {
     }
 
     getNormal (index, output) {
-        return Vector.clone(this.normals[index], output);
+        return this.normals[index].clone(output);
     }
 }
 

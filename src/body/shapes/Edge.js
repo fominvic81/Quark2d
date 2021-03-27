@@ -26,18 +26,18 @@ export class Edge extends Shape {
     }
 
     set (start, end) {
-        Vector.clone(start, this.start);
-        Vector.clone(end, this.end);
+        start.clone(this.start);
+        end.clone(this.end);
 
         Vector.subtract(this.end, this.start, this.delta);
-        this.length = Vector.length(this.delta);
+        this.length = this.delta.length();
 
-        Vector.divide(this.delta, this.length, this.normal);
-        Vector.rotate90(this.normal);
+        this.delta.divide(this.length, this.normal);
+        this.normal.rotate90();
 
         Vector.interpolate(this.start, this.end, 0.5, this.position);
 
-        Vector.neg(this.normal, this.ngNormal);
+        this.normal.neg(this.ngNormal);
     }
 
     project (vector) {
@@ -53,15 +53,15 @@ export class Edge extends Shape {
     rotate (angle) {
         const delta = Vector.temp[0];
         Vector.subtract(this.position, this.start, delta);
-        Vector.rotate(delta, angle);
+        delta.rotate(angle);
         Vector.subtract(this.position, delta, this.start);
 
         Vector.subtract(this.position, this.end, delta);
-        Vector.rotate(delta, angle);
+        delta.rotate(angle);
         Vector.subtract(this.position, delta, this.end);
 
-        Vector.rotate(this.normal, angle);
-        Vector.neg(this.normal, this.ngNormal);
+        this.normal.rotate(angle);
+        this.normal.neg(this.ngNormal);
     }
 
     updateArea () {
@@ -116,9 +116,9 @@ export class Edge extends Shape {
         const point = Vector.lineLineIntersection(this.start, this.end, from, to, contact.point);
         if (point) {
 
-            Vector.clone(this.normal, contact.normal);
+            this.normal.clone(contact.normal);
             if (Vector.dot(delta, contact.normal) > 0) {
-                Vector.neg(contact.normal);
+                contact.normal.neg();
             }
             ++intersection.contactsCount;
 
@@ -135,8 +135,8 @@ export class Edge extends Shape {
 
         const dot = Vector.dot(v, delta);
 
-        if (dot < 0) return Vector.lengthSquared(v) < Math.pow(this.radius, 2);
-        if (dot > Math.pow(this.length, 2)) return Vector.lengthSquared(Vector.subtract(point, this.end, v)) < Math.pow(this.radius, 2);
+        if (dot < 0) return v.lengthSquared() < Math.pow(this.radius, 2);
+        if (dot > Math.pow(this.length, 2)) return Vector.subtract(point, this.end, v).lengthSquared() < Math.pow(this.radius, 2);
         return true;
     }
 
@@ -145,6 +145,6 @@ export class Edge extends Shape {
     }
 
     getNormal (index, output) {
-        return Vector.clone((index ? this.normal : this.ngNormal), output);
+        return (index ? this.normal : this.ngNormal).clone(output);
     }
 }

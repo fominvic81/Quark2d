@@ -49,7 +49,7 @@ export class Mouse {
             this.rightButtonPressed = true;
         }
 
-        Vector.set(this.localPosition, event.clientX, event.clientY);
+        this.localPosition.set(event.clientX, event.clientY);
         this.updatePosition();
         
         this.events.trigger('mouse-down', [this]);
@@ -70,17 +70,17 @@ export class Mouse {
             this.rightButtonPressed = false;
         }
 
-        Vector.set(this.localPosition, event.clientX, event.clientY);
+        this.localPosition.set(event.clientX, event.clientY);
         this.updatePosition();
 
         this.events.trigger('mouse-up', [this]);
     }
 
     mouseMove (event) {
-        Vector.set(this.localPosition, event.clientX, event.clientY);
+        this.localPosition.set(event.clientX, event.clientY);
         this.updatePosition();
 
-        Vector.set(this.localMovement, event.movementX, event.movementY);
+        this.localMovement.set(event.movementX, event.movementY);
         this.updateMovement();
 
         this.events.trigger('mouse-move', [this]);
@@ -91,16 +91,14 @@ export class Mouse {
     }
 
     updatePosition () {
-        Vector.set(
-            this.position,
+        this.position.set(
             (this.localPosition.x - this.render.canvas.width / 2) / this.render.options.scale.x - this.render.options.translate.x,
             (this.localPosition.y - this.render.canvas.height / 2) / this.render.options.scale.y - this.render.options.translate.y
         );
     }
 
     updateMovement () {
-        Vector.set(
-            this.movement,
+        this.movement.set(
             this.localMovement.x / this.render.options.scale.x,
             this.localMovement.y / this.render.options.scale.y,
         );

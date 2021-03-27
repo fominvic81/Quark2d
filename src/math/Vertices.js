@@ -9,11 +9,9 @@ export class Vertices {
 
         let index = 0;
         for (const point of points) {
-            vertices.push({
-                x: point.x,
-                y: point.y,
-                index,
-            });
+            const vertex = new Vector(point.x, point.y);
+            vertex.index = index;
+            vertices.push(vertex);
             ++index;
         }
 
@@ -25,9 +23,9 @@ export class Vertices {
         for (let i = 0; i < vertices.length; ++i) {
             const j = (i + 1) % vertices.length;
             const normal = Vector.subtract(vertices[i], vertices[j], new Vector());
-            Vector.rotate90(normal);
-            const length = Vector.length(normal);
-            Vector.divide(normal, length);
+            normal.rotate90();
+            const length = normal.length();
+            normal.divide(length);
             normal.index = i;
             
             lengths.push(length);
@@ -65,7 +63,7 @@ export class Vertices {
 
     static scale (vertices, scalar) {
         for (let i = 0; i < vertices.length; i++) {
-            Vector.scale(vertices[i], scalar);
+            vertices[i].scale(scalar);
         }
 
         return vertices;
@@ -110,11 +108,11 @@ export class Vertices {
         for (let i = 0; i < vertices.length; ++i) {
             const j = (i + 1) % vertices.length;
             const cross = Vector.cross(vertices[i], vertices[j]);
-            const temp = Vector.scale(Vector.add(vertices[i], vertices[j], Vector.temp[0]), cross);
+            const temp = Vector.add(vertices[i], vertices[j], Vector.temp[0]).scale(cross);
             Vector.add(center, temp);
         }
 
-        Vector.divide(center, 6 * Vertices.area(vertices));
+        center.divide(6 * Vertices.area(vertices));
 
         return center;
     }

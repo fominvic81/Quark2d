@@ -1,0 +1,5 @@
+{
+    "entryPoints": ["src/Quark2d.ts"],
+    "out": "docs",
+    "readme": "none"
+}

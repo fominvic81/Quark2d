@@ -9,10 +9,10 @@ export class Constraint {
         this.name = 'constraint';
         this.bodyA = options.bodyA;
         this.bodyB = options.bodyB;
-        this.pointA = options.pointA ? Vector.clone(options.pointA) : new Vector();
-        this.pointB = options.pointB ? Vector.clone(options.pointB) : new Vector();
-        this.worldPointA = this.bodyA ? new Vector() : Vector.clone(this.pointA);
-        this.worldPointB = this.bodyB ? new Vector() : Vector.clone(this.pointB);
+        this.pointA = options.pointA ? options.pointA.clone() : new Vector();
+        this.pointB = options.pointB ? options.pointB.clone() : new Vector();
+        this.worldPointA = this.bodyA ? new Vector() : this.pointA.clone();
+        this.worldPointB = this.bodyB ? new Vector() : this.pointB.clone();
     }
 
     solve () {}
@@ -23,7 +23,7 @@ export class Constraint {
             this.worldPointA.y = this.pointA.x * this.bodyA.constraintDir.y + this.pointA.y * this.bodyA.constraintDir.x;
             Vector.add(this.worldPointA, this.bodyA.position);
         } else {
-            Vector.clone(this.pointA, this.worldPointA);
+            this.pointA.clone(this.worldPointA);
         }
         return this.worldPointA;
     }
@@ -34,7 +34,7 @@ export class Constraint {
             this.worldPointB.y = this.pointB.x * this.bodyB.constraintDir.y + this.pointB.y * this.bodyB.constraintDir.x;
             Vector.add(this.worldPointB, this.bodyB.position);
         } else {
-            Vector.clone(this.pointB, this.worldPointB);
+            this.pointB.clone(this.worldPointB);
         }
         return this.worldPointB;
     }

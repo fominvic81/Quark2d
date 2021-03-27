@@ -8,7 +8,7 @@ const INIT_DIR = new Vector(1, 0);
 class SupportPoint {
     constructor(shapeA, shapeB, dir) {
         const supportA = supportPoint(shapeA, dir);
-        const supportB = supportPoint(shapeB, Vector.neg(dir, Vector.temp[0]));
+        const supportB = supportPoint(shapeB, dir.neg(Vector.temp[0]));
 
         const pointA = supportA[0];
         const pointB = supportB[0];
@@ -60,7 +60,7 @@ export const GJK = (shapeA, shapeB) => {
 
     let iterations = 0;;
     let p1 = new SupportPoint(shapeA, shapeB, INIT_DIR);
-    let p2 = new SupportPoint(shapeA, shapeB, Vector.neg(INIT_DIR, dir));
+    let p2 = new SupportPoint(shapeA, shapeB, INIT_DIR.neg(dir));
 
     while (true) {
 
@@ -72,9 +72,9 @@ export const GJK = (shapeA, shapeB) => {
 
         const t = Vector.zeroT(p1.point, p2.point);
         if (-1 < t && t < 1) {
-            Vector.rotate270(Vector.subtract(p2.point, p1.point, dir));
+            Vector.subtract(p2.point, p1.point, dir).rotate270();
         } else {
-            Vector.neg(Vector.interpolateT(p1.point, p2.point, t, dir));
+            Vector.interpolateT(p1.point, p2.point, t, dir).neg();
         }
 
         const support = new SupportPoint(shapeA, shapeB, dir);
@@ -130,7 +130,7 @@ export const EPA = (points, shapeA, shapeB) => {
             return [p1, p2];
         }
 
-        const p = new SupportPoint(shapeA, shapeB, Vector.rotate90(Vector.subtract(p2.point, p1.point, Vector.temp[1])));
+        const p = new SupportPoint(shapeA, shapeB, Vector.subtract(p2.point, p1.point, Vector.temp[1]).rotate90());
 
         if (p1.index === p.index || p2.index === p.index) {
             return [p1, p2];

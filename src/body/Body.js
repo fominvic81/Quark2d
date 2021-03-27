@@ -28,7 +28,7 @@ export class Body {
         this.velocity = new Vector();
         this.force = new Vector();
         this.dir = new Vector(Math.cos(this.angle), Math.sin(this.angle));
-        this.constraintDir = Vector.clone(this.dir);
+        this.constraintDir = this.dir.clone();
         this.constraintAngle = this.angle;
         this.isStatic = false;
         this.velocityDamping = 0;
@@ -81,15 +81,15 @@ export class Body {
     }
 
     updateVelocity (delta) {
-        this.speedSquared = Vector.lengthSquared(this.velocity);
+        this.speedSquared = this.velocity.lengthSquared();
         this.angSpeedSquared = Math.pow(this.angularVelocity, 2);
         this.motion = this.speedSquared + this.angSpeedSquared;
 
         // update acceleration
-        Vector.scale(this.force, this.inverseMass * delta, this.acceleration);
+        this.force.scale(this.inverseMass * delta, this.acceleration);
 
         // update velocity
-        Vector.add(Vector.scale(this.velocity, (1 - this.velocityDamping)), Vector.scale(this.acceleration, delta));
+        Vector.add(this.velocity.scale((1 - this.velocityDamping)), this.acceleration.scale(delta));
 
         // update angularAcceleration
         this.angularAcceleration = this.torque * this.inverseInertia * delta;
@@ -98,13 +98,13 @@ export class Body {
         this.angularVelocity = this.angularVelocity * (1 - this.velocityDamping) + this.angularAcceleration * delta;
 
         // clear forces
-        Vector.set(this.force, 0, 0);
+        this.force.set(0, 0);
         this.torque = 0;
     }
 
     updatePosition () {
         // update position 
-        Vector.clone(this.position, this.positionPrev);
+        this.position.clone(this.positionPrev);
         this.translate(this.velocity);
 
         // update angle
@@ -191,14 +191,14 @@ export class Body {
     updateCenterOfMass () {
         const sum = Vector.temp[0];
         const offset = Vector.temp[1];
-        Vector.set(sum, 0, 0);
+        sum.set(0, 0);
     
         for (const shape of this.shapes){
             Vector.subtract(this.position, shape.position, offset);
-            Vector.add(sum, Vector.scale(offset, shape.area, Vector.temp[2]));
+            Vector.add(sum, offset.scale(shape.area, Vector.temp[2]));
         }
     
-        const cm = Vector.scale(sum, 1 / this.area, Vector.temp[1]);
+        const cm = sum.scale(1 / this.area, Vector.temp[1]);
 
         Vector.subtract(this.position, cm);
         for (const shape of this.shapes) {
@@ -303,7 +303,7 @@ export class Body {
                     shape.normal.x = dx * cos - dy * sin;
                     shape.normal.y = dx * sin + dy * cos;
 
-                    Vector.neg(shape.normal, shape.ngNormal);
+                    shape.normal.neg(shape.ngNormal);
             }
         }
     }
@@ -325,13 +325,13 @@ export class Body {
         this.isStatic = value;
 
         if (value) {
-            Vector.set(this.acceleration, 0, 0);
-            Vector.set(this.velocity, 0, 0);
-            Vector.set(this.force, 0, 0);
+            this.acceleration.set(0, 0);
+            this.velocity.set(0, 0);
+            this.force.set(0, 0);
             this.angularAcceleration = 0;
             this.angularVelocity = 0;
             this.torque = 0;
-            Vector.set(this.positionImpulse, 0, 0);
+            this.positionImpulse.set(0, 0);
             this.events.trigger('become-static');
         } else {
             this.setSleeping(Sleeping.AWAKE);
@@ -348,8 +348,8 @@ export class Body {
         if (this.sleepState === Sleeping.SLEEPING) {
             this.sleepyTimer = Sleeping.sleepyTimeLimit;
 
-            Vector.set(this.positionImpulse, 0, 0);
-            Vector.set(this.velocity, 0, 0);
+            this.positionImpulse.set(0, 0);
+            this.velocity.set(0, 0);
 
             this.angularVelocity = 0;
 
@@ -375,7 +375,7 @@ export class Body {
     }
 
     applyImpulse (impusle, offset = undefined) {
-        const velocity = Vector.scale(impusle, this.inverseMass, Body.vecTemp[0]);
+        const velocity = impusle.scale(this.inverseMass, Body.vecTemp[0]);
         Vector.add(this.velocity, velocity);
 
         if (offset) {
@@ -385,7 +385,7 @@ export class Body {
     }
 
     setVelocity (velocity) {
-        Vector.clone(velocity, this.velocity);
+        velocity.clone(this.velocity);
     }
 
     setFixedRotation (value) {

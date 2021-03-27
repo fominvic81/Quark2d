@@ -42,9 +42,9 @@ export class Ray {
             Vector.subtract(this.to, this.from, this.delta);
         }
 
-        Vector.clone(this.delta, result.delta);
-        Vector.clone(this.to, result.to);
-        Vector.clone(this.from, result.from);
+        this.delta.clone(result.delta);
+        this.to.clone(result.to);
+        this.from.clone(result.from);
 
         if (!composite) {
             composite = engine.world;
@@ -112,7 +112,7 @@ export class Ray {
                 y2 = Math.floor(from.y - 0.0001);
             }
 
-            this.addCell(engine, composite, Vector.set(Ray.vecTemp[3], x, y), result);
+            this.addCell(engine, composite, Ray.vecTemp[3].set(x, y), result);
             
             
             const xy = delta.x / abs.y;
@@ -131,7 +131,7 @@ export class Ray {
             const dy = yx;
 
             for (let i = 0; i < abs.x; ++i) {
-                this.addCell(engine, composite, Vector.set(Ray.vecTemp[3], x1 + i * sign.x, Math.floor(y1)), result);
+                this.addCell(engine, composite, Ray.vecTemp[3].set(x1 + i * sign.x, Math.floor(y1)), result);
                 y1 += dy;
             }
 
@@ -147,7 +147,7 @@ export class Ray {
             const dx = xy;
 
             for (let i = 0; i < abs.y; ++i) {
-                this.addCell(engine, composite, Vector.set(Ray.vecTemp[3], Math.floor(x2), y2 + i * sign.y), result);
+                this.addCell(engine, composite, Ray.vecTemp[3].set(Math.floor(x2), y2 + i * sign.y), result);
                 x2 += dx;
             }
 
@@ -174,12 +174,12 @@ export class Ray {
     }
 
     setFrom (from) {
-        Vector.clone(from, this.from);
+        from.clone(this.from);
         this.needsUpdate = true;
     }
 
     setTo (to) {
-        Vector.clone(to, this.to);
+        to.clone(this.to);
         this.needsUpdate = true;
     }
 

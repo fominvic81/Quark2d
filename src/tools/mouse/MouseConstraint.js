@@ -28,7 +28,7 @@ export class MouseConstraint {
                     if (shape.contains(event.position)) {
                         for (const constraint of this.constraints) {
                             constraint.bodyA = body;
-                            Vector.rotate(Vector.subtract(event.position, body.position, constraint.pointA), -body.angle);
+                            Vector.subtract(event.position, body.position, constraint.pointA).rotate(-body.angle);
                             this.events.trigger('catch-body', [{body, shape}]);
                         }
                         break;
@@ -47,7 +47,8 @@ export class MouseConstraint {
 
     mouseMove (event) {
         for (const constraint of this.constraints) {
-            Vector.clone(event.position, constraint.pointB);
+            constraint.pointB.x = event.position.x;
+            constraint.pointB.y = event.position.y;
         }
     }
 

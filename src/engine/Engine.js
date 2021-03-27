@@ -9,7 +9,7 @@ export class Engine {
 
     constructor (options = {}) {
         this.world = options.world || new World();
-        this.gravity = options.gravity === undefined ? new Vector(0, 9.8) : Vector.clone(options.gravity);
+        this.gravity = options.gravity === undefined ? new Vector(0, 9.8) : options.gravity.clone();
         this.manager = new Manager(this, options);
         this.solver = options.solver || new Solver(this);
         this.sleeping = options.sleeping || new Sleeping(this);

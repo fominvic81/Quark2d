@@ -46,7 +46,7 @@ export const ConvexVsCircle = (shapePair) => {
 
     if (dot1 < 0) {
 
-        Vector.clone(point1, closestPoint);
+        point1.clone(closestPoint);
         vertex = true;
 
     } else {
@@ -55,17 +55,17 @@ export const ConvexVsCircle = (shapePair) => {
 
         if (dot2 < 0) {
 
-            Vector.clone(point2, closestPoint);
+            point2.clone(closestPoint);
             vertex = true;
 
         } else {
 
-            Vector.clone(normals[normalIndex], shapePair.normal);
+            normals[normalIndex].clone(shapePair.normal);
             if (!flipped) {
-                Vector.neg(shapePair.normal);
+                shapePair.normal.neg();
             }
 
-            Vector.clone(Vector.subtract(circlePosition, Vector.scale(normals[normalIndex], radius, temp2), temp2), closestPoint);
+            Vector.subtract(circlePosition, normals[normalIndex].scale(radius, temp2), temp2).clone(closestPoint);
             shapePair.depth = radius - maxDist;
 
         }
@@ -73,7 +73,7 @@ export const ConvexVsCircle = (shapePair) => {
     if (vertex) {
         Vector.subtract(closestPoint, circlePosition, shapePair.normal);
 
-        const distSquared = Vector.lengthSquared(shapePair.normal);
+        const distSquared = shapePair.normal.lengthSquared();
 
         if (Math.pow(radius, 2) < distSquared) {
             return;
@@ -86,16 +86,16 @@ export const ConvexVsCircle = (shapePair) => {
         const dist = Math.sqrt(distSquared);
 
         shapePair.depth = radius - dist;
-        Vector.divide(shapePair.normal, dist);
+        shapePair.normal.divide(dist);
         if (flipped) {
-            Vector.neg(shapePair.normal);
+            shapePair.normal.neg();
         }
     }
     
-    const offset = Vector.scale(flipped ? shapePair.normal : Vector.neg(shapePair.normal, temp2), convex.radius, temp2);
+    const offset = (flipped ? shapePair.normal : shapePair.normal.neg(temp2)).scale(convex.radius, temp2);
     
     shapePair.contactsCount = 1;
-    Vector.clone(Vector.add(offset, closestPoint), shapePair.contacts[0].vertex)
+    Vector.add(offset, closestPoint).clone(shapePair.contacts[0].vertex);
     
     shapePair.isActive = true;
     return;

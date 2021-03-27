@@ -22,7 +22,7 @@ export const EdgeVsCircle = (shapePair) => {
     if (dot > edgeLength) {
         Vector.subtract(edge.end, circle.position, normal);
 
-        const distSquared = Vector.lengthSquared(normal);
+        const distSquared = normal.lengthSquared();
 
         if (distSquared > Math.pow(radius, 2)) {
             return;
@@ -30,11 +30,11 @@ export const EdgeVsCircle = (shapePair) => {
 
         const dist = Math.sqrt(distSquared);
 
-        Vector.divide(normal, dist);
+        normal.divide(dist);
         shapePair.depth = radius - dist;
 
     } else if (dot < 0) {
-        const distSquared = Vector.lengthSquared(normal);
+        const distSquared = normal.lengthSquared();
 
         if (distSquared > Math.pow(radius, 2)) {
             return;
@@ -42,7 +42,7 @@ export const EdgeVsCircle = (shapePair) => {
 
         const dist = Math.sqrt(distSquared);
 
-        Vector.divide(normal, dist);
+        normal.divide(dist);
         shapePair.depth = radius - dist;
     } else {
 
@@ -56,25 +56,22 @@ export const EdgeVsCircle = (shapePair) => {
                 return;
             }
             shapePair.depth = radius - dist;
-            Vector.clone(edge.normal, normal);
+            edge.normal.clone(normal);
         } else {
             if (dist < -radius) {
                 return;
             }
             shapePair.depth = radius + dist;
-            Vector.neg(edge.normal, normal);
+            edge.normal.neg(normal);
         }
 
     }
 
     shapePair.contactsCount = 1;
-    Vector.clone(
-        Vector.add(Vector.scale(normal, circle.radius, temp0), circle.position),
-        shapePair.contacts[0].vertex,
-    );
+    Vector.add(normal.scale(circle.radius, temp0), circle.position).clone(shapePair.contacts[0].vertex);
 
     if (flipped) {
-        Vector.neg(normal);
+        normal.neg();
     }
 
     shapePair.isActive = true;

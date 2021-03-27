@@ -26,8 +26,8 @@ export class ShapePair {
     }
 
     update () {
-        Vector.scale(this.normal, this.depth, this.penetration);
-        Vector.rotate90(this.normal, this.tangent);
+        this.normal.scale(this.depth, this.penetration);
+        this.normal.rotate90(this.tangent);
         this.friction = Math.min(this.shapeA.friction, this.shapeB.friction);
         this.restitution = Math.max(this.shapeA.restitution, this.shapeB.restitution);
         this.surfaceVelocity = this.shapeA.surfaceVelocity + this.shapeB.surfaceVelocity;

@@ -6,7 +6,7 @@ import { Mouse } from '../mouse/Mouse';
 import { Sleeping } from '../../body/Sleeping';
 import { Bounds } from '../../math/Bounds';
 import { Solver } from '../../collision/solver/Solver';
-import { Constraint } from '../../Quark2d';
+import { Constraint } from '../../constraint/Constraint';
 
 export class Render {
 
@@ -201,9 +201,9 @@ export class Render {
                         Draw.line(this.ctx, start, end, 'rgb(128, 128, 128)', this.options.lineWidth / 20);
                     } else {
                         const n = Vector.subtract(end, start, Vector.temp[0]);
-                        const len = Vector.length(n);
+                        const len = n.length();
 
-                        const normal = Vector.rotate90(Vector.divide(n, len, Vector.temp[1]));
+                        const normal = n.divide(len, Vector.temp[1]).rotate90();
                         const count = Math.max(constraint.length * 2, 4);
 
                         this.ctx.beginPath();
@@ -211,7 +211,7 @@ export class Render {
 
                         for (let i = 1; i < count; ++i) {
                             const side = i % 2 === 0 ? 1 : -1;
-                            const offset = Vector.scale(normal, side * 0.25, Vector.temp[2]);
+                            const offset = normal.scale(side * 0.25, Vector.temp[2]);
                             const p = i / count;
 
                             this.ctx.lineTo(
@@ -244,16 +244,14 @@ export class Render {
 
                 switch (shape.type) {
                     case Shape.CIRCLE:
-                        Draw.line(this.ctx, pos, Vector.add(Vector.set(
-                            Vector.temp[0],
+                        Draw.line(this.ctx, pos, Vector.add(Vector.temp[0].set(
                             Math.cos(angle) * shape.radius,
                             Math.sin(angle) * shape.radius,
                         ), pos), 'rgb(200, 200, 200)', this.options.lineWidth / 10);
                         break;
                     case Shape.CONVEX:
                         const vertices = shape.vertices;
-                        Draw.line(this.ctx, pos, Vector.set(
-                            Vector.temp[0],
+                        Draw.line(this.ctx, pos, Vector.temp[0].set(
                             (vertices[0].x + vertices[1].x) / 2,
                             (vertices[0].y + vertices[1].y) / 2,
                         ), 'rgb(200, 200, 200)', this.options.lineWidth / 10);
@@ -274,7 +272,7 @@ export class Render {
                 for (let i = 0; i < shapePair.contactsCount; ++i) {
                     const contact = shapePair.contacts[i];
                     Draw.circle(this.ctx, contact.vertex, this.options.lineWidth / 8, 'rgb(200, 80, 80)');
-                    Draw.line(this.ctx, contact.vertex, Vector.add(Vector.scale(shapePair.normal, 0.2, Vector.temp[0]), contact.vertex), 'rgb(200, 80, 80)', this.options.lineWidth / 8);
+                    Draw.line(this.ctx, contact.vertex, Vector.add(shapePair.normal.scale(0.2, Vector.temp[0]), contact.vertex), 'rgb(200, 80, 80)', this.options.lineWidth / 8);
                 }
             }
         }
@@ -300,7 +298,7 @@ export class Render {
                 const shapeBounds = shape.getBounds();
                 const shapeWidth = shapeBounds.max.x - shapeBounds.min.x;
                 const shapeHeight = shapeBounds.max.y - shapeBounds.min.y;
-                Draw.rect(this.ctx, Vector.set(Vector.temp[0], shapeBounds.min.x + shapeWidth / 2, shapeBounds.min.y + shapeHeight / 2), shapeWidth, shapeHeight, 0, 'rgb(96, 96, 96)', false, this.options.lineWidth / 50);
+                Draw.rect(this.ctx, Vector.temp[0].set(shapeBounds.min.x + shapeWidth / 2, shapeBounds.min.y + shapeHeight / 2), shapeWidth, shapeHeight, 0, 'rgb(96, 96, 96)', false, this.options.lineWidth / 50);
             }
         }
     }
@@ -313,7 +311,7 @@ export class Render {
 
     velocity (bodies) {
         for (const body of bodies) {
-            Draw.line(this.ctx, body.position, Vector.add(body.position, Vector.scale(body.velocity, 5, Vector.temp[0]), Vector.temp[0]), 'rgb(80, 200, 80)', this.options.lineWidth / 10);
+            Draw.line(this.ctx, body.position, Vector.add(body.position, body.velocity.scale(5, Vector.temp[0]), Vector.temp[0]), 'rgb(80, 200, 80)', this.options.lineWidth / 10);
         }
     }
 
@@ -329,8 +327,8 @@ export class Render {
 
         for (const position of grid.keys()) {
             const cell = grid.get(position);
-            Vector.add(position, Vector.set(Vector.temp[0], 0.5, 0.5))
-            Draw.rect(this.ctx, Vector.scale(position, broadphase.gridSize), broadphase.gridSize, broadphase.gridSize, 0, 'rgb(80, 200, 80)', false, this.options.lineWidth / 50);
+            Vector.add(position, Vector.temp[0].set(0.5, 0.5))
+            Draw.rect(this.ctx, position.scale(broadphase.gridSize), broadphase.gridSize, broadphase.gridSize, 0, 'rgb(80, 200, 80)', false, this.options.lineWidth / 50);
         }
     }
 
@@ -396,7 +394,7 @@ export class Render {
     }
 
     setScale (scale) {
-        Vector.clone(scale, this.options.scale);
+        scale.clone(this.options.scale);
     }
 
     translate (translate) {
@@ -404,7 +402,7 @@ export class Render {
     }
 
     setTranslate (translate) {
-        Vector.clone(translate, this.options.translate);
+        translate.clone(this.options.translate);
     }
 
     mouseMove (event) {
@@ -457,16 +455,16 @@ export class Render {
         
         const normals = convex.normals;
     
-        const first = Vector.add(vertices[0], Vector.scale(normals[vertices.length - 1], radius, Vector.temp[0]), Vector.temp[0]);
+        const first = Vector.add(vertices[0], normals[vertices.length - 1].scale(radius, Vector.temp[0]), Vector.temp[0]);
 
         this.ctx.beginPath();
     
         this.ctx.moveTo(first.x, first.y);
 
-        let prevOffset = Vector.scale(normals[vertices.length - 1], radius, Vector.temp[0]);
+        let prevOffset = normals[vertices.length - 1].scale(radius, Vector.temp[0]);
 
         for (let i = 0; i < vertices.length; ++i) {
-            const offset = Vector.scale(normals[i], radius, Vector.temp[1]);
+            const offset = normals[i].scale(radius, Vector.temp[1]);
 
             const p1 = Vector.add(vertices[i], prevOffset, Vector.temp[2]);
 
@@ -476,7 +474,7 @@ export class Render {
             const angle2 = Math.atan2(offset.y, offset.x);
             
             this.ctx.arc(vertices[i].x, vertices[i].y, radius, angle1, angle2);
-            Vector.clone(offset, prevOffset);
+            offset.clone(prevOffset);
         }
 
         this.ctx.closePath();
@@ -523,11 +521,11 @@ export class Render {
 
     halfEdge (edge, radius, dir) {
 
-        const p1 = Vector.add(edge.start, Vector.rotate90(Vector.scale(edge.normal, edge.radius, Vector.temp[0])), Vector.temp[0]);
-        const p2 = Vector.add(edge.end, Vector.rotate90(Vector.scale(edge.normal, -edge.radius, Vector.temp[1])), Vector.temp[1]);
-        const p3 = Vector.add(edge.end, Vector.scale(edge.normal, edge.radius * dir, Vector.temp[2]), Vector.temp[2]);
-        const p4 = Vector.add(p1, Vector.scale(edge.normal, edge.radius * dir, Vector.temp[3]), Vector.temp[3]);
-        const p5 = Vector.add(p2, Vector.scale(edge.normal, edge.radius * dir, Vector.temp[4]), Vector.temp[4]);
+        const p1 = Vector.add(edge.start, edge.normal.scale(edge.radius, Vector.temp[0])).rotate90();
+        const p2 = Vector.add(edge.end, edge.normal.scale(-edge.radius, Vector.temp[1])).rotate90();
+        const p3 = Vector.add(edge.end, edge.normal.scale(edge.radius * dir, Vector.temp[2]), Vector.temp[2]);
+        const p4 = Vector.add(p1, edge.normal.scale(edge.radius * dir, Vector.temp[3]), Vector.temp[3]);
+        const p5 = Vector.add(p2, edge.normal.scale(edge.radius * dir, Vector.temp[4]), Vector.temp[4]);
 
         // Draw.circle(this.ctx, p1, 0.1, 'rgb(200, 200, 200)', true);
         // Draw.circle(this.ctx, p2, 0.2, 'rgb(200, 200, 200)', true);

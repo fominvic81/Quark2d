@@ -11,21 +11,18 @@ export const CircleVsCircle = (shapePair) => {
 
     const radius = circleA.radius + circleB.radius;
 
-    const distSquared = Vector.lengthSquared(normal);
+    const distSquared = normal.lengthSquared();
 
     if (distSquared > Math.pow(radius, 2)) return;
 
     shapePair.contactsCount = 1;
 
-    const dist = Vector.length(normal);
+    const dist = normal.length();
 
     shapePair.depth = radius - dist;
-    Vector.divide(normal, dist)
+    normal.divide(dist)
 
-    Vector.clone(
-        Vector.add(Vector.scale(shapePair.normal, circleA.radius, Vector.temp[0]), circleA.position),
-        shapePair.contacts[0].vertex,
-    );
+    Vector.add(shapePair.normal.scale(circleA.radius, Vector.temp[0]), circleA.position).clone(shapePair.contacts[0].vertex);
 
     shapePair.isActive = true;
     return;
