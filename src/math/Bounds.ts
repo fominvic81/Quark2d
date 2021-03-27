@@ -2,18 +2,19 @@ import { Vector } from './Vector';
 
 
 export class Bounds {
+    min: Vector;
+    max: Vector;
+
+    static temp: Array<Bounds> = [
+        new Bounds(),
+    ];
 
     constructor () {
-        
         this.min = new Vector();
         this.max = new Vector();
-
     }
 
-    clone (output) {
-        if (!output) {
-            output = new Bounds();
-        }
+    clone (output: Bounds = new Bounds()): Bounds {
 
         output.min.x = this.min.x;
         output.min.y = this.min.y;
@@ -23,7 +24,7 @@ export class Bounds {
         return output;
     }
 
-    fromVertices (vertices) {
+    fromVertices (vertices: any /** TODO-types */): Bounds {
         this.min.x = Infinity;
         this.min.y = Infinity;
         this.max.x = -Infinity;
@@ -38,54 +39,31 @@ export class Bounds {
         return this;
     }
 
-    set (min, max) {
-        this.min = min;
-        this.max = max;
+    set (min: Vector, max: Vector) {
+        min.clone(this.min);
+        max.clone(this.max);
     }
 
-    translate (vector) {
+    translate (vector: Vector) {
         Vector.add(this.min, vector);
         Vector.add(this.max, vector);
     }
 
-    contains (point) {
+    contains (point: Vector): boolean {
         return point.x >= this.min.x && point.x <= this.max.x &&
                point.y >= this.min.y && point.y <= this.max.y;
     }
 
-    overlaps (boundsB) {
+    overlaps (boundsB: Bounds): boolean {
         return this.min.x <= boundsB.max.x && this.max.x >= boundsB.min.x &&
-        this.max.y >= boundsB.min.y && this.min.y <= boundsB.max.y;
+               this.max.y >= boundsB.min.y && this.min.y <= boundsB.max.y;
     }
 
-    getWidth () {
+    getWidth (): number {
         return this.max.x - this.min.x;
     }
 
-    getHeight () {
+    getHeight (): number {
         return this.max.y - this.min.y;
     }
-
-    static combine(boundsList, output = undefined) {
-        if (boundsList.length === 0) return;
-        if (!output) {
-            output = new Bounds();
-        }
-        output.min.x = Infinity;
-        output.min.y = Infinity;
-        output.max.x = -Infinity;
-        output.max.y = -Infinity;
-        for (const bounds of boundsList) {
-            output.min.x = Math.min(output.min.x, bounds.min.x);
-            output.min.y = Math.min(output.min.y, bounds.min.y);
-            output.max.x = Math.max(output.max.x, bounds.max.x);
-            output.max.y = Math.max(output.max.y, bounds.max.y);
-        }
-        return output;
-    }
-
 };
-
-Bounds.temp = [
-    new Bounds(),
-];
