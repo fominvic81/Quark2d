@@ -1,28 +1,30 @@
 
 /**
- * asdsdasd
+ * The 'Common' is an object that contains simple methods.
  */
 
-export const Common = new class {
-    IDs: Map<string, number>;
-    PI05: number;
-    PI: number;
-    PI2: number;
-    PI3: number;
+export class Common {
+    static IDs: Map<string, number> = new Map();
+    static PI05: number = Math.PI * 0.5;
+    static PI: number = Math.PI;
+    static PI2: number = Math.PI * 2;
+    static PI3: number = Math.PI * 3;
 
-    constructor () {
-        this.IDs = new Map();
-        this.PI05 = Math.PI * 0.5;
-        this.PI = Math.PI;
-        this.PI2 = Math.PI * 2;
-        this.PI3 = Math.PI * 3;
-    }
-
-    sign (n: number): number {
+    /**
+     * Returns the sign of the given number.
+     * @param n
+     * @returns The sign of 'n'
+     */
+    static sign (n: number): number {
         return n >= 0 ? 1 : -1;
     }
 
-    nextId (name: string = 'id'): number {
+    /**
+     * Returns the unique next id.
+     * @param name The name of group of id
+     * @returns The next id
+     */
+    static nextId (name: string = 'id'): number {
         const id = this.IDs.get(name);
         if (this.IDs.get(name) === undefined) {
             this.IDs.set(name, 0);
@@ -34,13 +36,27 @@ export const Common = new class {
         return <number>id + 1;
     }
 
-    combineId (idA: number, idB: number): number {
+    /**
+     * Combines the given ids.
+     * @param idA
+     * @param idB
+     * @returns Combined id
+     */
+    static combineId (idA: number, idB: number): number {
         if (idA < idB) {
             return (idA << 20) + idB;
         }
         return (idB << 20) + idA;
     }
-    clamp (value: number, min: number, max: number): number {
+
+    /**
+     * Clamps the given value between 'min' and 'max'
+     * @param value 
+     * @param min 
+     * @param max 
+     * @returns 
+     */
+    static clamp (value: number, min: number, max: number): number {
         if (min > value) {
             return min;
         }
@@ -50,18 +66,33 @@ export const Common = new class {
         return value;
     }
 
-    contains (value: number, min: number, max: number): boolean {
-        return !(min > value || max < value);
-    }
-
-    normaliseAngle (angle: number): number {
+    /**
+     * Normalises the given angle (in radians).
+     * @param angle
+     * @returns The normalised angle
+     */
+    static normaliseAngle (angle: number): number {
         return (((angle % this.PI2) + this.PI3) % this.PI2 - this.PI);
     }
 
-    angleDiff (angleA: number, angleB: number): number {
+    /**
+     * Returns the normalised difference between the two angles(in radians).
+     * @param angleA
+     * @param angleB
+     * @returns The normalised difference
+     */
+    static angleDiff (angleA: number, angleB: number): number {
         return this.normaliseAngle(angleA - angleB);
     }
-    clampAngle (angle: number, minAngle: number, maxAngle: number): number {
+
+    /**
+     * Clamps the given 'angle' between 'minAngle' and 'maxAngle'(in radians).
+     * @param angle
+     * @param minAngle
+     * @param maxAngle
+     * @returns The clamped angle
+     */
+    static clampAngle (angle: number, minAngle: number, maxAngle: number): number {
         if (Math.abs(maxAngle - minAngle) < 0.001) return maxAngle;
 
         const minDiff = this.angleDiff(angle, minAngle);
