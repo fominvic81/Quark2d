@@ -41,7 +41,7 @@ import { Ray } from './collision/ray/Ray';
 import { RaycastResult } from './collision/ray/RaycastResult';
 import { Intersection } from './collision/ray/Intersection';
 
-import { Constraint } from './constraint/Constraint';
+import { Constraint, ConstraintType } from './constraint/Constraint';
 import { DistanceConstraint } from './constraint/DistanceConstraint';
 
 import { Factory } from './tools/factory/Factory';
@@ -102,6 +102,7 @@ export {
     Intersection,
 
     Constraint,
+    ConstraintType,
     DistanceConstraint,
 
     Factory,
