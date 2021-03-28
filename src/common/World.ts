@@ -1,18 +1,21 @@
 import { Sleeping } from '../body/Sleeping';
 import { Composite } from './Composite';
 
+/**
+ * The 'World'(extends 'Composite') is container for bodies and constraints. The 'World' provides some addition optimizations for sleeping and static bodies.
+ */
 
 export class World extends Composite {
+    sleepingBodies: Map<number, any> = new Map(); // TODO-types
+    staticBodies: Map<number, any> = new Map(); // TODO-types
+    activeBodies: Map<number, any> = new Map(); // TODO-types
+    private eventIds: Map<number, Array<number>> = new Map();
 
-    constructor () {
-        super();
-        this.sleepingBodies = new Map();
-        this.staticBodies = new Map();
-        this.activeBodies = new Map();
-        this.eventIds = new Map();
-    }
-
-    addBody (bodies) {
+    /**
+     * Adds given objects to the world.
+     * @param objects
+     */
+    addBody (bodies: Array<any>) { // TODO-types
         super.addBody(bodies);
         if (!Array.isArray(bodies)) {
             bodies = [bodies];
@@ -49,7 +52,11 @@ export class World extends Composite {
         }
     }
 
-    removeBody (bodies) {
+    /**
+     * Removes the given bodies from the world.
+     * @param bodies
+     */
+    removeBody (bodies: Array<any>) { // TODO-types
         super.removeBody(bodies);
         if (!Array.isArray(bodies)) {
             bodies = [bodies];
@@ -60,20 +67,29 @@ export class World extends Composite {
             this.sleepingBodies.delete(body.id);
             this.activeBodies.delete(body.id);
 
-            for (const eventId of this.eventIds.get(body.id)) {
+            for (const eventId of <Array<number>>this.eventIds.get(body.id)) {
                 body.events.off(eventId);
             }
         }
     }
 
+    /**
+     * @returns All active bodies that exists in the world.
+     */
     getActiveBodies () {
         return [...this.activeBodies.values()];
     }
-
+    
+    /**
+     * @returns All sleeping bodies that exists in the world.
+     */
     getSleepingBodies () {
         return [...this.sleepingBodies.values()];
     }
-
+    
+    /**
+     * @returns All static bodies that exists in the world.
+     */
     getStaticBodies () {
         return [...this.staticBodies.values()];
     }
