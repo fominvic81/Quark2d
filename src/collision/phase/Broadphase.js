@@ -22,7 +22,7 @@ export class Broadphase {
         for (const body of bodies) {
             for (const shape of body.shapes) {
 
-                const region = this.createRegion(shape.getBounds(), Bounds.temp[0]);
+                const region = this.createRegion(shape.bounds, Bounds.temp[0]);
 
                 if (shape.region && shape.region.id === region.id) continue;
 
@@ -32,7 +32,7 @@ export class Broadphase {
                 }
 
                 if (!shape.region) {
-                    shape.region = this.createRegion(shape.getBounds(), new Bounds());
+                    shape.region = this.createRegion(shape.bounds, new Bounds());
                 }
 
                 region.clone(shape.region);

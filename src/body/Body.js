@@ -2,7 +2,7 @@ import { Vector } from '../math/Vector';
 import { Common } from '../common/Common';
 import { Events } from '../common/Events';
 import { Sleeping, SleepingState } from './Sleeping';
-import { Shape } from './shapes/Shape';
+import { ShapeType } from './shapes/Shape';
 import { Vertices } from '../math/Vertices';
 
 
@@ -125,7 +125,7 @@ export class Body {
 
         shape.updateBounds();
 
-        if (shape.type === Shape.CONVEX) {
+        if (shape.type === ShapeType.CONVEX) {
             Vertices.translate(shape.deltaVertices, offset);
         }
 
@@ -202,7 +202,7 @@ export class Body {
 
         Vector.subtract(this.position, cm);
         for (const shape of this.shapes) {
-            if (shape.type === Shape.CONVEX) {
+            if (shape.type === ShapeType.CONVEX) {
                 Vertices.translate(shape.deltaVertices, cm);
             }
         }
@@ -251,7 +251,7 @@ export class Body {
             shape.position.y = dx * sin + dy * cos + this.position.y;
 
             switch (shape.type) {
-                case Shape.CONVEX:
+                case ShapeType.CONVEX:
                     vertices = shape.vertices;
 
                     for (const vertex of vertices) {
@@ -277,7 +277,7 @@ export class Body {
                         normal.y = dx * sin + dy * cos;
                     }
                     break;
-                case Shape.EDGE:
+                case ShapeType.EDGE:
 
                     dx = shape.position.x - this.position.x;
                     dy = shape.position.y - this.position.y;

@@ -1,4 +1,4 @@
-import { Shape } from '../../../body/shapes/Shape';
+import { ShapeType } from '../../../body/shapes/Shape';
 import { Vector } from '../../../math/Vector';
 
 const MAX_GJK_ITERATIONS = 30;
@@ -23,11 +23,11 @@ class SupportPoint {
 
 const supportPoint = (shape, dir) => {
     switch (shape.type) {
-        case Shape.CIRCLE:
+        case ShapeType.CIRCLE:
             return; // TODO
-        case Shape.CONVEX:
+        case ShapeType.CONVEX:
             return convexSupportPoint(shape, dir);
-        case Shape.EDGE:
+        case ShapeType.EDGE:
             return edgeSupportPoint(shape, dir);
     }
 }

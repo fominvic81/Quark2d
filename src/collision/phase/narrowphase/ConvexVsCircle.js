@@ -1,9 +1,9 @@
 import { Vector } from '../../../math/Vector';
-import { Shape } from '../../../body/shapes/Shape';
+import { ShapeType } from '../../../body/shapes/Shape';
 
 export const ConvexVsCircle = (shapePair) => {
 
-    const flipped = shapePair.shapeA.type === Shape.CONVEX;
+    const flipped = shapePair.shapeA.type === ShapeType.CONVEX;
     const convex = flipped ? shapePair.shapeA : shapePair.shapeB;
     const circle = flipped ? shapePair.shapeB : shapePair.shapeA;
 

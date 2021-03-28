@@ -29,7 +29,7 @@ export class Midphase {
                     shapePair.isActive = false;
                     if (!Filter.canCollide(shapePair.shapeA.filter, shapePair.shapeB.filter)) continue;
 
-                    if (shapePair.shapeA.getBounds().overlaps(shapePair.shapeB.getBounds())) {
+                    if (shapePair.shapeA.bounds.overlaps(shapePair.shapeB.bounds)) {
                         shapePair.isActive = true;
                         pair.isActive = true;
                     }

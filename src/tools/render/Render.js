@@ -1,6 +1,6 @@
 import { Vector } from '../../math/Vector';
 import { Draw } from './Draw';
-import { Shape } from '../../body/shapes/Shape';
+import { Shape, ShapeType } from '../../body/shapes/Shape';
 import { Events } from '../../common/Events';
 import { Mouse } from '../mouse/Mouse';
 import { SleepingState } from '../../body/Sleeping';
@@ -92,7 +92,7 @@ export class Render {
 
         for (const body of allBodies) {
             for (const shape of body.shapes) {
-                if (this.options.bounds.overlaps(shape.getBounds())) {
+                if (this.options.bounds.overlaps(shape.bounds)) {
                     bodies.push(body);
                     break;
                 }
@@ -155,17 +155,17 @@ export class Render {
             for (const shape of body.shapes) {
                 const pos = shape.position;
                 switch (shape.type) {
-                    case Shape.CIRCLE:
+                    case ShapeType.CIRCLE:
                         Draw.circle(this.ctx, pos, Math.max(shape.radius - Solver.SLOP / 2, 0.00001), color, false, this.options.lineWidth / 20);
                         break;
-                    case Shape.CONVEX:
+                    case ShapeType.CONVEX:
                         if (this.options.showRadius) {
                             this.convex(shape, color, false, this.options.lineWidth / 20);
                         } else {
                             Draw.polygon(this.ctx, shape.vertices, color, false, this.options.lineWidth / 20);
                         }
                         break;
-                        case Shape.EDGE:
+                        case ShapeType.EDGE:
                             if (this.options.showRadius) {
                                 this.edge(shape, color, false, this.options.lineWidth / 25);
                             } else {
@@ -243,13 +243,13 @@ export class Render {
                 const angle = shape.body.angle;
 
                 switch (shape.type) {
-                    case Shape.CIRCLE:
+                    case ShapeType.CIRCLE:
                         Draw.line(this.ctx, pos, Vector.add(Vector.temp[0].set(
                             Math.cos(angle) * shape.radius,
                             Math.sin(angle) * shape.radius,
                         ), pos), 'rgb(200, 200, 200)', this.options.lineWidth / 10);
                         break;
-                    case Shape.CONVEX:
+                    case ShapeType.CONVEX:
                         const vertices = shape.vertices;
                         Draw.line(this.ctx, pos, Vector.temp[0].set(
                             (vertices[0].x + vertices[1].x) / 2,
@@ -281,7 +281,7 @@ export class Render {
     normals (bodies) {
         for (const body of bodies) {
             for (const shape of body.shapes) {
-                if (shape.type === Shape.CONVEX) {
+                if (shape.type === ShapeType.CONVEX) {
                     const pos = shape.position;
                     const normals = shape.normals;
                     for (const normal of normals) {
@@ -295,7 +295,7 @@ export class Render {
     bounds (bodies) {
         for (const body of bodies) {
             for (const shape of body.shapes) {
-                const shapeBounds = shape.getBounds();
+                const shapeBounds = shape.bounds;
                 const shapeWidth = shapeBounds.max.x - shapeBounds.min.x;
                 const shapeHeight = shapeBounds.max.y - shapeBounds.min.y;
                 Draw.rect(this.ctx, Vector.temp[0].set(shapeBounds.min.x + shapeWidth / 2, shapeBounds.min.y + shapeHeight / 2), shapeWidth, shapeHeight, 0, 'rgb(96, 96, 96)', false, this.options.lineWidth / 50);
@@ -344,7 +344,7 @@ export class Render {
     vertexIds (bodies) {
         for (const body of bodies) {
             for (const shape of body.shapes) {
-                if (shape.type === Shape.CONVEX) {
+                if (shape.type === ShapeType.CONVEX) {
                     const vertices = shape.vertices;
                     for (const vertex of vertices) {
                         this.ctx.font = '0.5px Arial';

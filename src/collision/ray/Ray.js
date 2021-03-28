@@ -197,7 +197,7 @@ export class Ray {
 
         const shape = intersection.shape;
 
-        if (this.bounds.overlaps(shape.getBounds())) {
+        if (this.bounds.overlaps(shape.bounds)) {
 
             intersection.reset();
             shape.raycast(intersection, this.from, this.to, this.delta);

@@ -1,21 +1,33 @@
-import { Shape } from './Shape';
+import { Shape, ShapeOptions, ShapeType } from './Shape';
 import { Vector } from '../../math/Vector';
 import { Vertices } from '../../math/Vertices';
+import { Vertex } from '../../math/Vertex';
+
+interface ConvexOptions extends ShapeOptions {
+    vertices?: Array<Vector>;
+}
+
+/**
+ * The 'Convex' is convex polygon. The 'Convex' is described by the set of points.
+ */
 
 export class Convex extends Shape {
+    type: number = ShapeType.CONVEX;
+    vertices: Array<Vertex>;
+    deltaVertices: Array<Vertex>;
+    normals: Array<Vertex> = [];
+    lengths: Array<number> = [];
 
-    constructor (options = {}) {
+    private static DEFAULT_VERTICES = [new Vector(-1, -1), new Vector(1, -1), new Vector(1, 1), new Vector(-1, 1)];
+
+    constructor (options: ConvexOptions = {}) {
         super(options);
 
-        this.label = 'convex'
-        this.type = Shape.CONVEX;
-        const vertices = options.vertices || Convex.DEFAULT_VERTICES;
+        const vertices = options.vertices ?? Convex.DEFAULT_VERTICES;
 
         this.vertices = Vertices.create(vertices);
         this.deltaVertices = Vertices.create(vertices);
 
-        this.normals = [];
-        this.lengths = [];
         Vertices.normals(this.vertices, this.normals, this.lengths);
 
         this.updateArea();
@@ -26,7 +38,12 @@ export class Convex extends Shape {
         }
     }
 
-    project (vector) {
+    /**
+     * Returns index of the farthest vertex of convex in the given direction.
+     * @param vector
+     * @returns Index of the farthest vertex of convex in the given direction
+     */
+    project (vector: Vector) {
         const vertices = this.vertices;
 
         let max = Vector.dot(vertices[0], vector);
@@ -45,17 +62,29 @@ export class Convex extends Shape {
         return index;
     }
 
-    translate (offset) {
-        Vector.add(this.position, offset);
-        Vertices.translate(this.vertices, offset);
+    /**
+     * Translates the shape by the given vector.
+     * @param vector
+     */
+    translate (vector: Vector) {
+        Vector.add(this.position, vector);
+        Vertices.translate(this.vertices, vector);
     }
 
-    rotate (angle) {
+    /**
+     * Rotates the shape by the given angle.
+     * @param angle
+     */
+    rotate (angle: number) {
         Vertices.rotate(this.vertices, angle, this.position);
         Vertices.rotate(this.normals, angle);
         Vertices.rotate(this.deltaVertices, angle);
     }
 
+    /**
+     * Updates the area of the shape.
+     * @returns The area
+     */
     updateArea () {
         this.area = Vertices.area(this.deltaVertices);
 
@@ -68,6 +97,10 @@ export class Convex extends Shape {
         return this.area;
     }
 
+    /**
+     * Updates the inertia of the shape.
+     * @returns The inertia
+     */
     updateInertia () {
         this.inertia = Vertices.inertia(this.deltaVertices);
 
@@ -112,6 +145,10 @@ export class Convex extends Shape {
         return this.inertia;
     }
 
+    /**
+     * Updates the bounds of the shape.
+     * @returns The bounds
+     */
     updateBounds () {
         this.bounds.fromVertices(this.vertices);
         this.bounds.min.x -= this.radius;
@@ -121,13 +158,16 @@ export class Convex extends Shape {
         return this.bounds;
     }
 
+    /**
+     * Updates the centroid of the shape.
+     */
     updateCenterOfMass () {
         const center = Vertices.center(this.vertices);
 
         center.clone(this.position);
     }
 
-    raycast (intersection, from, to, delta) {
+    raycast (intersection: any, from: Vector, to: Vector, delta: Vector) { // TODO-types
         const vertices = this.vertices;
         const normals = this.normals;
 
@@ -157,7 +197,12 @@ export class Convex extends Shape {
         return intersection;
     }
 
-    contains (point) {
+    /**
+     * Returns true if the shape contains the given point.
+     * @param point
+     * @returns True if the shape contains the given point
+     */
+    contains (point: Vector) {
         let maxDist = -Infinity;
         let maxI = 0;
 
@@ -186,13 +231,22 @@ export class Convex extends Shape {
         return true;
     }
 
-    getPoint (index) {
+    /**
+     * Returns the point of the shape with given index.
+     * @param index
+     * @returns The point of the shape with given index
+     */
+    getPoint (index: number) {
         return this.vertices[index];
     }
 
-    getNormal (index, output) {
+    /**
+     * Returns the normal of the shape with the given index.
+     * @param index
+     * @param output
+     * @returns The normal of the shape with the given index
+     */
+    getNormal (index: number, output: Vector) {
         return this.normals[index].clone(output);
     }
 }
-
-Convex.DEFAULT_VERTICES = [new Vector(-1, -1), new Vector(1, -1), new Vector(1, 1), new Vector(-1, 1)];

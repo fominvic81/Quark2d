@@ -1,4 +1,4 @@
-import { Shape } from '../../../body/shapes/Shape';
+import { ShapeType } from '../../../body/shapes/Shape';
 import { Vector } from '../../../math/Vector';
 import { GJK } from './Distance';
 
@@ -27,15 +27,15 @@ const edgeSupportEdge = (edge, index) => {
 
 const supportEdge = (shape, index, normal) => {
     switch (shape.type) {
-        case Shape.CONVEX: return convexSupportEdge(shape, index, normal);
-        case Shape.EDGE: return edgeSupportEdge(shape, index);
+        case ShapeType.CONVEX: return convexSupportEdge(shape, index, normal);
+        case ShapeType.EDGE: return edgeSupportEdge(shape, index);
     }
 }
 
 const findRefFace = (shape, points, flipped) => {
     switch (shape.type) {
-        case Shape.CONVEX: return [shape.vertices[flipped ? points[0].indexA : points[0].indexB], shape.vertices[flipped ? points[1].indexA : points[1].indexB]];
-        case Shape.EDGE: return [shape.getPoint(flipped ? points[0].indexA : points[0].indexB), shape.getPoint(flipped ? points[1].indexA : points[1].indexB)];
+        case ShapeType.CONVEX: return [shape.vertices[flipped ? points[0].indexA : points[0].indexB], shape.vertices[flipped ? points[1].indexA : points[1].indexB]];
+        case ShapeType.EDGE: return [shape.getPoint(flipped ? points[0].indexA : points[0].indexB), shape.getPoint(flipped ? points[1].indexA : points[1].indexB)];
     }
 }
 

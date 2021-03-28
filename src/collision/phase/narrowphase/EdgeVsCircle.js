@@ -1,10 +1,10 @@
-import { Shape } from '../../../body/shapes/Shape';
+import { ShapeType } from '../../../body/shapes/Shape';
 import { Vector } from '../../../math/Vector';
 
 
 export const EdgeVsCircle = (shapePair) => {
 
-    const flipped = shapePair.shapeA.type === Shape.EDGE;
+    const flipped = shapePair.shapeA.type === ShapeType.EDGE;
     const edge = flipped ? shapePair.shapeA : shapePair.shapeB;
     const circle = flipped ? shapePair.shapeB : shapePair.shapeA;
 

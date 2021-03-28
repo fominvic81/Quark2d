@@ -1,15 +1,27 @@
 import { Common } from '../../common/Common';
 import { Vector } from '../../math/Vector';
-import { Shape } from './Shape';
+import { Shape, ShapeOptions, ShapeType } from './Shape';
 
+interface EdgeOptions extends ShapeOptions {
+    start?: Vector;
+    end?: Vector;
+}
+
+/**
+ * The 'Edge' is line segment. The 'Edge' is described by the two points(start and end).
+ */
 
 export class Edge extends Shape {
+    type: number = ShapeType.EDGE;
+    start: Vector = new Vector(-0.5, 0);
+    end: Vector = new Vector(0.5, 0);
+    length: number = 1;
+    delta: Vector = new Vector();
+    normal: Vector = new Vector();
+    ngNormal: Vector = new Vector();
 
-    constructor (options = {}) {
+    constructor (options: EdgeOptions = {}) {
         super(options);
-
-        this.label = 'edge';
-        this.type = Shape.EDGE;
 
         this.start = new Vector(-0.5, 0);
         this.end = new Vector(0.5, 0);
@@ -25,7 +37,12 @@ export class Edge extends Shape {
         this.updateInertia();
     }
 
-    set (start, end) {
+    /**
+     * Sets the 'start' and 'end' of the shape to the given.
+     * @param start
+     * @param end
+     */
+    set (start: Vector, end: Vector) {
         start.clone(this.start);
         end.clone(this.end);
 
@@ -40,17 +57,30 @@ export class Edge extends Shape {
         this.normal.neg(this.ngNormal);
     }
 
-    project (vector) {
+    /**
+     * Returns index of the farthest vertex of convex in the given direction.
+     * @param vector
+     * @returns Index of the farthest vertex of convex in the given direction
+     */
+    project (vector: Vector) {
         return Vector.dot(this.start, vector) < Vector.dot(this.end, vector);
     }
 
-    translate (offset) {
-        Vector.add(this.position, offset);
-        Vector.add(this.start, offset);
-        Vector.add(this.end, offset);
+    /**
+     * Translates the shape by the given vector.
+     * @param vector
+     */
+    translate (vector: Vector) {
+        Vector.add(this.position, vector);
+        Vector.add(this.start, vector);
+        Vector.add(this.end, vector);
     }
 
-    rotate (angle) {
+    /**
+     * Rotates the shape by the given angle.
+     * @param angle
+     */
+    rotate (angle: number) {
         const delta = Vector.temp[0];
         Vector.subtract(this.position, this.start, delta);
         delta.rotate(angle);
@@ -64,11 +94,19 @@ export class Edge extends Shape {
         this.normal.neg(this.ngNormal);
     }
 
+    /**
+     * Updates the area of the shape.
+     * @returns The area
+     */
     updateArea () {
         this.area = 2 * this.length * this.radius + Math.pow(this.radius, 2) * Math.PI;
         return this.area;
     }
 
+    /**
+     * Updates the inertia of the shape.
+     * @returns The inertia
+     */
     updateInertia () {
         this.inertia = 0;
 
@@ -91,6 +129,10 @@ export class Edge extends Shape {
         return this.inertia;
     }
 
+    /**
+     * Updates the bounds of the shape.
+     * @returns The bounds
+     */
     updateBounds () {
         if (this.start.x < this.end.x) {
             this.bounds.min.x = this.start.x - this.radius;
@@ -109,7 +151,7 @@ export class Edge extends Shape {
         return this.bounds;
     }
 
-    raycast (intersection, from, to, delta) {
+    raycast (intersection: any, from: Vector, to: Vector, delta: Vector) { //TODO-types
 
         const contact = intersection.contacts[0];
 
@@ -126,7 +168,12 @@ export class Edge extends Shape {
 
     }
 
-    contains (point) {
+    /**
+     * Returns true if the shape contains the given point.
+     * @param point
+     * @returns True if the shape contains the given point
+     */
+    contains (point: Vector) {
 
         const v = Vector.subtract(point, this.start, Vector.temp[0]);
         const delta = Vector.subtract(this.end, this.start, Vector.temp[1]);
@@ -140,11 +187,22 @@ export class Edge extends Shape {
         return true;
     }
 
-    getPoint (index) {
+    /**
+     * Returns the point of the shape with given index.
+     * @param index
+     * @returns The point of the shape with given index
+     */
+    getPoint (index: number) {
         return index ? this.end : this.start;
     }
 
-    getNormal (index, output) {
+    /**
+     * Returns the normal of the shape with the given index.
+     * @param index
+     * @param output
+     * @returns The normal of the shape with the given index
+     */
+    getNormal (index: number, output: Vector) {
         return (index ? this.normal : this.ngNormal).clone(output);
     }
 }

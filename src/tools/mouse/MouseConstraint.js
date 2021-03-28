@@ -24,7 +24,7 @@ export class MouseConstraint {
         for (const body of this.engine.world.bodies.values()) {
             if (body.isStatic) continue;
             for (const shape of body.shapes) {
-                if (shape.getBounds().contains(event.position)) {
+                if (shape.bounds.contains(event.position)) {
                     if (shape.contains(event.position)) {
                         for (const constraint of this.constraints) {
                             constraint.bodyA = body;

@@ -1,7 +1,7 @@
 import { Engine } from './engine/Engine';
 
 import { Body } from './body/Body';
-import { Shape } from './body/shapes/Shape';
+import { Shape, ShapeType } from './body/shapes/Shape';
 import { Circle } from './body/shapes/Circle';
 import { Convex } from './body/shapes/Convex';
 import { Edge } from './body/shapes/Edge';
@@ -68,6 +68,7 @@ export {
     Circle,
     Convex,
     Edge,
+    ShapeType,
     Filter,
     Sleeping,
     SleepingState,

@@ -1,15 +1,16 @@
-import { Shape } from './Shape';
+import { Shape, ShapeOptions, ShapeType } from './Shape';
 import { Vector } from '../../math/Vector';
 import { Solver } from '../../collision/solver/Solver';
 
-export class Circle extends Shape {
+interface CircleOptions extends ShapeOptions {}
 
-    constructor (options = {}) {
+export class Circle extends Shape {
+    type: number = ShapeType.CIRCLE;
+
+    constructor (options: CircleOptions = {}) {
         super(options);
 
-        this.label = 'circle';
-        this.type = Shape.CIRCLE;
-        this.radius = options.radius + Solver.SLOP / 2 || 0.5 + Solver.SLOP / 2;
+        this.radius = (options.radius ?? 0.5) + Solver.SLOP * 2;
 
         this.updateArea();
 
@@ -18,20 +19,41 @@ export class Circle extends Shape {
         }
     }
 
-    translate (offset) {
-        Vector.add(this.position, offset);
+    /**
+     * Translates the shape by the given vector.
+     * @param vector
+     */
+    translate (vector: Vector) {
+        Vector.add(this.position, vector);
     }
 
+    /**
+     * Shape hasn't method 'rotate'. 
+     */
+    rotate () {}
+
+    /**
+     * Updates the area of the shape.
+     * @returns The area
+     */
     updateArea () {
         this.area = Math.PI * Math.pow(this.radius, 2);
         return this.area;
     }
-    
+
+    /**
+     * Updates the inertia of the shape.
+     * @returns The inertia
+     */
     updateInertia () {
         this.inertia = Math.pow(this.radius, 2) / 2;
         return this.inertia;
     }
 
+    /**
+     * Updates the bounds of the shape.
+     * @returns The bounds
+     */
     updateBounds () {
         this.bounds.min.set(-this.radius, -this.radius);
         this.bounds.max.set(this.radius, this.radius);
@@ -39,7 +61,7 @@ export class Circle extends Shape {
         return this.bounds;
     }
 
-    raycast (intersection, from, to, delta) {
+    raycast (intersection: any, from: Vector, to: Vector, delta: Vector) { // TODO-types
 
         const position = this.position;
         const radius = this.radius;
@@ -84,11 +106,31 @@ export class Circle extends Shape {
         }
     }
 
-    contains (point) {
+    /**
+     * Returns true if the shape contains the given point.
+     * @param point
+     * @returns True if the shape contains the given point
+     */
+    contains (point: Vector) {
         return Vector.distSquared(this.position, point) < Math.pow(this.radius, 2);
     }
 
-    getPoint (index) {
+    /**
+     * Returns position of the shape.
+     * @param index
+     * @returns Position of the shape
+     */
+    getPoint (index: number) {
         return this.position;
+    }
+
+    /**
+     * Returns vector(1, 0).
+     * @param index
+     * @param output
+     * @returns vector(1, 0)
+     */
+    getNormal (index: number, output: Vector) {
+        return output.set(1, 0);
     }
 }
