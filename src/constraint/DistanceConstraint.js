@@ -1,4 +1,4 @@
-import { Sleeping } from '../body/Sleeping';
+import { SleepingState } from '../body/Sleeping';
 import { Vector } from '../math/Vector';
 import { Constraint } from './Constraint';
 
@@ -78,7 +78,7 @@ export class DistanceConstraint extends Constraint {
         }
 
         if (this.bodyA && !this.bodyA.isStatic) {
-            this.bodyA.setSleeping(Sleeping.AWAKE);
+            this.bodyA.setSleeping(SleepingState.AWAKE);
 
             const x = impulse.x * ratioA;
             const y = impulse.y * ratioA;
@@ -104,7 +104,7 @@ export class DistanceConstraint extends Constraint {
             }
         }
         if (this.bodyB && !this.bodyB.isStatic) {
-            this.bodyB.setSleeping(Sleeping.AWAKE);
+            this.bodyB.setSleeping(SleepingState.AWAKE);
 
             const x = impulse.x * ratioB;
             const y = impulse.y * ratioB;

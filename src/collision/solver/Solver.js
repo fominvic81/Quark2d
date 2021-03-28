@@ -1,5 +1,5 @@
 import { Vector } from '../../math/Vector';
-import { Sleeping } from '../../body/Sleeping';
+import { SleepingState } from '../../body/Sleeping';
 import { Common } from '../../common/Common';
 
 export class Solver {
@@ -85,13 +85,13 @@ export class Solver {
                     positionImpulse *= 2;
                 }
                 
-                if (!(pair.bodyA.isStatic || pair.bodyA.sleepState === Sleeping.SLEEPING)) { 
+                if (!(pair.bodyA.isStatic || pair.bodyA.sleepState === SleepingState.SLEEPING)) { 
                     const share = Solver.DEPTH_DAMPING / pair.bodyA.contactsCount;
                     pair.bodyA.positionImpulse.x -= shapePair.normal.x * positionImpulse * share;
                     pair.bodyA.positionImpulse.y -= shapePair.normal.y * positionImpulse * share;
                 }
                 
-                if (!(pair.bodyB.isStatic || pair.bodyB.sleepState === Sleeping.SLEEPING)) {
+                if (!(pair.bodyB.isStatic || pair.bodyB.sleepState === SleepingState.SLEEPING)) {
                     const share = Solver.DEPTH_DAMPING / pair.bodyB.contactsCount;
                     pair.bodyB.positionImpulse.x += shapePair.normal.x * positionImpulse * share;
                     pair.bodyB.positionImpulse.y += shapePair.normal.y * positionImpulse * share;
@@ -132,10 +132,10 @@ export class Solver {
                     shapePair.normal.scale(contact.normalImpulse, impulse);
                     Vector.add(impulse, shapePair.tangent.scale(contact.tangentImpulse, temp));
 
-                    if (!(pair.bodyA.isStatic || pair.bodyA.sleepState === Sleeping.SLEEPING)) {
+                    if (!(pair.bodyA.isStatic || pair.bodyA.sleepState === SleepingState.SLEEPING)) {
                         pair.bodyA.applyImpulse(impulse.neg(temp), contact.offsetA, false);
                     }
-                    if (!(pair.bodyB.isStatic || pair.bodyB.sleepState === Sleeping.SLEEPING)) {
+                    if (!(pair.bodyB.isStatic || pair.bodyB.sleepState === SleepingState.SLEEPING)) {
                         pair.bodyB.applyImpulse(impulse, contact.offsetB, false);
                     }        
                 }
@@ -186,10 +186,10 @@ export class Solver {
 
                     shapePair.tangent.scale(tangentImpulse, impulse);
 
-                    if (!(pair.bodyA.isStatic || pair.bodyA.sleepState === Sleeping.SLEEPING)) {
+                    if (!(pair.bodyA.isStatic || pair.bodyA.sleepState === SleepingState.SLEEPING)) {
                         pair.bodyA.applyImpulse(impulse.neg(temp), contact.offsetA, false);
                     }
-                    if (!(pair.bodyB.isStatic || pair.bodyB.sleepState === Sleeping.SLEEPING)) {
+                    if (!(pair.bodyB.isStatic || pair.bodyB.sleepState === SleepingState.SLEEPING)) {
                         pair.bodyB.applyImpulse(impulse, contact.offsetB, false);
                     }
                 }
@@ -220,10 +220,10 @@ export class Solver {
 
                     shapePair.normal.scale(normalImpulse, impulse);
 
-                    if (!(pair.bodyA.isStatic || pair.bodyA.sleepState === Sleeping.SLEEPING)) {
+                    if (!(pair.bodyA.isStatic || pair.bodyA.sleepState === SleepingState.SLEEPING)) {
                         pair.bodyA.applyImpulse(impulse.neg(temp), contact.offsetA, false);
                     }
-                    if (!(pair.bodyB.isStatic || pair.bodyB.sleepState === Sleeping.SLEEPING)) {
+                    if (!(pair.bodyB.isStatic || pair.bodyB.sleepState === SleepingState.SLEEPING)) {
                         pair.bodyB.applyImpulse(impulse, contact.offsetB, false);
                     }
                 }

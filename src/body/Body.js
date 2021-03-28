@@ -1,7 +1,7 @@
 import { Vector } from '../math/Vector';
 import { Common } from '../common/Common';
 import { Events } from '../common/Events';
-import { Sleeping } from './Sleeping';
+import { Sleeping, SleepingState } from './Sleeping';
 import { Shape } from './shapes/Shape';
 import { Vertices } from '../math/Vertices';
 
@@ -38,7 +38,7 @@ export class Body {
         this.inertia = 0;
         this.inverseInertia = 0;
         this.area = 0;
-        this.sleepState = Sleeping.AWAKE;
+        this.sleepState = SleepingState.AWAKE;
         this.sleepyTimer = 0;
         this.motion = 0;
         this.speedSquared = 0;
@@ -334,7 +334,7 @@ export class Body {
             this.positionImpulse.set(0, 0);
             this.events.trigger('become-static');
         } else {
-            this.setSleeping(Sleeping.AWAKE);
+            this.setSleeping(SleepingState.AWAKE);
             this.events.trigger('become-dynamic');
         }
         this.updateMass();
@@ -345,7 +345,7 @@ export class Body {
         const prevState = this.sleepState;
         this.sleepState = value;
 
-        if (this.sleepState === Sleeping.SLEEPING) {
+        if (this.sleepState === SleepingState.SLEEPING) {
             this.sleepyTimer = Sleeping.sleepyTimeLimit;
 
             this.positionImpulse.set(0, 0);
@@ -358,7 +358,7 @@ export class Body {
             if (this.sleepState !== prevState) {
                 this.events.trigger('sleep-start');
             }
-        } else if (this.sleepState === Sleeping.AWAKE) {
+        } else if (this.sleepState === SleepingState.AWAKE) {
             this.sleepyTimer = 0;
             if (this.sleepState !== prevState) {
                 this.events.trigger('sleep-end');

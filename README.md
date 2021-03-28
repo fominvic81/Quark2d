@@ -27,14 +27,14 @@ Mouse wheel to zoom.
         Circle,
         Convex,
         Factory,
-        Sleeping,
+        SleepingType,
     } from 'quark2d';
 
     // Create engine
     const engine = new Engine();
 
     // Disable sleeping
-    engine.sleeping.type = Sleeping.NO_SLEEPING;
+    engine.sleeping.type = SleepingType.NO_SLEEPING;
 
     // Create an empty body
     const circleBody = new Body({

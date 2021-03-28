@@ -1,4 +1,4 @@
-import { Sleeping } from '../body/Sleeping';
+import { SleepingState } from '../body/Sleeping';
 import { Composite } from './Composite';
 
 /**
@@ -25,7 +25,7 @@ export class World extends Composite {
 
             if (body.isStatic) {
                 this.staticBodies.set(body.id, body);
-            } else if (body.sleepState === Sleeping.SLEEPING) {
+            } else if (body.sleepState === SleepingState.SLEEPING) {
                 this.sleepingBodies.set(body.id, body);
             } else {
                 this.activeBodies.set(body.id, body);

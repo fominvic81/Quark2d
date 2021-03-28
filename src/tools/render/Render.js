@@ -3,7 +3,7 @@ import { Draw } from './Draw';
 import { Shape } from '../../body/shapes/Shape';
 import { Events } from '../../common/Events';
 import { Mouse } from '../mouse/Mouse';
-import { Sleeping } from '../../body/Sleeping';
+import { SleepingState } from '../../body/Sleeping';
 import { Bounds } from '../../math/Bounds';
 import { Solver } from '../../collision/solver/Solver';
 import { Constraint } from '../../constraint/Constraint';
@@ -151,7 +151,7 @@ export class Render {
     bodies (bodies) {
 
         for (const body of bodies) {
-            const color = (body.sleepState === Sleeping.AWAKE || !this.options.showSleeping) ? 'rgb(200, 200, 200)' : 'rgb(100, 100, 100)';
+            const color = (body.sleepState === SleepingState.AWAKE || !this.options.showSleeping) ? 'rgb(200, 200, 200)' : 'rgb(100, 100, 100)';
             for (const shape of body.shapes) {
                 const pos = shape.position;
                 switch (shape.type) {

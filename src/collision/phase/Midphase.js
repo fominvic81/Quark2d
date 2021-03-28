@@ -1,5 +1,5 @@
 import { Filter } from '../../body/Filter';
-import { Sleeping } from '../../body/Sleeping';
+import { SleepingState } from '../../body/Sleeping';
 
 export class Midphase {
 
@@ -21,7 +21,7 @@ export class Midphase {
                 continue;
             }
 
-            pair.isSleeping = pair.bodyA.sleepState === Sleeping.SLEEPING && pair.bodyB.sleepState === Sleeping.SLEEPING;
+            pair.isSleeping = pair.bodyA.sleepState === SleepingState.SLEEPING && pair.bodyB.sleepState === SleepingState.SLEEPING;
             if (!pair.isSleeping) {
                 pair.isActive = false;
 

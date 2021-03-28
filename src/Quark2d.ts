@@ -6,7 +6,7 @@ import { Circle } from './body/shapes/Circle';
 import { Convex } from './body/shapes/Convex';
 import { Edge } from './body/shapes/Edge';
 import { Filter } from './body/Filter';
-import { Sleeping } from './body/Sleeping';
+import { Sleeping, SleepingState, SleepingType } from './body/Sleeping';
 
 import { Bounds } from './math/Bounds';
 import { Vector } from './math/Vector';
@@ -70,6 +70,8 @@ export {
     Edge,
     Filter,
     Sleeping,
+    SleepingState,
+    SleepingType,
 
     Bounds,
     Vector,
