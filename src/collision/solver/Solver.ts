@@ -2,17 +2,37 @@ import { Vector } from '../../math/Vector';
 import { SleepingState } from '../../body/Sleeping';
 import { Common } from '../../common/Common';
 
-export class Solver {
+/**
+ * The 'Solver' is a class for solving collisions.
+ */
 
-    constructor (engine) {
+export class Solver {
+    engine: any; //TODO-types
+    positionIterations: number = 5;
+    velocityIterations: number = 5;
+    constraintIterations: number = 5;
+
+    static SLOP = 0.005;
+    static DEPTH_DAMPING = 0.8;
+    static POSITION_IMPULSE_DAMPING = 0.4;
+    static CONSTRAINT_IMPULSE_DAMPING = 0.4;
+    static RESTING_THRESHOLD = 0.08;
+
+    private static vecTemp = [
+        new Vector(), new Vector(),
+        new Vector(), new Vector(),
+        new Vector(), new Vector(),
+        new Vector(), new Vector(),
+    ];
+
+    constructor (engine: any) { //TODO-types
         this.engine = engine;
-        this.positionIterations = 5;  
-        this.velocityIterations = 5;
-        this.constraintIterations = 5;
     }
 
+    /**
+     * Solves the collisions.
+     */
     update () {
-
         const pairs = this.engine.manager.activePairs;
 
         for (const pair of pairs) {
@@ -21,8 +41,7 @@ export class Solver {
                 shapePair.update();
             }
         }
-        
-        
+
         // solve position
         this.preSolvePosition();
         for (let i = 0; i < this.positionIterations; ++i) {
@@ -42,9 +61,11 @@ export class Solver {
         for (let i = 0; i < this.velocityIterations; ++i) {
             this.solveVelocity();
         }
-        
     }
 
+    /**
+     * Prepares the pairs for solving;
+     */
     preSolvePosition () {
         const pairs = this.engine.manager.activePairs;
 
@@ -58,6 +79,9 @@ export class Solver {
         }
     }
 
+    /**
+     * Solves position correction.
+     */
     solvePosition () {
         const pairs = this.engine.manager.activePairs;
 
@@ -100,6 +124,9 @@ export class Solver {
         }
     }
 
+    /**
+     * Moves the bodies by solved position correction.
+     */
     postSolvePosition () {
 
         for (const body of this.engine.world.activeBodies.values()) {
@@ -114,6 +141,9 @@ export class Solver {
         }
     }
 
+    /**
+     * Solves warm starting.
+     */
     preSolveVelocity () {
         const pairs = this.engine.manager.activePairs;
 
@@ -137,12 +167,15 @@ export class Solver {
                     }
                     if (!(pair.bodyB.isStatic || pair.bodyB.sleepState === SleepingState.SLEEPING)) {
                         pair.bodyB.applyImpulse(impulse, contact.offsetB, false);
-                    }        
+                    }
                 }
             }
         }
     }
 
+    /**
+     * Solves velocity
+     */
     solveVelocity () {
         const pairs = this.engine.manager.activePairs;
 
@@ -252,6 +285,9 @@ export class Solver {
         }
     }
 
+    /**
+     * Solves constraint.
+     */
     solveConstraints () {
         const constraints = this.engine.world.allConstraints();
 
@@ -267,16 +303,3 @@ export class Solver {
         }
     }
 }
-
-Solver.SLOP = 0.005;
-Solver.DEPTH_DAMPING = 0.8;
-Solver.POSITION_IMPULSE_DAMPING = 0.4;
-Solver.CONSTRAINT_IMPULSE_DAMPING = 0.4;
-Solver.RESTING_THRESHOLD = 0.08;
-
-Solver.vecTemp = [
-    new Vector(), new Vector(),
-    new Vector(), new Vector(),
-    new Vector(), new Vector(),
-    new Vector(), new Vector(),
-];
