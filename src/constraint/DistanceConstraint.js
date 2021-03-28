@@ -94,7 +94,7 @@ export class DistanceConstraint extends Constraint {
 
             this.bodyA.constraintImpulse.x -= x;
             this.bodyA.constraintImpulse.y -= y;
-            this.bodyA.constraintImpulse.angle -= angle;
+            this.bodyA.constraintAngleImpulse -= angle;
 
             if (this.damping) {
                 const damping = relativeVelocity.scale(ratioA * this.damping, Constraint.vecTemp[6]);
@@ -120,7 +120,7 @@ export class DistanceConstraint extends Constraint {
 
             this.bodyB.constraintImpulse.x += x;
             this.bodyB.constraintImpulse.y += y;
-            this.bodyB.constraintImpulse.angle += angle;
+            this.bodyB.constraintAngleImpulse += angle;
 
             if (this.damping) {
                 const damping = relativeVelocity.scale(ratioB * this.damping, Constraint.vecTemp[6]);

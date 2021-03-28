@@ -240,15 +240,15 @@ export class Solver {
 
             body.constraintImpulse.x *= Solver.CONSTRAINT_IMPULSE_DAMPING;
             body.constraintImpulse.y *= Solver.CONSTRAINT_IMPULSE_DAMPING;
-            body.constraintImpulse.angle *= Solver.CONSTRAINT_IMPULSE_DAMPING;
+            body.constraintAngleImpulse *= Solver.CONSTRAINT_IMPULSE_DAMPING;
 
             body.translate(body.constraintImpulse);
-            body.constraintAngle += body.constraintImpulse.angle;
-            body.constraintDir.rotate(body.constraintImpulse.angle);
+            body.constraintAngle += body.constraintAngleImpulse;
+            body.constraintDir.rotate(body.constraintAngleImpulse);
 
             body.velocity.x += body.constraintImpulse.x;
             body.velocity.y += body.constraintImpulse.y;
-            body.angularVelocity += body.constraintImpulse.angle;
+            body.angularVelocity += body.constraintAngleImpulse;
         }
     }
 

@@ -2,48 +2,68 @@ import { Vector } from '../math/Vector';
 import { Common } from '../common/Common';
 import { Events } from '../common/Events';
 import { Sleeping, SleepingState } from './Sleeping';
-import { ShapeType } from './shapes/Shape';
+import { Shape, ShapeType } from './shapes/Shape';
 import { Vertices } from '../math/Vertices';
+import { Convex } from './shapes/Convex';
+import { Edge } from './shapes/Edge';
 
+interface BodyOptions {
+    position?: Vector,
+    angle?: number,
+    mass?: number,
+    density?: number,
+    isStatic?: boolean,
+    velocityDamping?: number,
+    fixedRotation?: boolean,
+}
+
+/**
+ * The bodies have position, angle, velocity, mass, area.
+ * You can apply forces, impulses and add the shapes to the bodies.
+ * The bodies can be static, or dynamic.
+ */
 
 export class Body {
+    id: number = Common.nextId();
+    name: string = 'body';
+    shapes: Set<Shape> = new Set();
+    events: Events = new Events();
+    positionImpulse: Vector = new Vector();
+    constraintImpulse: Vector = new Vector();
+    constraintAngleImpulse: number = 0;
+    contactsCount: number = 0;
+    angularAcceleration: number = 0;
+    angle: number = 0;
+    anglePrev: number = 0;
+    angularVelocity: number = 0;
+    torque: number = 0;
+    position: Vector = new Vector();
+    positionPrev: Vector = new Vector();
+    acceleration: Vector = new Vector();
+    velocity: Vector = new Vector();
+    force: Vector = new Vector();
+    dir: Vector = new Vector(1, 0);
+    constraintDir: Vector = new Vector(1, 0);
+    constraintAngle: number = 0;
+    isStatic: boolean = false;
+    velocityDamping: number = 0;
+    density: number = 100;
+    mass: number = 0;
+    inverseMass: number = 0;
+    inertia: number = 0;
+    inverseInertia: number = 0;
+    area: number = 0;
+    sleepState: SleepingState = SleepingState.AWAKE;
+    sleepyTimer: number = 0;
+    motion: number = 0;
+    speedSquared: number = 0;
+    angSpeedSquared: number = 0;
 
-    constructor (options = {}) {
-        this.id = Common.nextId();
-        this.name = 'body';
-        this.shapes = [];
-        this.events = new Events();
-        this.positionImpulse = new Vector();
-        this.constraintImpulse = new Vector();
-        this.constraintImpulse.angle = 0;
-        this.contactsCount = 0;
-        this.angularAcceleration = 0;
-        this.angle = 0;
-        this.anglePrev = 0;
-        this.angularVelocity = 0;
-        this.torque = 0;
-        this.position = new Vector();
-        this.positionPrev = new Vector();
-        this.acceleration = new Vector();
-        this.velocity = new Vector();
-        this.force = new Vector();
-        this.dir = new Vector(Math.cos(this.angle), Math.sin(this.angle));
-        this.constraintDir = this.dir.clone();
-        this.constraintAngle = this.angle;
-        this.isStatic = false;
-        this.velocityDamping = 0;
-        this.density = 100;
-        this.mass = 0;
-        this.inverseMass = 0;
-        this.inertia = 0;
-        this.inverseInertia = 0;
-        this.area = 0;
-        this.sleepState = SleepingState.AWAKE;
-        this.sleepyTimer = 0;
-        this.motion = 0;
-        this.speedSquared = 0;
-        this.angSpeedSquared = 0;
+    private static vecTemp: Array<Vector> = [
+        new Vector(),
+    ];
 
+    constructor (options: BodyOptions = {}) {
         this.set(options);
         
         this.updateArea();
@@ -51,7 +71,8 @@ export class Body {
         this.updateInertia();
     }
 
-    set (options) {
+
+    set (options: BodyOptions) {
         for (const option of Object.entries(options)) {
             switch (option[0]) {
                 case 'position':
@@ -77,10 +98,13 @@ export class Body {
                     break;
             }
         }
-
     }
 
-    updateVelocity (delta) {
+    /**
+     * Updates acceleration and velocity of the body.
+     * @param delta The delta time
+     */
+    updateVelocity (delta: number) {
         this.speedSquared = this.velocity.lengthSquared();
         this.angSpeedSquared = Math.pow(this.angularVelocity, 2);
         this.motion = this.speedSquared + this.angSpeedSquared;
@@ -102,6 +126,9 @@ export class Body {
         this.torque = 0;
     }
 
+    /**
+     * Updates position of the body.
+     */
     updatePosition () {
         // update position 
         this.position.clone(this.positionPrev);
@@ -117,7 +144,14 @@ export class Body {
         }
     }
 
-    addShape (shape, updateCenterOfMass = false, offset = new Vector(), angle = 0) {
+    /**
+     * Adds shape to the body.
+     * @param shape
+     * @param updateCenterOfMass
+     * @param offset
+     * @param angle
+     */
+    addShape (shape: Shape, updateCenterOfMass: boolean = false, offset: Vector = new Vector(), angle: number = 0) {
 
         shape.rotate(this.angle + angle);
         shape.translate(this.position);
@@ -126,12 +160,12 @@ export class Body {
         shape.updateBounds();
 
         if (shape.type === ShapeType.CONVEX) {
-            Vertices.translate(shape.deltaVertices, offset);
+            Vertices.translate((<Convex>shape).deltaVertices, offset);
         }
 
         shape.body = this;
 
-        this.shapes.push(shape);
+        this.shapes.add(shape);
 
         this.updateArea();
 
@@ -145,6 +179,9 @@ export class Body {
         this.events.trigger('add-shape', [{shape, updateCenterOfMass, offset, angle, body: this}])
     }
 
+    /**
+     * Updates the area of the body.
+     */
     updateArea () {
         
         this.area = 0;
@@ -155,6 +192,9 @@ export class Body {
         
     }
 
+    /**
+     * Updates the inertia of the body.
+     */
     updateInertia () {
         let inertia = 0;
     
@@ -176,7 +216,10 @@ export class Body {
         this.inertia = this.mass * inertia;
         this.inverseInertia = this.inertia === 0 ? 0 : 1 / this.inertia;
     }
-    
+
+    /**
+     * Updates the mass of the body.
+     */
     updateMass () {
 
         if (this.isStatic) {
@@ -188,12 +231,15 @@ export class Body {
         }
     }
 
+    /**
+     * Updates the center of mass of the body.
+     */
     updateCenterOfMass () {
         const sum = Vector.temp[0];
         const offset = Vector.temp[1];
         sum.set(0, 0);
     
-        for (const shape of this.shapes){
+        for (const shape of this.shapes) {
             Vector.subtract(this.position, shape.position, offset);
             Vector.add(sum, offset.scale(shape.area, Vector.temp[2]));
         }
@@ -203,28 +249,44 @@ export class Body {
         Vector.subtract(this.position, cm);
         for (const shape of this.shapes) {
             if (shape.type === ShapeType.CONVEX) {
-                Vertices.translate(shape.deltaVertices, cm);
+                Vertices.translate((<Convex>shape).deltaVertices, cm);
             }
         }
     }
 
-    setPosition (position) {
+    /**
+     * Sets the position of the body to the given.
+     * @param position
+     */
+    setPosition (position: Vector) {
         this.translate(Vector.subtract(position, this.position, Body.vecTemp[0]));
     }
 
-    translate (offset) {
-        Vector.add(this.position, offset);
+    /**
+     * Translates the body by the given vector.
+     * @param vector
+     */
+    translate (vector: Vector) {
+        Vector.add(this.position, vector);
 
         for (const shape of this.shapes) {
-            shape.translate(offset);
+            shape.translate(vector);
         }
     }
 
-    setAngle (angle) {
+    /**
+     * Sets the angle of the body to the given.
+     * @param angle
+     */
+    setAngle (angle: number) {
         this.rotate(angle - this.angle);
     }
 
-    rotate (angle) {
+    /**
+     * Rotates the body by the given angle.
+     * @param angle
+     */
+    rotate (angle: number) {
 
         if (angle === 0) return;
 
@@ -252,10 +314,10 @@ export class Body {
 
             switch (shape.type) {
                 case ShapeType.CONVEX:
-                    vertices = shape.vertices;
+                    vertices = (<Convex>shape).vertices;
 
                     for (const vertex of vertices) {
-                        delta = shape.deltaVertices[vertex.index];
+                        delta = (<Convex>shape).deltaVertices[vertex.index];
     
                         dx = delta.x;
                         dy = delta.y;
@@ -267,7 +329,7 @@ export class Body {
                         vertex.y = delta.y + this.position.y;
                     }
     
-                    normals = shape.normals;
+                    normals = (<Convex>shape).normals;
     
                     for (const normal of normals) {
                         dx = normal.x;
@@ -285,42 +347,55 @@ export class Body {
                     shape.position.x = dx * cos - dy * sin + this.position.x;
                     shape.position.y = dx * sin + dy * cos + this.position.y;
 
-                    dx = shape.start.x - this.position.x;
-                    dy = shape.start.y - this.position.y;
+                    dx = (<Edge>shape).start.x - this.position.x;
+                    dy = (<Edge>shape).start.y - this.position.y;
 
-                    shape.start.x = dx * cos - dy * sin + this.position.x;
-                    shape.start.y = dx * sin + dy * cos + this.position.y;
+                    (<Edge>shape).start.x = dx * cos - dy * sin + this.position.x;
+                    (<Edge>shape).start.y = dx * sin + dy * cos + this.position.y;
 
-                    dx = shape.end.x - this.position.x;
-                    dy = shape.end.y - this.position.y;
+                    dx = (<Edge>shape).end.x - this.position.x;
+                    dy = (<Edge>shape).end.y - this.position.y;
 
-                    shape.end.x = dx * cos - dy * sin + this.position.x;
-                    shape.end.y = dx * sin + dy * cos + this.position.y;
+                    (<Edge>shape).end.x = dx * cos - dy * sin + this.position.x;
+                    (<Edge>shape).end.y = dx * sin + dy * cos + this.position.y;
 
-                    dx = shape.normal.x;
-                    dy = shape.normal.y;
+                    dx = (<Edge>shape).normal.x;
+                    dy = (<Edge>shape).normal.y;
         
-                    shape.normal.x = dx * cos - dy * sin;
-                    shape.normal.y = dx * sin + dy * cos;
+                    (<Edge>shape).normal.x = dx * cos - dy * sin;
+                    (<Edge>shape).normal.y = dx * sin + dy * cos;
 
-                    shape.normal.neg(shape.ngNormal);
+                    (<Edge>shape).normal.neg((<Edge>shape).ngNormal);
             }
         }
     }
 
-    setMass (mass) {
+    /**
+     * Sets the mass of the body to the given. Updates the density and inertia.
+     * @param mass
+     */
+    setMass (mass: number) {
         this.density = this.area === 0 ? 0 : mass / this.area;
         this.updateMass();
         this.updateInertia();
     }
 
-    setDensity (density) {
+    /**
+     * Sets the density of the body to the given. Updates the mass and inertia.
+     * @param mass
+     */
+    setDensity (density: number) {
         this.density = density;
         this.updateMass();
         this.updateInertia();
     }
 
-    setStatic (value) {
+    /**
+     * Sets body.isStatic to the given value.
+     * If value is true sets zero acceleration and velocity.
+     * @param value
+     */
+    setStatic (value: boolean) {
         if (this.isStatic === value) return;
         this.isStatic = value;
 
@@ -341,12 +416,16 @@ export class Body {
         this.updateInertia();
     }
 
-    setSleeping (value) {
+    /**
+     * Sets sleeping state to the given value
+     * @param value
+     */
+    setSleeping (value: SleepingState) {
         const prevState = this.sleepState;
         this.sleepState = value;
 
         if (this.sleepState === SleepingState.SLEEPING) {
-            this.sleepyTimer = Sleeping.sleepyTimeLimit;
+            this.sleepyTimer = Sleeping.SLEEPY_TIME_LIMIT;
 
             this.positionImpulse.set(0, 0);
             this.velocity.set(0, 0);
@@ -367,14 +446,24 @@ export class Body {
 
     }
 
-    applyForce (force, offset = undefined) {
+    /**
+     * Applies the given force to a body from the given offset(including resulting torque).
+     * @param force
+     * @param offset
+     */
+    applyForce (force: Vector, offset?: Vector) {
         Vector.add(this.force, force);
         if (offset) {
             this.torque += Vector.cross(offset, force);
         }
     }
 
-    applyImpulse (impusle, offset = undefined) {
+    /**
+     * Applies the given impusle to a body from the given offset(including resulting angularVelocity).
+     * @param force
+     * @param offset
+     */
+    applyImpulse (impusle: Vector, offset?: Vector) {
         const velocity = impusle.scale(this.inverseMass, Body.vecTemp[0]);
         Vector.add(this.velocity, velocity);
 
@@ -384,11 +473,19 @@ export class Body {
         }
     }
 
-    setVelocity (velocity) {
+    /**
+     * Sets the velosity of a body to the given.
+     * @param velocity
+     */
+    setVelocity (velocity: Vector) {
         velocity.clone(this.velocity);
     }
 
-    setFixedRotation (value) {
+    /**
+     * Sets the body's ability to rotate to the given value.
+     * @param value
+     */
+    setFixedRotation (value: boolean) {
         if (value) {
             this.inertia = 0;
             this.inverseInertia = 0;
@@ -397,7 +494,3 @@ export class Body {
         }
     }
 }
-
-Body.vecTemp = [
-    new Vector(),
-];
