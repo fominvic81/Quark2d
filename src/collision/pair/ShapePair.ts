@@ -1,28 +1,34 @@
+import { Shape } from '../../body/shapes/Shape';
 import { Common } from '../../common/Common';
 import { Vector } from '../../math/Vector';
 import { Contact } from './Contact';
+import { Pair } from './Pair';
 
 
 export class ShapePair {
+    shapeA: Shape;
+    shapeB: Shape;
+    pair: Pair;
+    id: number;
+    isActive: boolean = false;
+    friction: number = 0;
+    restitution: number = 0;
+    surfaceVelocity: number = 0;
+    depth: number = 0;
+    separation: number = 0;
+    normal: Vector = new Vector();
+    tangent: Vector = new Vector();
+    penetration: Vector = new Vector();
+    contactsCount: number = 0;
+    contacts: Array<Contact> = [new Contact(), new Contact()];
+    isActiveBroadphase: boolean = false;
+    broadphaseCellsCount: number = 0;
 
-    constructor (shapeA, shapeB, pair) {
+    constructor (shapeA: Shape, shapeB: Shape, pair: Pair) {
         this.shapeA = shapeA;
         this.shapeB = shapeB;
         this.pair = pair;
         this.id = Common.combineId(this.shapeA.id, this.shapeB.id);
-        this.isActive = false;
-        this.depth = 0;
-        this.separation = 0;
-        this.normal = new Vector();
-        this.tangent = new Vector();
-        this.penetration = new Vector();
-        this.contactsCount = 0;
-        this.contacts = [
-            new Contact(),
-            new Contact(),
-        ];
-        this.isActiveBroadphase = false;
-        this.broadphaseCellsCount = 0;
     }
 
     update () {
@@ -57,7 +63,5 @@ export class ShapePair {
             ));
             
         }
-
     }
-
 }
