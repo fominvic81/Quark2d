@@ -521,11 +521,11 @@ export class Render {
 
     halfEdge (edge, radius, dir) {
 
-        const p1 = Vector.add(edge.start, edge.normal.scale(edge.radius, Vector.temp[0])).rotate90();
-        const p2 = Vector.add(edge.end, edge.normal.scale(-edge.radius, Vector.temp[1])).rotate90();
-        const p3 = Vector.add(edge.end, edge.normal.scale(edge.radius * dir, Vector.temp[2]), Vector.temp[2]);
-        const p4 = Vector.add(p1, edge.normal.scale(edge.radius * dir, Vector.temp[3]), Vector.temp[3]);
-        const p5 = Vector.add(p2, edge.normal.scale(edge.radius * dir, Vector.temp[4]), Vector.temp[4]);
+        const p1 = Vector.add(edge.normal.scale(edge.radius, Vector.temp[0]).rotate90(), edge.start);
+        const p2 = Vector.add(edge.normal.scale(-edge.radius, Vector.temp[1]).rotate90(), edge.end);
+        const p3 = Vector.add(edge.normal.scale(edge.radius * dir, Vector.temp[2]), edge.end);
+        const p4 = Vector.add(edge.normal.scale(edge.radius * dir, Vector.temp[3]), p1);
+        const p5 = Vector.add(edge.normal.scale(edge.radius * dir, Vector.temp[4]), p2);
 
         // Draw.circle(this.ctx, p1, 0.1, 'rgb(200, 200, 200)', true);
         // Draw.circle(this.ctx, p2, 0.2, 'rgb(200, 200, 200)', true);
