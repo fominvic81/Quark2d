@@ -1,20 +1,21 @@
 import { Filter } from '../../body/Filter';
 import { SleepingState } from '../../body/Sleeping';
+import { Pair } from '../pair/Pair';
 
 export class Midphase {
+    manager: any; // TODO-types
+    engine: any; // TODO-types
+    activePairs: Array<Pair> = [];
 
-    constructor (manager) {
+    constructor (manager: any) { //TODO-types
         this.manager = manager;
         this.engine = manager.engine;
-
-        this.activePairs = [];
     }
 
     update () {
         this.activePairs.length = 0;
-        const broadphasePairs = this.manager.broadphase.activePairs.values();
 
-        for (const pair of broadphasePairs) {
+        for (const pair of this.manager.broadphase.activePairs.values()) {
             pair.isActivePrev = pair.isActive;
             if (pair.bodyA.isStatic && pair.bodyB.isStatic) {
                 pair.isActive = false;
