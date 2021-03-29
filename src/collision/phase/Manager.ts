@@ -1,24 +1,33 @@
+import { Pair } from '../pair/Pair';
 import { Broadphase } from './Broadphase';
 import { Midphase } from './Midphase';
 import { Narrowphase } from './narrowphase/Narrowphase';
 
+interface ManagerOptions {
+    broadphase?: Broadphase;
+    midphase?: Midphase;
+    narrowphase?: Narrowphase;
+}
 
 export class Manager {
+    engine: any; // TODO-types
 
-    constructor (engine, options) {
+    broadphase: Broadphase;
+    midphase: Midphase;
+    narrowphase: Narrowphase;
 
+    pairs: Map<number, Pair> = new Map();
+
+    startedPairs: Array<Pair> = [];
+    activePairs: Array<Pair> = [];
+    endedPairs: Array<Pair> = [];
+
+    constructor (engine: any, options: ManagerOptions = {}) {
         this.engine = engine;
 
         this.broadphase = options.broadphase || new Broadphase(this);
         this.midphase = options.midphase || new Midphase(this);
         this.narrowphase = options.narrowphase || new Narrowphase(this);
-
-        this.pairs = new Map();
-
-        this.startedPairs = [];
-        this.activePairs = [];
-        this.endedPairs = [];
-
     }
 
     update () {
