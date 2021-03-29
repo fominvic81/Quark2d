@@ -3,38 +3,56 @@ import { Bounds } from '../../math/Bounds';
 import { RaycastResult } from './RaycastResult';
 import { Common } from '../../common/Common';
 import { Intersection } from './Intersection';
+import { Composite } from '../../common/Composite';
+
+interface RayOptions {
+    from?: Vector;
+    to?: Vector;
+}
+
+/**
+ * The 'Ray' is a class used for raycasting.
+ * @example https://codepen.io/fominvic81/pen/yLgJmLq?editors=0010
+ */
 
 export class Ray {
 
-    constructor (options = {}) {
+    from: Vector = new Vector();
+    to: Vector = new Vector();
+    delta: Vector = new Vector();
+    bounds: Bounds = new Bounds();
+    needsUpdate: boolean = true;
+    raycastResult: RaycastResult = new RaycastResult();
 
-        this.from = new Vector();
-        this.to = new Vector();
-        this.delta = new Vector();
-        
-        this.bounds = new Bounds();
-        this.needsUpdate = true;
+    private static vecTemp = [
+        new Vector(), new Vector(),
+        new Vector(), new Vector(),
+        new Vector(), new Vector(),
+    ];
 
-        this.raycastResult = new RaycastResult();
-
-        this.set(options);
-
+    constructor (options: RayOptions = {}) {
+        this.set(options.from ?? this.from, options.to ?? this.to);
     }
 
-    set (options) {
-        for (const option of Object.entries(options)) {
-            switch (option[0]) {
-                case 'from':
-                    this.setFrom(option[1]);
-                    break;
-                case 'to':
-                    this.setTo(option[1]);
-                    break;
-            }
-        }
+    /**
+     * Sets the 'from' and 'to' of the ray to the given.
+     * @param from
+     * @param to
+     */
+    set (from: Vector, to: Vector) {
+        this.setFrom(from);
+        this.setTo(to);
     }
 
-    cast (engine, composite = undefined, useGrid = true, result = this.raycastResult) {
+    /**
+     * Casts the ray.
+     * @param engine
+     * @param composite
+     * @param useGrid
+     * @param result
+     * @returns Result
+     */
+    cast (engine: any, composite: Composite = engine.world, useGrid: boolean = true, result: RaycastResult = this.raycastResult) { //TODO-types
         result.reset();
 
         if (this.needsUpdate) {
@@ -46,31 +64,27 @@ export class Ray {
         this.to.clone(result.to);
         this.from.clone(result.from);
 
-        if (!composite) {
-            composite = engine.world;
-        }
-
         const intersections = result.intersections;
 
         if (useGrid) {
-            const gridSize = engine.manager.broadphase.gridSize;
-            const from = Ray.vecTemp[0];
-            const to = Ray.vecTemp[1];
+            const gridSize: number = engine.manager.broadphase.gridSize;
+            const from: Vector = Ray.vecTemp[0];
+            const to: Vector = Ray.vecTemp[1];
             
             from.x = (this.from.x / gridSize);
             from.y = (this.from.y / gridSize);
             to.x = (this.to.x / gridSize);
             to.y = (this.to.y / gridSize);
-            const delta = Vector.subtract(to, from, Ray.vecTemp[2]);
-            const sign = Ray.vecTemp[4];
-            const abs = Ray.vecTemp[5];
+            const delta: Vector = Vector.subtract(to, from, Ray.vecTemp[2]);
+            const sign: Vector = Ray.vecTemp[4];
+            const abs: Vector = Ray.vecTemp[5];
 
-            let x;
-            let y;
-            let x1;
-            let y1;
-            let x2;
-            let y2;
+            let x: number;
+            let y: number;
+            let x1: number;
+            let y1: number;
+            let x2: number;
+            let y2: number;
 
             if (delta.x > 0) {
                 sign.x = 1;
@@ -166,24 +180,32 @@ export class Ray {
         }
 
         for (const intersection of intersections.values()) {
-            this.collide(intersection, result);
+            this.collide(intersection);
         }
 
         this.needsUpdate = false;
         return result;
     }
 
-    setFrom (from) {
+    /**
+     * Sets the 'from' of the ray to the given.
+     * @param from
+     */
+    setFrom (from: Vector) {
         from.clone(this.from);
         this.needsUpdate = true;
     }
 
-    setTo (to) {
+    /**
+     * Sets the 'to' of the ray to the given.
+     * @param to
+     */
+    setTo (to: Vector) {
         to.clone(this.to);
         this.needsUpdate = true;
     }
 
-    updateBounds () {
+    private updateBounds () {
         this.bounds.min.x = Math.min(this.from.x, this.to.x);
         this.bounds.min.y = Math.min(this.from.y, this.to.y);
         this.bounds.max.x = Math.max(this.from.x, this.to.x);
@@ -191,7 +213,7 @@ export class Ray {
         return this.bounds;
     }
 
-    collide (intersection) {
+    private collide (intersection: Intersection) {
         if (!intersection.isActive) return;
         intersection.isActive = false;
 
@@ -205,7 +227,7 @@ export class Ray {
         }
     }
 
-    addCell (engine, composite, position, result) {
+    private addCell (engine: any, composite: Composite, position: Vector, result: RaycastResult) { // TODO-types
         const intersections = result.intersections;
         const cell = engine.manager.broadphase.grid.get(position);
         if (cell) {
@@ -224,12 +246,3 @@ export class Ray {
         }
     }
 }
-
-Ray.vecTemp = [
-    new Vector(),
-    new Vector(),
-    new Vector(),
-    new Vector(),
-    new Vector(),
-    new Vector(),
-]
