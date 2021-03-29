@@ -1,6 +1,8 @@
 import { Vector } from '../../math/Vector';
 import { SleepingState } from '../../body/Sleeping';
 import { Common } from '../../common/Common';
+import { Contact } from '../pair/Contact';
+import { Pair } from '../pair/Pair';
 
 /**
  * The 'Solver' is a class for solving collisions.
@@ -12,11 +14,11 @@ export class Solver {
     velocityIterations: number = 5;
     constraintIterations: number = 5;
 
-    static SLOP = 0.005;
-    static DEPTH_DAMPING = 0.8;
-    static POSITION_IMPULSE_DAMPING = 0.4;
-    static CONSTRAINT_IMPULSE_DAMPING = 0.4;
-    static RESTING_THRESHOLD = 0.08;
+    static SLOP: number = 0.005;
+    static DEPTH_DAMPING: number = 0.8;
+    static POSITION_IMPULSE_DAMPING: number = 0.4;
+    static CONSTRAINT_IMPULSE_DAMPING: number = 0.4;
+    static RESTING_THRESHOLD: number = 0.08;
 
     private static vecTemp = [
         new Vector(), new Vector(),
@@ -33,7 +35,7 @@ export class Solver {
      * Solves the collisions.
      */
     update () {
-        const pairs = this.engine.manager.activePairs;
+        const pairs: Array<Pair> = this.engine.manager.activePairs;
 
         for (const pair of pairs) {
             if (pair.isSleeping) continue;
@@ -67,7 +69,7 @@ export class Solver {
      * Prepares the pairs for solving;
      */
     preSolvePosition () {
-        const pairs = this.engine.manager.activePairs;
+        const pairs: Array<Pair> = this.engine.manager.activePairs;
 
         for (const body of this.engine.world.bodies.values()) {
             body.contactsCount = 0;
@@ -83,9 +85,9 @@ export class Solver {
      * Solves position correction.
      */
     solvePosition () {
-        const pairs = this.engine.manager.activePairs;
+        const pairs: Array<Pair> = this.engine.manager.activePairs;
 
-        let positionImpulse;
+        let positionImpulse: number;
 
         for (const pair of pairs) {
             if (pair.isSleeping) continue;
@@ -145,10 +147,10 @@ export class Solver {
      * Solves warm starting.
      */
     preSolveVelocity () {
-        const pairs = this.engine.manager.activePairs;
+        const pairs: Array<Pair> = this.engine.manager.activePairs;
 
-        const impulse = Solver.vecTemp[0];
-        const temp = Solver.vecTemp[1];
+        const impulse: Vector = Solver.vecTemp[0];
+        const temp: Vector = Solver.vecTemp[1];
 
         for (const pair of pairs) {
 
@@ -163,10 +165,10 @@ export class Solver {
                     Vector.add(impulse, shapePair.tangent.scale(contact.tangentImpulse, temp));
 
                     if (!(pair.bodyA.isStatic || pair.bodyA.sleepState === SleepingState.SLEEPING)) {
-                        pair.bodyA.applyImpulse(impulse.neg(temp), contact.offsetA, false);
+                        pair.bodyA.applyImpulse(impulse.neg(temp), contact.offsetA);
                     }
                     if (!(pair.bodyB.isStatic || pair.bodyB.sleepState === SleepingState.SLEEPING)) {
-                        pair.bodyB.applyImpulse(impulse, contact.offsetB, false);
+                        pair.bodyB.applyImpulse(impulse, contact.offsetB);
                     }
                 }
             }
@@ -177,23 +179,23 @@ export class Solver {
      * Solves velocity
      */
     solveVelocity () {
-        const pairs = this.engine.manager.activePairs;
+        const pairs: Array<Pair> = this.engine.manager.activePairs;
 
-        const contactVelocityA = Solver.vecTemp[0];
-        const contactVelocityB = Solver.vecTemp[1];
-        const relativeVelocity = Solver.vecTemp[2];
-        const impulse = Solver.vecTemp[3];
-        const velocityA = Solver.vecTemp[4];
-        const velocityB = Solver.vecTemp[5];
-        const temp = Solver.vecTemp[6];
+        const contactVelocityA: Vector = Solver.vecTemp[0];
+        const contactVelocityB: Vector = Solver.vecTemp[1];
+        const relativeVelocity: Vector = Solver.vecTemp[2];
+        const impulse: Vector = Solver.vecTemp[3];
+        const velocityA: Vector = Solver.vecTemp[4];
+        const velocityB: Vector = Solver.vecTemp[5];
+        const temp: Vector = Solver.vecTemp[6];
 
-        let contact,
-            normalVelocity,
-            normalImpulse,
-            tangentVelocity,
-            tangentImpulse,
-            angularVelocityA,
-            angularVelocityB;
+        let contact: Contact,
+            normalVelocity: number,
+            normalImpulse: number,
+            tangentVelocity: number,
+            tangentImpulse: number,
+            angularVelocityA: number,
+            angularVelocityB: number;
 
         for (const pair of pairs) {
             if (pair.isSleeping) continue;
@@ -220,10 +222,10 @@ export class Solver {
                     shapePair.tangent.scale(tangentImpulse, impulse);
 
                     if (!(pair.bodyA.isStatic || pair.bodyA.sleepState === SleepingState.SLEEPING)) {
-                        pair.bodyA.applyImpulse(impulse.neg(temp), contact.offsetA, false);
+                        pair.bodyA.applyImpulse(impulse.neg(temp), contact.offsetA);
                     }
                     if (!(pair.bodyB.isStatic || pair.bodyB.sleepState === SleepingState.SLEEPING)) {
-                        pair.bodyB.applyImpulse(impulse, contact.offsetB, false);
+                        pair.bodyB.applyImpulse(impulse, contact.offsetB);
                     }
                 }
 
@@ -254,10 +256,10 @@ export class Solver {
                     shapePair.normal.scale(normalImpulse, impulse);
 
                     if (!(pair.bodyA.isStatic || pair.bodyA.sleepState === SleepingState.SLEEPING)) {
-                        pair.bodyA.applyImpulse(impulse.neg(temp), contact.offsetA, false);
+                        pair.bodyA.applyImpulse(impulse.neg(temp), contact.offsetA);
                     }
                     if (!(pair.bodyB.isStatic || pair.bodyB.sleepState === SleepingState.SLEEPING)) {
-                        pair.bodyB.applyImpulse(impulse, contact.offsetB, false);
+                        pair.bodyB.applyImpulse(impulse, contact.offsetB);
                     }
                 }
             }
