@@ -3,6 +3,7 @@ import { Bounds } from '../../math/Bounds';
 import { Common } from '../../common/Common';
 import { Filter } from '../Filter';
 import { Solver } from '../../collision/solver/Solver';
+import { Region } from '../../collision/phase/Broadphase';
 
 export interface ShapeOptions {
     inertia?: number;
@@ -37,6 +38,7 @@ export abstract class Shape {
     restitution: number;
     friction: number;
     surfaceVelocity: number;
+    region?: Region;
 
     constructor (options: ShapeOptions = {}) {
         this.inertia = options.inertia ?? 0;

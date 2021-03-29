@@ -5,17 +5,12 @@ import { Vector } from './Vector';
  */
 
 export class Bounds {
-    min: Vector;
-    max: Vector;
+    min: Vector = new Vector();
+    max: Vector = new Vector();
 
     static temp: Array<Bounds> = [
         new Bounds(),
     ];
-
-    constructor () {
-        this.min = new Vector();
-        this.max = new Vector();
-    }
 
     /**
      * Returns a new bounds copied from 'this'.

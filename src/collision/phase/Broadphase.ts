@@ -4,16 +4,36 @@ import { Common } from '../../common/Common';
 import { Grid } from '../../common/Grid';
 import { Vector } from '../../math/Vector';
 import { Bounds } from '../../math/Bounds';
+import { Shape } from '../../body/shapes/Shape';
+import { Body } from '../../body/Body';
+
+type Cell = Map<number, Shape>;
+
+export class Region extends Bounds {
+    id: number = 0;
+
+    static temp: Array<Region> = [new Region()];
+
+    constructor () {
+        super();
+    }
+
+    updateId () {
+        this.id = (this.min.x << 30) + (this.min.y << 20) + (this.max.x << 10) + this.max.y;
+    }
+}
 
 export class Broadphase {
+    manager: any; //TODO-types
+    engine: any;  //TODO-types
 
-    constructor (manager) {
+    grid: Grid = new Grid();
+    gridSize: number = 1;
+    activePairs: Set<Pair> = new Set();
+
+    constructor (manager: any) { //TODO-types
         this.manager = manager;
         this.engine = manager.engine;
-
-        this.grid = new Grid();
-        this.gridSize = 1;
-        this.activePairs = new Set();
     }
 
     update () {
@@ -22,7 +42,7 @@ export class Broadphase {
         for (const body of bodies) {
             for (const shape of body.shapes) {
 
-                const region = this.createRegion(shape.bounds, Bounds.temp[0]);
+                const region = this.createRegion(shape.bounds, Region.temp[0]);
 
                 if (shape.region && shape.region.id === region.id) continue;
 
@@ -32,7 +52,7 @@ export class Broadphase {
                 }
 
                 if (!shape.region) {
-                    shape.region = this.createRegion(shape.bounds, new Bounds());
+                    shape.region = this.createRegion(shape.bounds, new Region());
                 }
 
                 region.clone(shape.region);
@@ -41,7 +61,7 @@ export class Broadphase {
         }
     }
 
-    createRegion (bounds, output) {
+    createRegion (bounds: Bounds, output: Region) {
         bounds.min.divide(this.gridSize, output.min);
         bounds.max.divide(this.gridSize, output.max);
 
@@ -49,46 +69,32 @@ export class Broadphase {
         output.min.y = Math.floor(output.min.y);
         output.max.x = Math.floor(output.max.x);
         output.max.y = Math.floor(output.max.y);
-
-        output.id = this.regionId(output);
+        output.updateId();
         
         return output;
     }
 
-    regionId (region) {
-        return (region.min.x << 30) + (region.min.y << 20) + (region.max.x << 10) + region.max.y;
-    }
+    createShapePair (shapeA_: Shape, shapeB_: Shape) {
+        const comp: boolean = shapeA_.body.id > shapeB_.body.id;
+        const shapeA: Shape = comp ? shapeA_ : shapeB_;
+        const shapeB: Shape = !comp ? shapeA_ : shapeB_;
 
-    combineRegions (regionA, regionB, output) {
-
-        output.min.set(Math.min(regionA.min.x, regionB.min.x), Math.min(regionA.min.y, regionB.min.y));
-        output.max.set(Math.max(regionA.max.x, regionB.max.x), Math.max(regionA.max.y, regionB.max.y));
-        output.id = this.regionId(output);
-        
-        return output;
-    }
-
-    createShapePair (shapeA_, shapeB_) {
-        const comp = shapeA_.body.id > shapeB_.body.id;
-        const shapeA = comp ? shapeA_ : shapeB_;
-        const shapeB = !comp ? shapeA_ : shapeB_;
-
-        const bodyA = shapeA.body;
-        const bodyB = shapeB.body;
+        const bodyA: Body = shapeA.body;
+        const bodyB: Body = shapeB.body;
 
         if ((bodyA === bodyB) || (bodyA.isStatic && bodyB.isStatic)) return;
 
-        const pairId = Common.combineId(bodyA.id, bodyB.id);
-        const c = this.manager.pairs.get(pairId);
-        
-        const pair = c || new Pair(bodyA, bodyB);
+        const pairId: number = Common.combineId(bodyA.id, bodyB.id);
+        const c: Pair | undefined = this.manager.pairs.get(pairId);
+
+        const pair: Pair = c || new Pair(bodyA, bodyB);
         if (!c) {
             this.manager.pairs.set(pairId, pair);
         }
 
-        const shapePairId = Common.combineId(shapeA.id, shapeB.id);
-        const s = pair.shapePairs.get(shapePairId);
-        const shapePair = s || new ShapePair(shapeA, shapeB, pair);
+        const shapePairId: number = Common.combineId(shapeA.id, shapeB.id);
+        const s: ShapePair | undefined = pair.shapePairs.get(shapePairId);
+        const shapePair: ShapePair = s || new ShapePair(shapeA, shapeB, pair);
         shapePair.isActiveBroadphase = true;
         pair.isActiveBroadphase = true;
 
@@ -102,7 +108,7 @@ export class Broadphase {
         return shapePair;
     }
 
-    getShapePair (shapeA, shapeB) {
+    getShapePair (shapeA: Shape, shapeB: Shape) {
         const bodyA = shapeA.body;
         const bodyB = shapeB.body;
 
@@ -116,14 +122,14 @@ export class Broadphase {
         return pair.shapePairs.get(shapePairId);
     }
 
-    createCell (position) {
-        const cell = new Map();
+    createCell (position: Vector) {
+        const cell: Cell = new Map();
         this.grid.set(position, cell);
         return cell;
     }
 
-    addShapeToCell (position, shape) {
-        const cell = this.grid.get(position);
+    addShapeToCell (position: Vector, shape: Shape) {
+        const cell: Cell | undefined = this.grid.get(position);
 
         if (!cell) {
             this.createCell(position).set(shape.id, shape);
@@ -140,8 +146,8 @@ export class Broadphase {
         cell.set(shape.id, shape);
     }
 
-    removeShapeFromCell (position, shape) {
-        const cell = this.grid.get(position);
+    removeShapeFromCell (position: Vector, shape: Shape) {
+        const cell: Cell | undefined = this.grid.get(position);
         if (!cell) return;
         cell.delete(shape.id);
 
@@ -173,7 +179,7 @@ export class Broadphase {
         }
     }
 
-    updateRegion (region, newRegion, shape) {
+    updateRegion (region: Region, newRegion: Region, shape: Shape) {
         if (!shape.region) {
             for (let x = region.min.x; x <= region.max.x; ++x) {
                 for (let y = region.min.y; y <= region.max.y; ++y) {
@@ -203,7 +209,7 @@ export class Broadphase {
         }
     }
 
-    removeShapeFromGrid (shape) {
+    removeShapeFromGrid (shape: Shape) {
         if (!shape || !shape.region) return;
 
         for (let x = shape.region.min.x; x <= shape.region.max.x; ++x) {
@@ -214,7 +220,7 @@ export class Broadphase {
         }
     }
 
-    removeBodyFromGrid (body) {
+    removeBodyFromGrid (body: Body) {
         for (const shape of body.shapes) {
             this.removeShapeFromGrid(shape);
         }
