@@ -63,7 +63,7 @@ export class Edge extends Shape {
      * @returns Index of the farthest vertex of convex in the given direction
      */
     project (vector: Vector) {
-        return Vector.dot(this.start, vector) < Vector.dot(this.end, vector);
+        return Number(Vector.dot(this.start, vector) < Vector.dot(this.end, vector));
     }
 
     /**

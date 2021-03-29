@@ -1,8 +1,10 @@
 import { Colliders } from './Colliders';
 
 export class Narrowphase {
+    manager: any; // TODO-types
+    engine: any; // TODO-types
 
-    constructor (manager) {
+    constructor (manager: any) { //TODO-types
         this.manager = manager;
         this.engine = manager.engine;
     }
@@ -14,7 +16,7 @@ export class Narrowphase {
         for (const pair of midphasePairs) {
             if (!pair.isActive) {
                 if (pair.isActivePrev) {
-                    this.endedPairs.push(pair);
+                    this.manager.endedPairs.push(pair);
                 }
                 continue;
             };
@@ -46,8 +48,6 @@ export class Narrowphase {
             } else if (pair.isActivePrev) {
                 this.manager.endedPairs.push(pair);
             } 
-
         }
-        return this.pairs;
     }
 }

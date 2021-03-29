@@ -1,8 +1,11 @@
-import { ShapeType } from '../../../body/shapes/Shape';
+import { Convex } from '../../../body/shapes/Convex';
+import { Edge } from '../../../body/shapes/Edge';
+import { Shape, ShapeType } from '../../../body/shapes/Shape';
 import { Vector } from '../../../math/Vector';
-import { GJK } from './Distance';
+import { ShapePair } from '../../pair/ShapePair';
+import { GJK, SupportPoint } from './Distance';
 
-const convexSupportEdge = (convex, index, normal) => {
+const convexSupportEdge = (convex: Convex, index: number, normal: Vector): Array<Vector> => {
     const vertices = convex.vertices;
     const vertex1 = Vector.temp[5];
     const vertex2 = Vector.temp[6];
@@ -21,25 +24,19 @@ const convexSupportEdge = (convex, index, normal) => {
     return [vertex1, vertex2];
 }
 
-const edgeSupportEdge = (edge, index) => {
+const edgeSupportEdge = (edge: Edge, index: number): Array<Vector> => {
     return index ? [edge.end, edge.start] : [edge.start, edge.end];
 }
 
-const supportEdge = (shape, index, normal) => {
+const supportEdge = (shape: Shape, index: number, normal: Vector): Array<Vector> => {
     switch (shape.type) {
-        case ShapeType.CONVEX: return convexSupportEdge(shape, index, normal);
-        case ShapeType.EDGE: return edgeSupportEdge(shape, index);
+        case ShapeType.CONVEX: return convexSupportEdge(<Convex>shape, index, normal);
+        case ShapeType.EDGE: return edgeSupportEdge(<Edge>shape, index);
     }
+    return [];
 }
 
-const findRefFace = (shape, points, flipped) => {
-    switch (shape.type) {
-        case ShapeType.CONVEX: return [shape.vertices[flipped ? points[0].indexA : points[0].indexB], shape.vertices[flipped ? points[1].indexA : points[1].indexB]];
-        case ShapeType.EDGE: return [shape.getPoint(flipped ? points[0].indexA : points[0].indexB), shape.getPoint(flipped ? points[1].indexA : points[1].indexB)];
-    }
-}
-
-export const clip = (output, incFace, normal, offset) => {
+export const clip = (output: Array<Vector>, incFace: Array<Vector>, normal: Vector, offset: number): number => {
 
     const dist1 = Vector.dot(incFace[0], normal) + offset;
     const dist2 = Vector.dot(incFace[1], normal) + offset;
@@ -57,7 +54,7 @@ export const clip = (output, incFace, normal, offset) => {
     return count;
 }
 
-export const contacts = (shapePair, refFace, incFace, normal, tangent, radius) => {
+export const contacts = (shapePair: ShapePair, refFace: Array<Vector>, incFace: Array<Vector>, normal: Vector, tangent: Vector, radius: number) => {
     const offset1 = Vector.dot(tangent, refFace[0]);
     const offset2 = -Vector.dot(tangent, refFace[1]);
 
@@ -92,14 +89,14 @@ export const contacts = (shapePair, refFace, incFace, normal, tangent, radius) =
     }
 }
 
-export const collide = (shapePair) => {
+export const collide = (shapePair: ShapePair): boolean => {
 
     const shapeA = shapePair.shapeA;
     const shapeB = shapePair.shapeB;
 
     const points = GJK(shapeA, shapeB);
 
-    if (!points) return;
+    if (!points) return false;
 
     const normal = shapePair.normal;
     const radius = shapeA.radius + shapeB.radius;
@@ -113,7 +110,7 @@ export const collide = (shapePair) => {
         const lengthSquared = normal.lengthSquared();
 
         if (lengthSquared > radius * radius) {
-            return;
+            return false;
         }
 
         const length = Math.sqrt(lengthSquared);
@@ -124,10 +121,10 @@ export const collide = (shapePair) => {
         shapePair.contactsCount = 1;
         Vector.add(vertex1, normal.scale(shapeA.radius, Vector.temp[0]), shapePair.contacts[0].vertex);
     } else {
-        let incFace;
-        let refFace;
-        let incRadius;
-        let flipped = false;
+        let incFace: Array<Vector>;
+        let refFace: Array<Vector>;
+        let incRadius: number;
+        let flipped: boolean = false;
 
         if (points[0].indexA === points[1].indexA) {
             shapeB.getNormal(points[1].indexB, normal);
@@ -136,14 +133,15 @@ export const collide = (shapePair) => {
             
 
             incFace = supportEdge(shapeA, points[0].indexA, normal.neg(Vector.temp[0]));
-            refFace = findRefFace(shapeB, points, false);
+            refFace = [shapeB.getPoint(points[0].indexB), shapeB.getPoint(points[1].indexB)];
         } else {
             shapeA.getNormal(points[1].indexA, normal);
             shapePair.depth = Vector.dot(normal, points[0].point) + radius;
             incRadius = shapeB.radius;
             
             incFace = supportEdge(shapeB, points[0].indexB, normal.neg(Vector.temp[0]));
-            refFace = findRefFace(shapeA, points, true);
+            refFace = [shapeA.getPoint(points[0].indexA), shapeA.getPoint(points[1].indexA)];
+            
             flipped = true;
         }
 

@@ -1,17 +1,24 @@
-import { ShapeType } from '../../../body/shapes/Shape';
+import { Convex } from '../../../body/shapes/Convex';
+import { Edge } from '../../../body/shapes/Edge';
+import { Shape, ShapeType } from '../../../body/shapes/Shape';
 import { Vector } from '../../../math/Vector';
 
-const MAX_GJK_ITERATIONS = 30;
-const MAX_EPA_ITERATIONS = 40;
-const INIT_DIR = new Vector(1, 0);
+const MAX_GJK_ITERATIONS: number = 30;
+const MAX_EPA_ITERATIONS: number = 40;
+const INIT_DIR: Vector = new Vector(1, 0);
 
-class SupportPoint {
-    constructor(shapeA, shapeB, dir) {
+export class SupportPoint {
+    indexA: number;
+    indexB: number;
+    index: number;
+    point: Vector;
+
+    constructor(shapeA: Shape, shapeB: Shape, dir: Vector) {
         const supportA = supportPoint(shapeA, dir);
         const supportB = supportPoint(shapeB, dir.neg(Vector.temp[0]));
 
-        const pointA = supportA[0];
-        const pointB = supportB[0];
+        const pointA = <Vector>supportA[0];
+        const pointB = <Vector>supportB[0];
 
         this.indexA = supportA[1];
         this.indexB = supportB[1];
@@ -21,28 +28,29 @@ class SupportPoint {
     }
 }
 
-const supportPoint = (shape, dir) => {
+const supportPoint = (shape: Shape, dir: Vector): [Vector, number] => {
     switch (shape.type) {
         case ShapeType.CIRCLE:
-            return; // TODO
+            return [shape.position, 0];
         case ShapeType.CONVEX:
-            return convexSupportPoint(shape, dir);
+            return convexSupportPoint(<Convex>shape, dir);
         case ShapeType.EDGE:
-            return edgeSupportPoint(shape, dir);
+            return edgeSupportPoint(<Edge>shape, dir);
     }
+    throw new Error();
 }
 
-const convexSupportPoint = (convex, dir) => {
+const convexSupportPoint = (convex: Convex, dir: Vector): [Vector, number] => {
     const index = convex.project(dir);
     return [convex.vertices[index], index];
 }
 
-const edgeSupportPoint = (edge, dir) => {
+const edgeSupportPoint = (edge: Edge, dir: Vector): [Vector, number] => {
     const index = edge.project(dir);
     return [index ? edge.end : edge.start, index];
 }
 
-const pts = (p1, p2) => {
+const pts = (p1: SupportPoint, p2: SupportPoint): Array<SupportPoint> => {
     const t = Vector.zeroT(p1.point, p2.point);
 
     if (t === -1) {
@@ -54,7 +62,7 @@ const pts = (p1, p2) => {
     }
 }
 
-export const GJK = (shapeA, shapeB) => {
+export const GJK = (shapeA: Shape, shapeB: Shape): Array<SupportPoint> => {
 
     const dir = Vector.temp[1];
 
@@ -96,12 +104,12 @@ export const GJK = (shapeA, shapeB) => {
         ++iterations;
         if (iterations > MAX_GJK_ITERATIONS) {
             console.warn('Too many GJK iterations');
-            return false;
+            return [];
         }
     }
 }
 
-export const EPA = (points, shapeA, shapeB) => {
+export const EPA = (points: Array<SupportPoint>, shapeA: Shape, shapeB: Shape): Array<SupportPoint> => {
 
     let iterations = 0;
 
@@ -122,8 +130,8 @@ export const EPA = (points, shapeA, shapeB) => {
             }
         }
 
-        const p1 = points[minI];
-        const p2 = points[minJ];
+        const p1 = points[<number>minI];
+        const p2 = points[<number>minJ];
 
         if (iterations > MAX_EPA_ITERATIONS) {
             console.warn('Too many EPA iterations');
@@ -138,7 +146,7 @@ export const EPA = (points, shapeA, shapeB) => {
             const points2 = [p];
 
             for (let i = 0; i < points.length; ++i) {
-                let index = (minI + 1 + i) % points.length;
+                let index = (<number>minI + 1 + i) % points.length;
 
                 const n0 = points2[points2.length - 1].point;
                 const n1 = points[index].point;

@@ -10,6 +10,7 @@ import { Sleeping, SleepingState, SleepingType } from './body/Sleeping';
 
 import { Bounds } from './math/Bounds';
 import { Vector } from './math/Vector';
+import { Vertex } from './math/Vertex';
 import { Vertices } from './math/Vertices';
 
 import { Common } from './common/Common';
@@ -76,6 +77,7 @@ export {
 
     Bounds,
     Vector,
+    Vertex,
     Vertices,
 
     CircleVsCircle,
