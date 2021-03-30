@@ -94,7 +94,7 @@ export class Composite {
     /**
      * Adds the given constraints to the composite.
      */
-    addConstraint (constraints: Array<any>) { // TODO-types
+    addConstraint (constraints: Array<any> | any) { // TODO-types
         if (!Array.isArray(constraints)) {
             constraints = [constraints];
         }
