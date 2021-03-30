@@ -2,7 +2,7 @@ import { Common } from '../../common/Common';
 import { Vector } from '../../math/Vector';
 import { Shape, ShapeOptions, ShapeType } from './Shape';
 
-interface EdgeOptions extends ShapeOptions {
+export interface EdgeOptions extends ShapeOptions {
     start?: Vector;
     end?: Vector;
 }

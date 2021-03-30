@@ -7,7 +7,7 @@ import { Vertices } from '../math/Vertices';
 import { Convex } from './shapes/Convex';
 import { Edge } from './shapes/Edge';
 
-interface BodyOptions {
+export interface BodyOptions {
     position?: Vector,
     angle?: number,
     mass?: number,

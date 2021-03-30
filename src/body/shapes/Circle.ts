@@ -2,7 +2,7 @@ import { Shape, ShapeOptions, ShapeType } from './Shape';
 import { Vector } from '../../math/Vector';
 import { Solver } from '../../collision/solver/Solver';
 
-interface CircleOptions extends ShapeOptions {}
+export interface CircleOptions extends ShapeOptions {}
 
 export class Circle extends Shape {
     type: number = ShapeType.CIRCLE;

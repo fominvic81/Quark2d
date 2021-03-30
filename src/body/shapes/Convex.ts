@@ -3,7 +3,7 @@ import { Vector } from '../../math/Vector';
 import { Vertices } from '../../math/Vertices';
 import { Vertex } from '../../math/Vertex';
 
-interface ConvexOptions extends ShapeOptions {
+export interface ConvexOptions extends ShapeOptions {
     vertices?: Array<Vector>;
 }
 

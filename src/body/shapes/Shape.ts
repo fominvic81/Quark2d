@@ -8,7 +8,11 @@ import { Region } from '../../collision/phase/Broadphase';
 export interface ShapeOptions {
     inertia?: number;
     radius?: number;
-    filter?: Filter;
+    filter?: {
+        category?: number,
+        mask?: number,
+        group?: number,
+    },
     restitution?: number;
     friction?: number;
     surfaceVelocity?: number;
