@@ -9,7 +9,6 @@ import { Common } from '../../common/Common';
 import { Vertices } from '../../math/Vertices';
 import { DistanceConstraint } from '../../constraint/DistanceConstraint';
 
-// export const Factory = {};
 export class Factory {
 
     static Shape = class {
