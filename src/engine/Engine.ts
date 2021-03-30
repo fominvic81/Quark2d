@@ -4,10 +4,34 @@ import { Events } from '../common/Events';
 import { Sleeping } from '../body/Sleeping';
 import { World } from '../common/World';
 import { Manager } from '../collision/phase/Manager';
+import { Broadphase } from '../collision/phase/Broadphase';
+import { Midphase } from '../collision/phase/Midphase';
+import { Narrowphase } from '../collision/phase/narrowphase/Narrowphase';
+
+interface EngineOptions {
+    world?: World;
+    gravity?: Vector;
+    solver?: Solver;
+    sleeping?: Sleeping;
+    broadphase?: Broadphase;
+    midphase?: Midphase;
+    narrowphase?: Narrowphase;
+}
+
+/**
+ * The 'Engine' is a class that manages updating the simulation of the world.
+ */
 
 export class Engine {
+    world: World;
+    gravity: Vector;
+    manager: Manager;
+    solver: Solver;
+    sleeping: Sleeping;
+    events: Events;
+    timestamp?: {delta: number};
 
-    constructor (options = {}) {
+    constructor (options: EngineOptions = {}) {
         this.world = options.world || new World();
         this.gravity = options.gravity === undefined ? new Vector(0, 9.8) : options.gravity.clone();
         this.manager = new Manager(this, options);
@@ -17,11 +41,15 @@ export class Engine {
         this.timestamp = undefined;
 
         this.world.events.on('remove-body', (event) => {
-            this.broadphase.removeBodyFromGrid(event.body);
+            this.manager.broadphase.removeBodyFromGrid(event.body);
         });
     }
 
-    update (timestamp) {
+    /**
+     * Moves engine forward in time by timestamp.delta.
+     * @param timestamp
+     */
+    update (timestamp: {delta: number}) {
         this.timestamp = timestamp;
 
         this.events.trigger('before-update', [{engine: this, timestamp}]);
@@ -73,6 +101,9 @@ export class Engine {
         
     }
 
+    /**
+     * Applies gravity force to all bodies.
+     */
     applyGravity () {
         for (const body of this.world.activeBodies.values()) {
             body.force.x += this.gravity.x * body.mass;
