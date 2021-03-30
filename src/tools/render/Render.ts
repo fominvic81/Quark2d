@@ -480,13 +480,13 @@ export class Render {
 
     mouseMove (event: any) { //TODO-types
         if (this.mouse.rightButtonPressed) {
-            Vector.add(this.options.translate, event.movement);
+            Vector.add(this.options.translate, event.mouse.movement);
         }
     }
 
     mouseWheel (event: any) { //TODO-types
-        this.options.scale.x -= event.deltaY * this.options.scale.x / 2500;
-        this.options.scale.y -= event.deltaY * this.options.scale.y / 2500;
+        this.options.scale.x -= event.event.deltaY * this.options.scale.x / 2500;
+        this.options.scale.y -= event.event.deltaY * this.options.scale.y / 2500;
     }
 
     createCanvas (width: number, height: number) {

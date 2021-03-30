@@ -1,24 +1,25 @@
 import { Events } from '../../common/Events';
 import { Vector } from '../../math/Vector';
+import { Render } from '../render/Render';
 
 
 export class Mouse {
 
-    constructor (render) {
+    render: Render;
+    events: Events = new Events();
+    pressed: boolean = false;
+    leftButtonPressed : boolean = false;
+    rightButtonPressed: boolean = false;
+    wheelButtonPressed: boolean = false;
+    localPosition: Vector = new Vector();
+    position: Vector = new Vector();
+    localMovement: Vector = new Vector();
+    movement: Vector = new Vector();
+    scroll: Vector = new Vector();
+
+    constructor (render: Render) {
 
         this.render = render;
-        this.events = new Events();
-
-        this.pressed = false;
-        this.leftButtonPressed = false;
-        this.rightButtonPressed = false;
-        this.wheelButtonPressed = false;
-        this.localPosition = new Vector();
-        this.position = new Vector();
-        this.localMovement = new Vector();
-        this.movement = new Vector();
-        this.scroll = new Vector();
-        this.holdsBody = false;
 
         this.render.canvas.addEventListener('mousedown', (event) => {
             this.mouseDown(event);
@@ -38,7 +39,7 @@ export class Mouse {
 
     }
 
-    mouseDown (event) {
+    mouseDown (event: MouseEvent) {
         this.pressed = true;
 
         if (event.button === 0) {
@@ -52,12 +53,11 @@ export class Mouse {
         this.localPosition.set(event.clientX, event.clientY);
         this.updatePosition();
         
-        this.events.trigger('mouse-down', [this]);
+        this.events.trigger('mouse-down', [{mouse: this, event}]);
 
-        
     }
     
-    mouseUp (event) {
+    mouseUp (event: MouseEvent) {
         if (event.buttons <= 0) {
             this.pressed = false;
         }
@@ -73,21 +73,21 @@ export class Mouse {
         this.localPosition.set(event.clientX, event.clientY);
         this.updatePosition();
 
-        this.events.trigger('mouse-up', [this]);
+        this.events.trigger('mouse-up', [{mouse: this, event}]);
     }
 
-    mouseMove (event) {
+    mouseMove (event: MouseEvent) {
         this.localPosition.set(event.clientX, event.clientY);
         this.updatePosition();
 
         this.localMovement.set(event.movementX, event.movementY);
         this.updateMovement();
 
-        this.events.trigger('mouse-move', [this]);
+        this.events.trigger('mouse-move', [{mouse: this, event}]);
     }
 
-    mouseWheel (event) {
-        this.events.trigger('wheel', [event]);
+    mouseWheel (event: MouseEvent) {
+        this.events.trigger('wheel', [{mouse: this, event}]);
     }
 
     updatePosition () {

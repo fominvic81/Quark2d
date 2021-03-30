@@ -1,15 +1,21 @@
 import { Events } from '../../common/Events';
 import { Vector } from '../../math/Vector';
 import { DistanceConstraint } from '../../constraint/DistanceConstraint';
+import { Engine } from '../../engine/Engine';
+import { Mouse } from './Mouse';
+import { Constraint } from '../../constraint/Constraint';
 
 export class MouseConstraint {
+    engine: Engine;
+    mouse: Mouse;
+    constraints: Array<Constraint>;
+    events = new Events();
     
-    constructor (engine, mouse, constraints = [new DistanceConstraint({stiffness: 0.2, length: 0})]) {
+    constructor (engine: Engine, mouse: Mouse, constraints: Array<Constraint> = [new DistanceConstraint({stiffness: 0.2, length: 0})]) {
 
         this.engine = engine;
         this.mouse = mouse;
         this.constraints = constraints;
-        this.events = new Events();
 
         engine.world.addConstraint(this.constraints);
 
@@ -19,16 +25,16 @@ export class MouseConstraint {
 
     }
 
-    mouseDown (event) {
-        if (!this.mouse.leftButtonPressed) return;
+    mouseDown (event: any) { //TODO-types
+        if (!event.mouse.leftButtonPressed) return;
         for (const body of this.engine.world.bodies.values()) {
             if (body.isStatic) continue;
             for (const shape of body.shapes) {
-                if (shape.bounds.contains(event.position)) {
-                    if (shape.contains(event.position)) {
+                if (shape.bounds.contains(event.mouse.position)) {
+                    if (shape.contains(event.mouse.position)) {
                         for (const constraint of this.constraints) {
                             constraint.bodyA = body;
-                            Vector.subtract(event.position, body.position, constraint.pointA).rotate(-body.angle);
+                            Vector.subtract(event.mouse.position, body.position, constraint.pointA).rotate(-body.angle);
                             this.events.trigger('catch-body', [{body, shape}]);
                         }
                         break;
@@ -38,17 +44,17 @@ export class MouseConstraint {
         }
     }
 
-    mouseUp (event) {
-        if (this.mouse.leftButtonPressed) return;
+    mouseUp (event: any) { //TODO-types
+        if (event.mouse.leftButtonPressed) return;
         for (const constraint of this.constraints) {
             constraint.bodyA = undefined;
         }
     }
 
-    mouseMove (event) {
+    mouseMove (event: any) { //TODO-types
         for (const constraint of this.constraints) {
-            constraint.pointB.x = event.position.x;
-            constraint.pointB.y = event.position.y;
+            constraint.pointB.x = event.mouse.position.x;
+            constraint.pointB.y = event.mouse.position.y;
         }
     }
 
