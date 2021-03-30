@@ -29,7 +29,7 @@ export class Engine {
     solver: Solver;
     sleeping: Sleeping;
     events: Events;
-    timestamp?: {delta: number};
+    timestamp?: {delta: number, tps?: number};
 
     constructor (options: EngineOptions = {}) {
         this.world = options.world || new World();
@@ -49,7 +49,7 @@ export class Engine {
      * Moves engine forward in time by timestamp.delta.
      * @param timestamp
      */
-    update (timestamp: {delta: number}) {
+    update (timestamp: {delta: number, tps?: number}) {
         this.timestamp = timestamp;
 
         this.events.trigger('before-update', [{engine: this, timestamp}]);

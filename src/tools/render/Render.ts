@@ -1,19 +1,89 @@
 import { Vector } from '../../math/Vector';
 import { Draw } from './Draw';
-import { Shape, ShapeType } from '../../body/shapes/Shape';
+import { ShapeType } from '../../body/shapes/Shape';
 import { Events } from '../../common/Events';
 import { Mouse } from '../mouse/Mouse';
 import { SleepingState } from '../../body/Sleeping';
 import { Bounds } from '../../math/Bounds';
 import { Solver } from '../../collision/solver/Solver';
-import { Constraint } from '../../constraint/Constraint';
+import { Constraint, ConstraintType } from '../../constraint/Constraint';
+import { Engine } from '../../engine/Engine';
+import { Body } from '../../body/Body';
+import { Convex } from '../../body/shapes/Convex';
+import { Edge } from '../../body/shapes/Edge';
+import { DistanceConstraint } from '../../constraint/DistanceConstraint';
+
+interface RenderOptions {
+    backgroundColor?: string;
+    showBodies?: boolean;
+    showConstraints?: boolean;
+    showAngleIndicator?: boolean;
+    showSleeping?: boolean;
+    showRadius?: boolean;
+    showCollisions?: boolean;
+    showNormals?: boolean;
+    showBounds?: boolean;
+    showPositionImpulses?: boolean;
+    showVelocity?: boolean;
+    showAngularVelocity?: boolean;
+    showBroadphaseGrid?: boolean;
+    showPositions?: boolean;
+    showConstraintBounds?: boolean;
+    showVertexIds?: boolean;
+
+    showStatus?: boolean;
+
+    element?: HTMLElement;
+    canvas?: HTMLCanvasElement;
+
+    width?: number;
+    height?: number;
+}
+
+/**
+ * The Render is a class, that provides methods of rendering world, based on HTML5 canvas.
+ */
 
 export class Render {
+    engine: Engine;
+    events: Events = new Events();
+    options: {
+        scale: Vector;
+        translate: Vector;
+        bounds: Bounds;
+        lineWidth: number;
+        backgroundColor: string;
+        showBodies: boolean;
+        showConstraints: boolean;
+        showAngleIndicator: boolean;
+        showSleeping: boolean;
+        showRadius: boolean;
+        showCollisions: boolean;
+        showNormals: boolean;
+        showBounds: boolean;
+        showPositionImpulses: boolean;
+        showVelocity: boolean;
+        showAngularVelocity: boolean;
+        showBroadphaseGrid: boolean;
+        showPositions: boolean;
+        showConstraintBounds: boolean;
+        showVertexIds: boolean;
 
-    constructor (engine, options = {}) {
+        showStatus: boolean;
+    };
+    canvas: HTMLCanvasElement;
+    ctx: CanvasRenderingContext2D;
+
+    element: HTMLElement;
+
+    statusTimer: number = 0;
+    statusText: string = '';
+
+    mouse: Mouse;
+
+    constructor (engine: Engine, options: RenderOptions = {}) {
 
         this.engine = engine;
-        this.events = new Events();
 
         this.options = {
             scale: new Vector(20, 20),
@@ -41,17 +111,17 @@ export class Render {
         }
 
         this.canvas = options.canvas || this.createCanvas(options.width || 800, options.height || 600);
-        this.ctx = this.canvas.getContext('2d');
-
-        this.element = options.element;
+        this.ctx = <CanvasRenderingContext2D>this.canvas.getContext('2d');
 
         this.statusTimer = 0;
         this.statusText = '';
+
         
-        if (this.element) {
+        if (options.element) {
+            this.element = options.element;
             this.element.appendChild(this.canvas);
         } else {
-            console.warn('options.element was undefined, canvas was created but not appended');
+            throw new Error('Options.element is undefined');
         }
 
         this.mouse = new Mouse(this);
@@ -60,7 +130,11 @@ export class Render {
         this.mouse.events.on('wheel', (event) => {this.mouseWheel(event)});
     }
 
-    step (timestamp) {
+    /**
+     * Renders world. Step should be called every time the scene changes.
+     * @param timestamp
+     */
+    step (timestamp: {delta: number}) {
 
         this.statusTimer += timestamp.delta;
         this.events.trigger('before-step', [{render: this, timestamp}]);
@@ -148,7 +222,7 @@ export class Render {
         this.options.bounds.max.y = (this.canvas.height / 2) / this.options.scale.y - this.options.translate.y;
     }
 
-    bodies (bodies) {
+    bodies (bodies: Array<Body>) {
 
         for (const body of bodies) {
             const color = (body.sleepState === SleepingState.AWAKE || !this.options.showSleeping) ? 'rgb(200, 200, 200)' : 'rgb(100, 100, 100)';
@@ -160,16 +234,16 @@ export class Render {
                         break;
                     case ShapeType.CONVEX:
                         if (this.options.showRadius) {
-                            this.convex(shape, color, false, this.options.lineWidth / 20);
+                            this.convex(<Convex>shape, color, false, this.options.lineWidth / 20);
                         } else {
-                            Draw.polygon(this.ctx, shape.vertices, color, false, this.options.lineWidth / 20);
+                            Draw.polygon(this.ctx, (<Convex>shape).vertices, color, false, this.options.lineWidth / 20);
                         }
                         break;
                         case ShapeType.EDGE:
                             if (this.options.showRadius) {
-                                this.edge(shape, color, false, this.options.lineWidth / 25);
+                                this.edge(<Edge>shape, color, this.options.lineWidth / 25);
                             } else {
-                                Draw.line(this.ctx, shape.start, shape.end, color, this.options.lineWidth / 25);
+                                Draw.line(this.ctx, (<Edge>shape).start, (<Edge>shape).end, color, this.options.lineWidth / 25);
                             }
                         break;
                 }
@@ -177,34 +251,34 @@ export class Render {
         }
     }
 
-    constraints (constraints) {
+    constraints (constraints: Array<Constraint>) {
 
         for (const constraint of constraints) {
             const start = constraint.getWorldPointA();
             const end = constraint.getWorldPointB();
 
             switch (constraint.type) {
-                case Constraint.DISTANCE_CONSTRAINT:
-
+                case ConstraintType.DISTANCE_CONSTRAINT:
+                    const distanceConstraint = <DistanceConstraint>constraint;
                     if (this.options.showConstraintBounds) {
-                        if (constraint.length && constraint.length > 0.01) {
-                            if (!constraint.bodyA) Draw.circle(this.ctx, start, constraint.length, 'rgb(100, 200, 100)', false, this.options.lineWidth / 20);
-                            if (!constraint.bodyB) Draw.circle(this.ctx, end, constraint.length, 'rgb(100, 200, 100)', false, this.options.lineWidth / 20);
+                        if (distanceConstraint.length && distanceConstraint.length > 0.01) {
+                            if (!constraint.bodyA) Draw.circle(this.ctx, start, distanceConstraint.length, 'rgb(100, 200, 100)', false, this.options.lineWidth / 20);
+                            if (!constraint.bodyB) Draw.circle(this.ctx, end, distanceConstraint.length, 'rgb(100, 200, 100)', false, this.options.lineWidth / 20);
                         }
-                        if (constraint.minLength && constraint.minLength > 0.01) {
-                            if (!constraint.bodyA) Draw.circle(this.ctx, start, constraint.minLength, 'rgb(100, 200, 100)', false, this.options.lineWidth / 20);
-                            if (!constraint.bodyB) Draw.circle(this.ctx, end, constraint.minLength, 'rgb(100, 200, 100)', false, this.options.lineWidth / 20);
+                        if (distanceConstraint.minLength && distanceConstraint.minLength > 0.01) {
+                            if (!constraint.bodyA) Draw.circle(this.ctx, start, distanceConstraint.minLength, 'rgb(100, 200, 100)', false, this.options.lineWidth / 20);
+                            if (!constraint.bodyB) Draw.circle(this.ctx, end, distanceConstraint.minLength, 'rgb(100, 200, 100)', false, this.options.lineWidth / 20);
                         }
                     }
 
-                    if (constraint.length <= 1 || constraint.stiffness > 0.8) {
+                    if (distanceConstraint.length <= 1 || distanceConstraint.stiffness > 0.8) {
                         Draw.line(this.ctx, start, end, 'rgb(128, 128, 128)', this.options.lineWidth / 20);
                     } else {
                         const n = Vector.subtract(end, start, Vector.temp[0]);
                         const len = n.length();
 
                         const normal = n.divide(len, Vector.temp[1]).rotate90();
-                        const count = Math.max(constraint.length * 2, 4);
+                        const count = Math.max(distanceConstraint.length * 2, 4);
 
                         this.ctx.beginPath();
                         this.ctx.moveTo(start.x, start.y);
@@ -236,7 +310,7 @@ export class Render {
 
     }
 
-    angleIndicator (bodies) {
+    angleIndicator (bodies: Array<Body>) {
         for (const body of bodies) {
             for (const shape of body.shapes) {
                 const pos = shape.position;
@@ -250,7 +324,7 @@ export class Render {
                         ), pos), 'rgb(200, 200, 200)', this.options.lineWidth / 10);
                         break;
                     case ShapeType.CONVEX:
-                        const vertices = shape.vertices;
+                        const vertices = (<Convex>shape).vertices;
                         Draw.line(this.ctx, pos, Vector.temp[0].set(
                             (vertices[0].x + vertices[1].x) / 2,
                             (vertices[0].y + vertices[1].y) / 2,
@@ -278,12 +352,12 @@ export class Render {
         }
     }
 
-    normals (bodies) {
+    normals (bodies: Array<Body>) {
         for (const body of bodies) {
             for (const shape of body.shapes) {
                 if (shape.type === ShapeType.CONVEX) {
                     const pos = shape.position;
-                    const normals = shape.normals;
+                    const normals = (<Convex>shape).normals;
                     for (const normal of normals) {
                         Draw.line(this.ctx, pos, Vector.add(pos, normal, Vector.temp[0]), 'rgb(200, 100, 100)', this.options.lineWidth / 8);
                     }
@@ -292,7 +366,7 @@ export class Render {
         }
     }
 
-    bounds (bodies) {
+    bounds (bodies: Array<Body>) {
         for (const body of bodies) {
             for (const shape of body.shapes) {
                 const shapeBounds = shape.bounds;
@@ -303,19 +377,19 @@ export class Render {
         }
     }
 
-    positionImpulses (bodies) {
+    positionImpulses (bodies: Array<Body>) {
         for (const body of bodies) {
             Draw.line(this.ctx, body.position, Vector.add(body.position, body.positionImpulse, Vector.temp[0]), 'rgb(80, 80, 200)', this.options.lineWidth / 10);
         }
     }
 
-    velocity (bodies) {
+    velocity (bodies: Array<Body>) {
         for (const body of bodies) {
             Draw.line(this.ctx, body.position, Vector.add(body.position, body.velocity.scale(5, Vector.temp[0]), Vector.temp[0]), 'rgb(80, 200, 80)', this.options.lineWidth / 10);
         }
     }
 
-    angularVelocity (bodies) {
+    angularVelocity (bodies: Array<Body>) {
         for (const body of bodies) {
             Draw.circle(this.ctx, body.position, Math.abs(body.angularVelocity) * 5, 'rgb(80, 200, 80)', false, this.options.lineWidth / 20);
         }
@@ -332,7 +406,7 @@ export class Render {
         }
     }
 
-    positions (bodies) {
+    positions (bodies: Array<Body>) {
         for (const body of bodies) {
             Draw.circle(this.ctx, body.position, this.options.lineWidth / 4 , 'rgb(40, 160, 40)');
             for (const shape of body.shapes) {
@@ -341,15 +415,15 @@ export class Render {
         }
     }
 
-    vertexIds (bodies) {
+    vertexIds (bodies: Array<Body>) {
         for (const body of bodies) {
             for (const shape of body.shapes) {
                 if (shape.type === ShapeType.CONVEX) {
-                    const vertices = shape.vertices;
+                    const vertices = (<Convex>shape).vertices;
                     for (const vertex of vertices) {
                         this.ctx.font = '0.5px Arial';
                         this.ctx.fillStyle = 'rgb(128, 128, 128)';
-                        this.ctx.fillText(vertex.index, vertex.x, vertex.y);
+                        this.ctx.fillText(`${vertex.index}`, vertex.x, vertex.y);
                     }
                 }
             }
@@ -358,13 +432,12 @@ export class Render {
 
     status () {
 
-
         if (this.statusTimer >= 0.1) {
             this.statusTimer -= 0.1;
             this.statusText = '';
 
             if (this.engine.timestamp) {
-                this.statusText += `tps: ${Math.round(this.engine.timestamp.tps)}   `;
+                this.statusText += `tps: ${Math.round(<number>this.engine.timestamp.tps)}   `;
             }
 
             this.statusText += `bodies: ${this.engine.world.bodies.size}   `
@@ -389,62 +462,60 @@ export class Render {
 
     }
 
-    scale (scale) {
+    scale (scale: Vector) {
         Vector.add(this.options.scale, scale);
     }
 
-    setScale (scale) {
+    setScale (scale: Vector) {
         scale.clone(this.options.scale);
     }
 
-    translate (translate) {
+    translate (translate: Vector) {
         Vector.add(this.options.translate, translate);
     }
 
-    setTranslate (translate) {
+    setTranslate (translate: Vector) {
         translate.clone(this.options.translate);
     }
 
-    mouseMove (event) {
+    mouseMove (event: any) { //TODO-types
         if (this.mouse.rightButtonPressed) {
             Vector.add(this.options.translate, event.movement);
         }
     }
 
-    mouseWheel (event) {
+    mouseWheel (event: any) { //TODO-types
         this.options.scale.x -= event.deltaY * this.options.scale.x / 2500;
         this.options.scale.y -= event.deltaY * this.options.scale.y / 2500;
     }
 
-    createCanvas (width, height) {
+    createCanvas (width: number, height: number) {
         const canvas = document.createElement('canvas');
         canvas.style.position = 'fixed';
-        canvas.style.left = 0;
-        canvas.style.top = 0;
-        canvas.style.right = 0;
-        canvas.style.bottom = 0;
+        canvas.style.left = '0px';
+        canvas.style.top = '0px';
+        canvas.style.right = '0px';
+        canvas.style.bottom = '0px';
         canvas.width = width;
         canvas.height = height;
-        canvas.oncontextmenu = () => {
-            return false;
-        }
+        canvas.oncontextmenu = () => false;
         return canvas;
     }
 
-    static createCanvas (width, height) {
+    static createCanvas (width: number, height: number) {
         const canvas = document.createElement('canvas');
         canvas.style.position = 'fixed';
-        canvas.style.left = 0;
-        canvas.style.top = 0;
-        canvas.style.right = 0;
-        canvas.style.bottom = 0;
+        canvas.style.left = '0px';
+        canvas.style.top = '0px';
+        canvas.style.right = '0px';
+        canvas.style.bottom = '0px';
         canvas.width = width;
         canvas.height = height;
         canvas.oncontextmenu = function() { return false; };
         return canvas;
     }
 
-    convex (convex, color, fill = true, lineWidth = 1) {
+    convex (convex: Convex, color: string, fill: boolean = true, lineWidth: number = 1) {
 
         const radius = convex.radius;
         const vertices = convex.vertices;
@@ -489,37 +560,29 @@ export class Render {
         }
     }
 
-    edge (edge, color, fill = true, lineWidth = 1) {
+    edge (edge: Edge, color: string, lineWidth: number = 1) {
         const radius = edge.radius;
 
         if (radius <= Solver.SLOP * 2) {
-            Draw.line(this.ctx, edge.start, edge.end, color, fill, lineWidth);
+            Draw.line(this.ctx, edge.start, edge.end, color, lineWidth);
             return;
         }
-        Draw.line(this.ctx, edge.start, edge.end, color, fill, lineWidth);
+        Draw.line(this.ctx, edge.start, edge.end, color, lineWidth);
         
         this.halfEdge(edge, radius, 1);
-        if (fill) {
-            this.ctx.fillStyle = color;
-            this.ctx.fill();
-        } else {
-            this.ctx.lineWidth = lineWidth;
-            this.ctx.strokeStyle = color;
-            this.ctx.stroke();
-        }
+
+        this.ctx.lineWidth = lineWidth;
+        this.ctx.strokeStyle = color;
+        this.ctx.stroke();
 
         this.halfEdge(edge, radius, -1);
-        if (fill) {
-            this.ctx.fillStyle = color;
-            this.ctx.fill();
-        } else {
-            this.ctx.lineWidth = lineWidth;
-            this.ctx.strokeStyle = color;
-            this.ctx.stroke();
-        }
+
+        this.ctx.lineWidth = lineWidth;
+        this.ctx.strokeStyle = color;
+        this.ctx.stroke();
     }
 
-    halfEdge (edge, radius, dir) {
+    halfEdge (edge: Edge, radius: number, dir: number) {
 
         const p1 = Vector.add(edge.normal.scale(edge.radius, Vector.temp[0]).rotate90(), edge.start);
         const p2 = Vector.add(edge.normal.scale(-edge.radius, Vector.temp[1]).rotate90(), edge.end);
