@@ -1,38 +1,50 @@
 import { Events } from '../../common/Events';
 
+interface RunnerOptions {
+    tps?: number;
+}
+
+/**
+ * The 'Runner' is a class that provides a loop.
+ */
 
 export class Runner {
+    fixedTps: number = 60;
+    fixedDelta: number = 1 / this.fixedTps;
+    tps: number = 0;
+    delta: number = 0;
+    deltaAccumulator: number = 0;
+    fps: number = 0;
+    renderDelta: number = 0;
 
-    constructor (options = {}) {
+    renderTime: number = performance.now() / 1000;
+    time: number = performance.now() / 1000;
 
-        this.tps = 0;
-        this.delta = 0;
-        this.fixedTps = 60;
-        this.fixedDelta = 1 / this.fixedTps;
-        this.deltaAccumulator = 0;
-        this.time = performance.now() / 1000;
-        this.events = new Events();
-        this.event = {
-            time: 0,
-            delta: 0,
-            tps: 0,
-        }
-        this.renderEvent = {
-            time: 0,
-            delta: 0,
-            fps: 0,
-        }
-        this.enabled = false;
-        
-        this.renderTime = performance.now() / 1000;
-        this.enabledRender = false;
+    events: Events = new Events();
+    event = {
+        time: 0,
+        delta: 0,
+        tps: 0,
+    }
+    renderEvent = {
+        time: 0,
+        delta: 0,
+        fps: 0,
+    }
 
-        this.tickRequestId;
-        this.renderRequestId;
+    enabled: boolean = false; 
+    enabledRender: boolean = false;
 
+    tickRequestId: number = 0;
+    renderRequestId: number = 0;
+
+    constructor (options: RunnerOptions = {}) {
         if (options.tps) this.setTps(options.tps);
     }
 
+    /**
+     * Starts the loop.
+     */
     run () {
         if (this.enabled) return;
         this.enabled = true;
@@ -40,6 +52,9 @@ export class Runner {
         this.tick();
     }
 
+    /**
+     * Stops the loop.
+     */
     stop () {
         this.enabled = false;
         if (this.tickRequestId) window.cancelAnimationFrame(this.tickRequestId);
@@ -78,11 +93,18 @@ export class Runner {
 
     }
 
-    setTps (tps) {
+    /**
+     * Sets count of updates per second.
+     * @param tps
+     */
+    setTps (tps: number) {
         this.fixedTps = tps;
         this.fixedDelta = 1 / tps;
     }
 
+    /**
+     * Starts the rendering loop.
+     */
     runRender () {
         if (this.enabledRender) return;
         this.enabledRender = true;
@@ -90,6 +112,9 @@ export class Runner {
         this.render();
     }
 
+    /**
+     * Stops the rendering loop.
+     */
     stopRender () {
         this.enabledRender = false;
         if (this.renderRequestId) window.cancelAnimationFrame(this.renderRequestId);
