@@ -15,5 +15,6 @@
     },
     "files": [
         "./src/Quark2d.ts",
+        "./types/Polydecomp.d.ts"
     ]
 }

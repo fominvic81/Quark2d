@@ -1,6 +1,6 @@
 import { Vector } from './Vector';
 import { Vertex } from './Vertex';
-import { Decomp } from './Polydecomp';
+import { quickDecomp, makeCCW, removeCollinearPoints } from 'poly-decomp';
 
 /**
  * The 'Vertices' is the class for manipulating sets of vertices
@@ -233,10 +233,10 @@ export class Vertices {
      * @param minArea
      * @returns The array of sets of vertices
      */
-    static decomp (vertices: Array<Vector>, removeCollinearPoints: boolean = true, minArea: number = 0): Array<Array<Vertex>> {
+    static decomp (vertices: Array<Vector>, rmCollinearPoints: boolean = true, minArea: number = 0): Array<Array<Vertex>> {
         
-        const poly = vertices.map((vertex: Vector) => [vertex.x, vertex.y]);
-        Decomp.makeCCW(poly);
+        const poly = <Array<[number, number]>>vertices.map((vertex: Vector) => [vertex.x, vertex.y]);
+        makeCCW(poly);
 
         if (Vertices.isConvex(vertices)) {
             const part = Vertices.create(poly.map((vertex: Array<number>) => new Vector(vertex[0], vertex[1])));
@@ -244,11 +244,11 @@ export class Vertices {
         } else {
             
             const parts = [];
-            const decomposed = Decomp.quickDecomp(poly, [], [], [], 25, 100, 0);
+            const decomposed = quickDecomp(poly, [], [], [], 25, 100, 0);
 
             for (const p of decomposed) {
-                if (removeCollinearPoints) {
-                    Decomp.removeCollinearPoints(p, 0.01);
+                if (rmCollinearPoints) {
+                    removeCollinearPoints(p, 0.01);
                 }
                 const part = Vertices.create(p.map((vertex: Array<number>) => new Vector(vertex[0], vertex[1])));
                 if (Math.abs(Vertices.area(part)) > minArea) {
