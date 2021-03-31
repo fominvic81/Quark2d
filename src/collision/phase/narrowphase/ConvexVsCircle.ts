@@ -99,7 +99,7 @@ export const ConvexVsCircle = (shapePair: ShapePair) => {
     const offset: Vector = (flipped ? shapePair.normal : shapePair.normal.neg(temp2)).scale(convex.radius, temp2);
     
     shapePair.contactsCount = 1;
-    Vector.add(offset, closestPoint).clone(shapePair.contacts[0].vertex);
+    offset.add(closestPoint).clone(shapePair.contacts[0].vertex);
     
     shapePair.isActive = true;
     return;

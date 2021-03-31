@@ -62,8 +62,8 @@ export class Bounds {
      * @param vector
      */
     translate (vector: Vector) {
-        Vector.add(this.min, vector);
-        Vector.add(this.max, vector);
+        this.min.add(vector);
+        this.max.add(vector);
     }
 
     /**

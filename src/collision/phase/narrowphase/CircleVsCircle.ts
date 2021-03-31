@@ -24,7 +24,7 @@ export const CircleVsCircle = (shapePair: ShapePair) => {
     shapePair.depth = radius - dist;
     normal.divide(dist)
 
-    Vector.add(shapePair.normal.scale(circleA.radius, Vector.temp[0]), circleA.position).clone(shapePair.contacts[0].vertex);
+    shapePair.normal.scale(circleA.radius, Vector.temp[0]).add(circleA.position).clone(shapePair.contacts[0].vertex);
 
     shapePair.isActive = true;
 }

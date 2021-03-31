@@ -58,7 +58,7 @@ export class Vertices {
     static translate (vertices: Array<Vector>, vector: Vector): Array<Vector> {
 
         for (let i = 0; i < vertices.length; ++i) {
-            Vector.add(vertices[i], vector);
+            vertices[i].add(vector);
         }
         return vertices;
     }
@@ -157,7 +157,7 @@ export class Vertices {
             const j = (i + 1) % vertices.length;
             const cross: number = Vector.cross(vertices[i], vertices[j]);
             const temp: Vector = Vector.add(vertices[i], vertices[j], Vector.temp[0]).scale(cross);
-            Vector.add(center, temp);
+            center.add(temp);
         }
 
         center.divide(6 * Vertices.area(vertices));

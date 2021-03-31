@@ -155,6 +155,28 @@ export class Vector {
     }
 
     /**
+     * Adds two vectors.
+     * @param vector
+     * @returns Sum of the two vectors
+     */
+    add (vector: Vector): Vector {
+        this.x += vector.x;
+        this.y += vector.y;
+        return this;
+    }
+
+    /**
+     * Subtracts two vectors.
+     * @param vector
+     * @returns Difference of two vectors
+     */
+    subtract (vector: Vector): Vector {
+        this.x -= vector.x;
+        this.y -= vector.y;
+        return this;
+    }
+
+    /**
      * Returns the angle between two vectors.
      * If vectorB is undefined than returns the angle between vectorA and 'x' axis.
      * @param vectorA
@@ -190,53 +212,53 @@ export class Vector {
     }
 
     /**
-     * Returns the dot product of the two vectors.
+     * Returns the dot product of two vectors.
      * @param vectorA
      * @param vectorB
-     * @returns The dot product of the two vectors
+     * @returns The dot product of two vectors
      */
     static dot (vectorA: Vector, vectorB: Vector): number {
         return (vectorA.x * vectorB.x) + (vectorA.y * vectorB.y);
     }
 
     /**
-     * Returns the cross product of the two vectors.
+     * Returns the cross product of two vectors.
      * @param vectorA
      * @param vectorB
-     * @returns The cross product of the two vectors
+     * @returns The cross product of two vectors
      */
     static cross (vectorA : Vector, vectorB: Vector): number {
         return (vectorA.x * vectorB.y) - (vectorA.y * vectorB.x);
     }
 
     /**
-     * Adds the two vectors.
+     * Adds two vectors.
      * @param vectorA
      * @param vectorB
      * @param output [output]
-     * @returns Sum of the two vectors
+     * @returns Sum of two vectors
      */
-    static add (vectorA: Vector, vectorB: Vector, output: Vector = vectorA): Vector {
+    static add (vectorA: Vector, vectorB: Vector, output: Vector): Vector {
         output.x = vectorA.x + vectorB.x;
         output.y = vectorA.y + vectorB.y;
         return output;
     }
 
     /**
-     * Subtracts the two vectors.
+     * Subtracts two vectors.
      * @param vectorA
      * @param vectorB
      * @param output [output]
-     * @returns Difference of two the vectors
+     * @returns Difference of two vectors
      */
-    static subtract (vectorA: Vector, vectorB: Vector, output: Vector = vectorA): Vector {
+    static subtract (vectorA: Vector, vectorB: Vector, output: Vector): Vector {
         output.x = vectorA.x - vectorB.x;
         output.y = vectorA.y - vectorB.y;
         return output;
     }
 
     /**
-     * Multiplies the two vectors.
+     * Multiplies two vectors.
      * @param vectorA
      * @param vectorB
      * @param output [output]
@@ -249,17 +271,17 @@ export class Vector {
     }
 
     /**
-     * Returns true if the two vectors are collinear or false if not.
+     * Returns true if two vectors are collinear or false if not.
      * @param vectorA
      * @param vectorB
-     * @returns True if the two vectors are collinear or false if not
+     * @returns True if two vectors are collinear or false if not
      */
     static isCollinear (vectorA: Vector, vectorB: Vector): boolean {
         return (Math.abs(vectorA.x / vectorA.y - vectorB.x / vectorB.y) < 0.0001) || (vectorA.y === 0 && vectorB.y === 0);
     }
 
     /**
-     * Interpolates the two vectors('t' is from 0 to 1).
+     * Interpolates two vectors('t' is from 0 to 1).
      * @param vectorA
      * @param vectorB
      * @param t
@@ -273,7 +295,7 @@ export class Vector {
     }
 
     /**
-     * Returns the intersection point of the two line segments or undefined if vectors don't intersects.
+     * Returns the intersection point of two line segments or undefined if vectors don't intersects.
      * @param start1
      * @param end1
      * @param start2
@@ -333,7 +355,7 @@ export class Vector {
     }
 
     /**
-     * Interpolates the two vectors('t' is from -1 to 1).
+     * Interpolates two vectors('t' is from -1 to 1).
      * @param vectorA
      * @param vectorB
      * @param t

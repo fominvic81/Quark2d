@@ -113,7 +113,7 @@ export class Body {
         this.force.scale(this.inverseMass * delta, this.acceleration);
 
         // update velocity
-        Vector.add(this.velocity.scale((1 - this.velocityDamping)), this.acceleration.scale(delta));
+        this.velocity.scale((1 - this.velocityDamping)).add(this.acceleration.scale(delta));
 
         // update angularAcceleration
         this.angularAcceleration = this.torque * this.inverseInertia * delta;
@@ -241,12 +241,12 @@ export class Body {
     
         for (const shape of this.shapes) {
             Vector.subtract(this.position, shape.position, offset);
-            Vector.add(sum, offset.scale(shape.area, Vector.temp[2]));
+            sum.add(offset.scale(shape.area, Vector.temp[2]));
         }
     
         const cm = sum.scale(1 / this.area, Vector.temp[1]);
 
-        Vector.subtract(this.position, cm);
+        this.position.subtract(cm);
         for (const shape of this.shapes) {
             if (shape.type === ShapeType.CONVEX) {
                 Vertices.translate((<Convex>shape).deltaVertices, cm);
@@ -267,7 +267,7 @@ export class Body {
      * @param vector
      */
     translate (vector: Vector) {
-        Vector.add(this.position, vector);
+        this.position.add(vector);
 
         for (const shape of this.shapes) {
             shape.translate(vector);
@@ -452,7 +452,7 @@ export class Body {
      * @param offset
      */
     applyForce (force: Vector, offset?: Vector) {
-        Vector.add(this.force, force);
+        this.force.add(force);
         if (offset) {
             this.torque += Vector.cross(offset, force);
         }
@@ -465,7 +465,7 @@ export class Body {
      */
     applyImpulse (impusle: Vector, offset?: Vector) {
         const velocity = impusle.scale(this.inverseMass, Body.vecTemp[0]);
-        Vector.add(this.velocity, velocity);
+        this.velocity.add(velocity);
 
         if (offset) {
             const angularVelocity = Vector.cross(offset, impusle) * this.inverseInertia;

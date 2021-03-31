@@ -163,7 +163,7 @@ export class Solver {
                     const contact = shapePair.contacts[i];
 
                     shapePair.normal.scale(contact.normalImpulse, impulse);
-                    Vector.add(impulse, shapePair.tangent.scale(contact.tangentImpulse, temp));
+                    impulse.add(shapePair.tangent.scale(contact.tangentImpulse, temp));
 
                     if (!(pair.bodyA.isStatic || pair.bodyA.sleepState === SleepingState.SLEEPING)) {
                         pair.bodyA.applyImpulse(impulse.neg(temp), contact.offsetA);

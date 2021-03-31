@@ -71,7 +71,7 @@ export const EdgeVsCircle = (shapePair: ShapePair) => {
     }
 
     shapePair.contactsCount = 1;
-    Vector.add(normal.scale(circle.radius, temp0), circle.position).clone(shapePair.contacts[0].vertex);
+    normal.scale(circle.radius, temp0).add(circle.position).clone(shapePair.contacts[0].vertex);
 
     if (flipped) {
         normal.neg();

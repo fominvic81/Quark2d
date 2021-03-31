@@ -72,9 +72,9 @@ export class Edge extends Shape {
      * @param vector
      */
     translate (vector: Vector) {
-        Vector.add(this.position, vector);
-        Vector.add(this.start, vector);
-        Vector.add(this.end, vector);
+        this.position.add(vector);
+        this.start.add(vector);
+        this.end.add(vector);
     }
 
     /**

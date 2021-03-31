@@ -25,7 +25,7 @@ export class Circle extends Shape {
      * @param vector
      */
     translate (vector: Vector) {
-        Vector.add(this.position, vector);
+        this.position.add(vector);
     }
 
     /**

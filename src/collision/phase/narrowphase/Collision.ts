@@ -151,7 +151,7 @@ export const collide = (shapePair: ShapePair): boolean => {
         contacts(shapePair, refFace, incFace, normal, tangent, radius);
 
         for (let i = 0; i < shapePair.contactsCount; ++i) {
-            Vector.subtract(shapePair.contacts[i].vertex, normal.scale(incRadius, Vector.temp[0]));
+            shapePair.contacts[i].vertex.subtract(normal.scale(incRadius, Vector.temp[0]));
         }
         if (!flipped) normal.neg();
 

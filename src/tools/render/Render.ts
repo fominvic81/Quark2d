@@ -317,10 +317,10 @@ export class Render {
 
                 switch (shape.type) {
                     case ShapeType.CIRCLE:
-                        Draw.line(this.ctx, pos, Vector.add(Vector.temp[0].set(
+                        Draw.line(this.ctx, pos, Vector.temp[0].set(
                             Math.cos(angle) * shape.radius,
                             Math.sin(angle) * shape.radius,
-                        ), pos), 'rgb(200, 200, 200)', this.options.lineWidth / 10);
+                        ).add(pos), 'rgb(200, 200, 200)', this.options.lineWidth / 10);
                         break;
                     case ShapeType.CONVEX:
                         const vertices = (<Convex>shape).vertices;
@@ -346,7 +346,7 @@ export class Render {
                     const contact = shapePair.contacts[i];
                     if (this.options.bounds.contains(contact.vertex)) {
                         Draw.circle(this.ctx, contact.vertex, this.options.lineWidth / 8, 'rgb(200, 80, 80)');
-                        Draw.line(this.ctx, contact.vertex, Vector.add(shapePair.normal.scale(0.2, Vector.temp[0]), contact.vertex), 'rgb(200, 80, 80)', this.options.lineWidth / 8);
+                        Draw.line(this.ctx, contact.vertex, shapePair.normal.scale(0.2, Vector.temp[0]).add(contact.vertex), 'rgb(200, 80, 80)', this.options.lineWidth / 8);
                     }
                 }
             }
@@ -408,7 +408,7 @@ export class Render {
         const maxY = Math.round(this.options.bounds.max.y / broadphase.gridSize + 0.5);
         if (maxX - minX > 50 || maxY - minY > 50) {
             for (const position of grid.keys()) {
-                Vector.add(position, offset);
+                position.add(offset);
                 Draw.rect(this.ctx, position.scale(broadphase.gridSize), broadphase.gridSize, broadphase.gridSize, 0, 'rgb(80, 200, 80)', false, this.options.lineWidth / 50);
             }
         } else {
@@ -416,7 +416,7 @@ export class Render {
                 for (let j = minY; j < maxY; ++j) {
                     position.set(i, j);
                     if (grid.get(position)) {
-                        Vector.add(position, offset);
+                        position.add(offset);
                         Draw.rect(this.ctx, position.scale(broadphase.gridSize), broadphase.gridSize, broadphase.gridSize, 0, 'rgb(80, 200, 80)', false, this.options.lineWidth / 50);
                     }
                 }
@@ -481,7 +481,7 @@ export class Render {
     }
 
     scale (scale: Vector) {
-        Vector.add(this.options.scale, scale);
+        this.options.scale.add(scale);
     }
 
     setScale (scale: Vector) {
@@ -489,7 +489,7 @@ export class Render {
     }
 
     translate (translate: Vector) {
-        Vector.add(this.options.translate, translate);
+        this.options.translate.add(translate);
     }
 
     setTranslate (translate: Vector) {
@@ -498,7 +498,7 @@ export class Render {
 
     mouseMove (event: QMouseEvent) {
         if (this.mouse.rightButtonPressed) {
-            Vector.add(this.options.translate, event.mouse.movement);
+            this.options.translate.add(event.mouse.movement);
         }
     }
 
@@ -602,11 +602,11 @@ export class Render {
 
     halfEdge (edge: Edge, radius: number, dir: number) {
 
-        const p1 = Vector.add(edge.normal.scale(edge.radius, Vector.temp[0]).rotate90(), edge.start);
-        const p2 = Vector.add(edge.normal.scale(-edge.radius, Vector.temp[1]).rotate90(), edge.end);
-        const p3 = Vector.add(edge.normal.scale(edge.radius * dir, Vector.temp[2]), edge.end);
-        const p4 = Vector.add(edge.normal.scale(edge.radius * dir, Vector.temp[3]), p1);
-        const p5 = Vector.add(edge.normal.scale(edge.radius * dir, Vector.temp[4]), p2);
+        const p1 = edge.normal.scale(edge.radius, Vector.temp[0]).rotate90().add(edge.start);
+        const p2 = edge.normal.scale(-edge.radius, Vector.temp[1]).rotate90().add(edge.end);
+        const p3 = edge.normal.scale(edge.radius * dir, Vector.temp[2]).add(edge.end);
+        const p4 = edge.normal.scale(edge.radius * dir, Vector.temp[3]).add(p1);
+        const p5 = edge.normal.scale(edge.radius * dir, Vector.temp[4]).add(p2);
 
         // Draw.circle(this.ctx, p1, 0.1, 'rgb(200, 200, 200)', true);
         // Draw.circle(this.ctx, p2, 0.2, 'rgb(200, 200, 200)', true);
