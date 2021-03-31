@@ -1,3 +1,4 @@
+import { Body } from '../../body/Body';
 import { Shape } from '../../body/shapes/Shape';
 import { Common } from '../../common/Common';
 import { Vector } from '../../math/Vector';
@@ -41,8 +42,8 @@ export class ShapePair {
         for (let i = 0; i < this.contactsCount; ++i) {
             const contact = this.contacts[i];
 
-            Vector.subtract(contact.vertex, this.shapeA.body.position, contact.offsetA);
-            Vector.subtract(contact.vertex, this.shapeB.body.position, contact.offsetB);
+            Vector.subtract(contact.vertex, (<Body>this.shapeA.body).position, contact.offsetA);
+            Vector.subtract(contact.vertex, (<Body>this.shapeB.body).position, contact.offsetB);
 
             const tangentCrossA = Vector.cross(contact.offsetA, this.tangent);
             const tangentCrossB = Vector.cross(contact.offsetB, this.tangent);

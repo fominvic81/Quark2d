@@ -1,3 +1,4 @@
+import { Engine } from '../../engine/Engine';
 import { Pair } from '../pair/Pair';
 import { Broadphase } from './Broadphase';
 import { Midphase } from './Midphase';
@@ -10,7 +11,7 @@ interface ManagerOptions {
 }
 
 export class Manager {
-    engine: any; // TODO-types
+    engine: Engine;
 
     broadphase: Broadphase;
     midphase: Midphase;
@@ -22,7 +23,7 @@ export class Manager {
     activePairs: Array<Pair> = [];
     endedPairs: Array<Pair> = [];
 
-    constructor (engine: any, options: ManagerOptions = {}) {
+    constructor (engine: Engine, options: ManagerOptions = {}) {
         this.engine = engine;
 
         this.broadphase = options.broadphase || new Broadphase(this);

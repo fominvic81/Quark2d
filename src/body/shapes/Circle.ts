@@ -1,6 +1,7 @@
 import { Shape, ShapeOptions, ShapeType } from './Shape';
 import { Vector } from '../../math/Vector';
 import { Solver } from '../../collision/solver/Solver';
+import { Intersection } from '../../collision/ray/Intersection';
 
 export interface CircleOptions extends ShapeOptions {}
 
@@ -61,7 +62,7 @@ export class Circle extends Shape {
         return this.bounds;
     }
 
-    raycast (intersection: any, from: Vector, to: Vector, delta: Vector) { // TODO-types
+    raycast (intersection: Intersection, from: Vector, to: Vector, delta: Vector) {
 
         const position = this.position;
         const radius = this.radius;

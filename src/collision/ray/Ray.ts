@@ -4,6 +4,7 @@ import { RaycastResult } from './RaycastResult';
 import { Common } from '../../common/Common';
 import { Intersection } from './Intersection';
 import { Composite } from '../../common/Composite';
+import { Engine } from '../../engine/Engine';
 
 interface RayOptions {
     from?: Vector;
@@ -52,7 +53,7 @@ export class Ray {
      * @param result
      * @returns Result
      */
-    cast (engine: any, composite: Composite = engine.world, useGrid: boolean = true, result: RaycastResult = this.raycastResult) { //TODO-types
+    cast (engine: Engine, composite: Composite = engine.world, useGrid: boolean = true, result: RaycastResult = this.raycastResult) {
         result.reset();
 
         if (this.needsUpdate) {
@@ -227,7 +228,7 @@ export class Ray {
         }
     }
 
-    private addCell (engine: any, composite: Composite, position: Vector, result: RaycastResult) { // TODO-types
+    private addCell (engine: Engine, composite: Composite, position: Vector, result: RaycastResult) {
         const intersections = result.intersections;
         const cell = engine.manager.broadphase.grid.get(position);
         if (cell) {

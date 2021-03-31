@@ -1,10 +1,12 @@
+import { Engine } from '../../../engine/Engine';
+import { Manager } from '../Manager';
 import { Colliders } from './Colliders';
 
 export class Narrowphase {
-    manager: any; // TODO-types
-    engine: any; // TODO-types
+    manager: Manager;
+    engine: Engine;
 
-    constructor (manager: any) { //TODO-types
+    constructor (manager: Manager) {
         this.manager = manager;
         this.engine = manager.engine;
     }

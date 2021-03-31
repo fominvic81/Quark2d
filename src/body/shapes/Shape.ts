@@ -4,6 +4,8 @@ import { Common } from '../../common/Common';
 import { Filter } from '../Filter';
 import { Solver } from '../../collision/solver/Solver';
 import { Region } from '../../collision/phase/Broadphase';
+import { Body } from '../Body';
+import { Intersection } from '../../collision/ray/Intersection';
 
 export interface ShapeOptions {
     inertia?: number;
@@ -32,7 +34,7 @@ export abstract class Shape {
     id: number = Common.nextId();
     name: string = 'shape';
     type: number = 0;
-    body: undefined | any; // TODO-types
+    body: undefined | Body;
     position: Vector = new Vector();
     bounds: Bounds = new Bounds();
     inertia: number;
@@ -84,7 +86,7 @@ export abstract class Shape {
      */
     abstract updateBounds (): Bounds;
 
-    abstract raycast (intersection: any, from: Vector, to: Vector, delta: Vector): void // TODO-types
+    abstract raycast (intersection: Intersection, from: Vector, to: Vector, delta: Vector): void;
 
     /**
      * Returns true if the shape contains the given point.

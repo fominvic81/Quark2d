@@ -6,6 +6,8 @@ import { Vector } from '../../math/Vector';
 import { Bounds } from '../../math/Bounds';
 import { Shape } from '../../body/shapes/Shape';
 import { Body } from '../../body/Body';
+import { Engine } from '../../engine/Engine';
+import { Manager } from './Manager';
 
 type Cell = Map<number, Shape>;
 
@@ -24,14 +26,14 @@ export class Region extends Bounds {
 }
 
 export class Broadphase {
-    manager: any; //TODO-types
-    engine: any;  //TODO-types
+    manager: Manager;
+    engine: Engine;
 
     grid: Grid = new Grid();
     gridSize: number = 1;
     activePairs: Set<Pair> = new Set();
 
-    constructor (manager: any) { //TODO-types
+    constructor (manager: Manager) {
         this.manager = manager;
         this.engine = manager.engine;
     }
@@ -75,12 +77,12 @@ export class Broadphase {
     }
 
     createShapePair (shapeA_: Shape, shapeB_: Shape) {
-        const comp: boolean = shapeA_.body.id > shapeB_.body.id;
+        const comp: boolean = (<Body>shapeA_.body).id > (<Body>shapeB_.body).id;
         const shapeA: Shape = comp ? shapeA_ : shapeB_;
         const shapeB: Shape = !comp ? shapeA_ : shapeB_;
 
-        const bodyA: Body = shapeA.body;
-        const bodyB: Body = shapeB.body;
+        const bodyA: Body = <Body>shapeA.body;
+        const bodyB: Body = <Body>shapeB.body;
 
         if ((bodyA === bodyB) || (bodyA.isStatic && bodyB.isStatic)) return;
 
@@ -109,8 +111,8 @@ export class Broadphase {
     }
 
     getShapePair (shapeA: Shape, shapeB: Shape) {
-        const bodyA = shapeA.body;
-        const bodyB = shapeB.body;
+        const bodyA = <Body>shapeA.body;
+        const bodyB = <Body>shapeB.body;
 
         if ((bodyA === bodyB) || (bodyA.isStatic && bodyB.isStatic)) return;
 
@@ -156,8 +158,8 @@ export class Broadphase {
         for (const shapeB of cell.values()) {
             const bodyB = shapeB.body;
 
-            const pairId = Common.combineId(bodyA.id, bodyB.id);
-            const pair = this.manager.pairs.get(pairId);
+            const pairId = Common.combineId((<Body>bodyA).id, (<Body>bodyB).id);
+            const pair = <Pair>this.manager.pairs.get(pairId);
 
             const shapePair = this.getShapePair(shape, shapeB);
             if (shapePair) {

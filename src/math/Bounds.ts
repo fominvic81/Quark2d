@@ -32,7 +32,7 @@ export class Bounds {
      * @param vertices 
      * @returns The bounds
      */
-    fromVertices (vertices: any /** TODO-types */): Bounds {
+    fromVertices (vertices: Array<Vector>): Bounds {
         this.min.x = Infinity;
         this.min.y = Infinity;
         this.max.x = -Infinity;

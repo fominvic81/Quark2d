@@ -3,13 +3,14 @@ import { SleepingState } from '../../body/Sleeping';
 import { Common } from '../../common/Common';
 import { Contact } from '../pair/Contact';
 import { Pair } from '../pair/Pair';
+import { Engine } from '../../engine/Engine';
 
 /**
  * The 'Solver' is a class for solving collisions.
  */
 
 export class Solver {
-    engine: any; //TODO-types
+    engine: Engine;
     positionIterations: number = 5;
     velocityIterations: number = 5;
     constraintIterations: number = 5;
@@ -27,7 +28,7 @@ export class Solver {
         new Vector(), new Vector(),
     ];
 
-    constructor (engine: any) { //TODO-types
+    constructor (engine: Engine) {
         this.engine = engine;
     }
 

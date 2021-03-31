@@ -1,13 +1,15 @@
 import { Filter } from '../../body/Filter';
 import { SleepingState } from '../../body/Sleeping';
+import { Engine } from '../../engine/Engine';
 import { Pair } from '../pair/Pair';
+import { Manager } from './Manager';
 
 export class Midphase {
-    manager: any; // TODO-types
-    engine: any; // TODO-types
+    manager: Manager;
+    engine: Engine;
     activePairs: Array<Pair> = [];
 
-    constructor (manager: any) { //TODO-types
+    constructor (manager: Manager) {
         this.manager = manager;
         this.engine = manager.engine;
     }

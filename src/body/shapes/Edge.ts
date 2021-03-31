@@ -1,3 +1,4 @@
+import { Intersection } from '../../collision/ray/Intersection';
 import { Common } from '../../common/Common';
 import { Vector } from '../../math/Vector';
 import { Shape, ShapeOptions, ShapeType } from './Shape';
@@ -151,7 +152,7 @@ export class Edge extends Shape {
         return this.bounds;
     }
 
-    raycast (intersection: any, from: Vector, to: Vector, delta: Vector) { //TODO-types
+    raycast (intersection: Intersection, from: Vector, to: Vector, delta: Vector) {
 
         const contact = intersection.contacts[0];
 

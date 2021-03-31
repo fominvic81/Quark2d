@@ -1,13 +1,14 @@
 import { Body } from '../../body/Body';
 import { Common } from '../../common/Common';
+import { ShapePair } from './ShapePair';
 
 export class Pair {
     bodyA: Body;
     bodyB: Body;
     id: number;
-    shapePairs: Map<number, any> = new Map(); // TODO-types
-    activeShapePairs: Array<any> = [];  // TODO-types
-    activeShapePairsBroadphase: Set<any> = new Set();  // TODO-types
+    shapePairs: Map<number, ShapePair> = new Map();
+    activeShapePairs: Array<ShapePair> = [];
+    activeShapePairsBroadphase: Set<ShapePair> = new Set();
     isActiveBroadphase: boolean = false;
     isActive: boolean = false;
     isActivePrev: boolean = false;

@@ -1,5 +1,7 @@
 import { Events } from './Events';
 import { Common } from './Common';
+import { Body } from '../body/Body';
+import { Constraint } from '../constraint/Constraint';
 
 /**
  * The 'Composite' is a container for bodies and constraints. You can add or remove the bodies and constraints from the composite.
@@ -8,25 +10,25 @@ import { Common } from './Common';
 export class Composite {
     id: number = Common.nextId();
     name: string = 'composite';
-    bodies: Map<number, any> = new Map(); // TODO-types
-    constraints: Map<number, any> = new Map(); // TODO-types
+    bodies: Map<number, Body> = new Map();
+    constraints: Map<number, Constraint> = new Map();
     events: Events = new Events();
 
     /**
      * Adds given objects to the composite.
      * @param objects
      */
-    add (objects: Array<any> | any) { // TODO-types
+    add (objects: Array<Body | Constraint> | Body | Constraint) {
         if (!Array.isArray(objects)) {
             objects = [objects];
         }
         for (const object of objects) {
             switch (object.name) {
                 case 'body':
-                    this.addBody(object);
+                    this.addBody(<Body>object);
                     break;
                 case 'constraint':
-                    this.addConstraint(object);
+                    this.addConstraint(<Constraint>object);
                     break;
             }
         }
@@ -37,7 +39,7 @@ export class Composite {
      * Adds the given bodies to the composite.
      * @param bodies
      */
-    addBody (bodies: Array<any> | any) { // TODO-types
+    addBody (bodies: Array<Body> | Body) {
         if (!Array.isArray(bodies)) {
             bodies = [bodies];
         }
@@ -52,7 +54,7 @@ export class Composite {
      * Removes the given bodies from the composite.
      * @param bodies
      */
-    removeBody (bodies: Array<any> | any) { // TODO-types
+    removeBody (bodies: Array<Body> | Body) {
         if (!Array.isArray(bodies)) {
             bodies = [bodies];
         }
@@ -70,7 +72,7 @@ export class Composite {
      * @param id
      * @returns
      */
-    getBody (id: number) { // TODO-types
+    getBody (id: number) {
         return this.bodies.get(id);
     }
 
@@ -79,7 +81,7 @@ export class Composite {
      * @param id 
      * @returns
      */
-    hasBody (id: number) {  // TODO-types
+    hasBody (id: number) {
         return this.bodies.has(id);
     }
 
@@ -94,7 +96,7 @@ export class Composite {
     /**
      * Adds the given constraints to the composite.
      */
-    addConstraint (constraints: Array<any> | any) { // TODO-types
+    addConstraint (constraints: Array<Constraint> | Constraint) {
         if (!Array.isArray(constraints)) {
             constraints = [constraints];
         }
@@ -108,7 +110,7 @@ export class Composite {
      * Removes the given constraints from the composite.
      * @param constraints
      */
-    removeConstraint (constraints: Array<any>) { // TODO-types
+    removeConstraint (constraints: Array<Constraint> | Constraint) {
         if (!Array.isArray(constraints)) {
             constraints = [constraints];
         }
@@ -126,7 +128,7 @@ export class Composite {
      * @param id
      * @returns
      */
-    getConstraint (id: number) { // TODO-types
+    getConstraint (id: number) {
         return this.constraints.get(id);
     }
 
@@ -135,7 +137,7 @@ export class Composite {
      * @param id
      * @returns
      */
-    hasConstraint (id: number) { // TODO-types
+    hasConstraint (id: number) {
         return this.constraints.has(id);
     }
 

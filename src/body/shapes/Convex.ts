@@ -2,6 +2,7 @@ import { Shape, ShapeOptions, ShapeType } from './Shape';
 import { Vector } from '../../math/Vector';
 import { Vertices } from '../../math/Vertices';
 import { Vertex } from '../../math/Vertex';
+import { Intersection } from '../../collision/ray/Intersection';
 
 export interface ConvexOptions extends ShapeOptions {
     vertices?: Array<Vector>;
@@ -167,7 +168,7 @@ export class Convex extends Shape {
         center.clone(this.position);
     }
 
-    raycast (intersection: any, from: Vector, to: Vector, delta: Vector) { // TODO-types
+    raycast (intersection: Intersection, from: Vector, to: Vector, delta: Vector) {
         const vertices = this.vertices;
         const normals = this.normals;
 

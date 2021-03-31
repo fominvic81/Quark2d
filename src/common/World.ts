@@ -1,3 +1,4 @@
+import { Body } from '../body/Body';
 import { SleepingState } from '../body/Sleeping';
 import { Composite } from './Composite';
 
@@ -6,16 +7,16 @@ import { Composite } from './Composite';
  */
 
 export class World extends Composite {
-    sleepingBodies: Map<number, any> = new Map(); // TODO-types
-    staticBodies: Map<number, any> = new Map(); // TODO-types
-    activeBodies: Map<number, any> = new Map(); // TODO-types
+    sleepingBodies: Map<number, Body> = new Map();
+    staticBodies: Map<number, Body> = new Map();
+    activeBodies: Map<number, Body> = new Map();
     private eventIds: Map<number, Array<number>> = new Map();
 
     /**
      * Adds given objects to the world.
      * @param objects
      */
-    addBody (bodies: Array<any>) { // TODO-types
+    addBody (bodies: Array<Body> | Body) {
         super.addBody(bodies);
         if (!Array.isArray(bodies)) {
             bodies = [bodies];
@@ -56,7 +57,7 @@ export class World extends Composite {
      * Removes the given bodies from the world.
      * @param bodies
      */
-    removeBody (bodies: Array<any>) { // TODO-types
+    removeBody (bodies: Array<Body> | Body) {
         super.removeBody(bodies);
         if (!Array.isArray(bodies)) {
             bodies = [bodies];

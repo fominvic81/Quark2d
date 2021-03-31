@@ -1,3 +1,5 @@
+import { Engine } from "../engine/Engine";
+
 export enum SleepingState {
     AWAKE,
     SLEEPY,
@@ -19,7 +21,7 @@ interface SleepingOptions {
  */
 
 export class Sleeping {
-    engine: any; // TODO-types
+    engine: Engine;
     type: number;
 
     static MOTION_SLEEP_LIMIT = 0.000018;
@@ -30,7 +32,7 @@ export class Sleeping {
      * @param engine
      * @param options
      */
-    constructor (engine: any, options: SleepingOptions = {}) { // TODO-types
+    constructor (engine: Engine, options: SleepingOptions = {}) {
 
         this.engine = engine;
         this.type = options.type !== undefined ? options.type : SleepingType.BODY_SLEEPING;
