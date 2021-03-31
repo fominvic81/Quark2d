@@ -90,33 +90,32 @@ export class Render {
             translate: new Vector(),
             bounds: new Bounds(),
             lineWidth: 1,
-            backgroundColor: options.backgroundColor || 'rgb(48, 48, 48)',
-            showBodies: options.showBodies !== undefined ? options.showBodies : true,
-            showConstraints: options.showConstraints !== undefined ? options.showConstraints : true,
-            showAngleIndicator: options.showAngleIndicator !== undefined ? options.showAngleIndicator : true,
-            showSleeping: options.showSleeping !== undefined ? options.showSleeping : true,
-            showRadius: options.showRadius !== undefined ? options.showRadius : true,
-            showCollisions: options.showCollisions !== undefined ? options.showCollisions : false,
-            showNormals: options.showNormals !== undefined ? options.showNormals : false,
-            showBounds: options.showBounds !== undefined ? options.showBounds : false,
-            showPositionImpulses: options.showPositionImpulses !== undefined ? options.showPositionImpulses : false,
-            showVelocity: options.showVelocity !== undefined ? options.showVelocity : false,
-            showAngularVelocity: options.showAngularVelocity !== undefined ? options.showAngularVelocity: false,
-            showBroadphaseGrid: options.showBroadphaseGrid !== undefined ? options.showBroadphaseGrid: false,
-            showPositions: options.showPositions !== undefined ? options.showPositions : false,
-            showConstraintBounds: options.showConstraintBounds !== undefined ? options.showConstraintBounds : false,
-            showVertexIds: options.showVertexIds !== undefined ? options.showVertexIds : false,
+            backgroundColor: options.backgroundColor ?? 'rgb(48, 48, 48)',
+            showBodies: options.showBodies ?? true,
+            showConstraints: options.showConstraints ?? true,
+            showAngleIndicator: options.showAngleIndicator ?? true,
+            showSleeping: options.showSleeping ?? true,
+            showRadius: options.showRadius ?? true,
+            showCollisions: options.showCollisions ?? false,
+            showNormals: options.showNormals ?? false,
+            showBounds: options.showBounds ?? false,
+            showPositionImpulses: options.showPositionImpulses ?? false,
+            showVelocity: options.showVelocity ?? false,
+            showAngularVelocity: options.showAngularVelocity ?? false,
+            showBroadphaseGrid: options.showBroadphaseGrid ?? false,
+            showPositions: options.showPositions ?? false,
+            showConstraintBounds: options.showConstraintBounds ?? false,
+            showVertexIds: options.showVertexIds ?? false,
 
-            showStatus: options.showStatus !== undefined ? options.showStatus : false,
+            showStatus: options.showStatus ?? false,
         }
 
-        this.canvas = options.canvas || this.createCanvas(options.width || 800, options.height || 600);
+        this.canvas = options.canvas || this.createCanvas(options.width ?? 800, options.height ?? 600);
         this.ctx = <CanvasRenderingContext2D>this.canvas.getContext('2d');
 
         this.statusTimer = 0;
         this.statusText = '';
 
-        
         if (options.element) {
             this.element = options.element;
             this.element.appendChild(this.canvas);
@@ -345,8 +344,10 @@ export class Render {
                 if (!shapePair.isActive) continue;
                 for (let i = 0; i < shapePair.contactsCount; ++i) {
                     const contact = shapePair.contacts[i];
-                    Draw.circle(this.ctx, contact.vertex, this.options.lineWidth / 8, 'rgb(200, 80, 80)');
-                    Draw.line(this.ctx, contact.vertex, Vector.add(shapePair.normal.scale(0.2, Vector.temp[0]), contact.vertex), 'rgb(200, 80, 80)', this.options.lineWidth / 8);
+                    if (this.options.bounds.contains(contact.vertex)) {
+                        Draw.circle(this.ctx, contact.vertex, this.options.lineWidth / 8, 'rgb(200, 80, 80)');
+                        Draw.line(this.ctx, contact.vertex, Vector.add(shapePair.normal.scale(0.2, Vector.temp[0]), contact.vertex), 'rgb(200, 80, 80)', this.options.lineWidth / 8);
+                    }
                 }
             }
         }
@@ -398,11 +399,28 @@ export class Render {
     grid () {
         const broadphase = this.engine.manager.broadphase;
         const grid = broadphase.grid;
+        const position = Vector.temp[0];
+        const offset = Vector.temp[1].set(0.5, 0.5);
 
-        for (const position of grid.keys()) {
-            const cell = grid.get(position);
-            Vector.add(position, Vector.temp[0].set(0.5, 0.5))
-            Draw.rect(this.ctx, position.scale(broadphase.gridSize), broadphase.gridSize, broadphase.gridSize, 0, 'rgb(80, 200, 80)', false, this.options.lineWidth / 50);
+        const minX = Math.round(this.options.bounds.min.x / broadphase.gridSize - 0.5);
+        const minY = Math.round(this.options.bounds.min.y / broadphase.gridSize - 0.5);
+        const maxX = Math.round(this.options.bounds.max.x / broadphase.gridSize + 0.5);
+        const maxY = Math.round(this.options.bounds.max.y / broadphase.gridSize + 0.5);
+        if (maxX - minX > 50 || maxY - minY > 50) {
+            for (const position of grid.keys()) {
+                Vector.add(position, offset);
+                Draw.rect(this.ctx, position.scale(broadphase.gridSize), broadphase.gridSize, broadphase.gridSize, 0, 'rgb(80, 200, 80)', false, this.options.lineWidth / 50);
+            }
+        } else {
+            for (let i = minX; i < maxX; ++i) {
+                for (let j = minY; j < maxY; ++j) {
+                    position.set(i, j);
+                    if (grid.get(position)) {
+                        Vector.add(position, offset);
+                        Draw.rect(this.ctx, position.scale(broadphase.gridSize), broadphase.gridSize, broadphase.gridSize, 0, 'rgb(80, 200, 80)', false, this.options.lineWidth / 50);
+                    }
+                }
+            }
         }
     }
 
