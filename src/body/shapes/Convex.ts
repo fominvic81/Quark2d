@@ -50,7 +50,12 @@ export class Convex extends Shape {
         let max = Vector.dot(vertices[0], vector);
         let index = 0;
 
-        for (let i = 1; i < vertices.length; ++i) {
+        const l = vertices.length - 1;
+        const ld = Vector.dot(vertices[l], vector);
+
+        if (ld === max) index = l;
+
+        for (let i = 1; i < l; ++i) {
             const vertex = vertices[i];
             const dot = Vector.dot(vertex, vector);
 
@@ -59,6 +64,8 @@ export class Convex extends Shape {
                 index = vertex.index;
             }
         }
+
+        if (ld > max) return l;
 
         return index;
     }
