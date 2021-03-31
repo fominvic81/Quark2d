@@ -8,7 +8,7 @@
         "outDir": "./build",
         "declaration": true,
         "sourceMap": true,
-        "allowJs": true,
+        "allowJs": false,
         "esModuleInterop": true,
         "resolveJsonModule": true,
         "moduleResolution": "Node"
