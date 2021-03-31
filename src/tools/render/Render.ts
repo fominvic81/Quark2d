@@ -4,7 +4,7 @@ import { ShapeType } from '../../body/shapes/Shape';
 import { Events } from '../../common/Events';
 import { Mouse, QMouseEvent } from '../mouse/Mouse';
 import { SleepingState } from '../../body/Sleeping';
-import { Bounds } from '../../math/Bounds';
+import { AABB } from '../../math/AABB';
 import { Solver } from '../../collision/solver/Solver';
 import { Constraint, ConstraintType } from '../../constraint/Constraint';
 import { Engine } from '../../engine/Engine';
@@ -22,7 +22,7 @@ interface RenderOptions {
     showRadius?: boolean;
     showCollisions?: boolean;
     showNormals?: boolean;
-    showBounds?: boolean;
+    showAABBs?: boolean;
     showPositionImpulses?: boolean;
     showVelocity?: boolean;
     showAngularVelocity?: boolean;
@@ -50,7 +50,7 @@ export class Render {
     options: {
         scale: Vector;
         translate: Vector;
-        bounds: Bounds;
+        aabb: AABB;
         lineWidth: number;
         backgroundColor: string;
         showBodies: boolean;
@@ -60,7 +60,7 @@ export class Render {
         showRadius: boolean;
         showCollisions: boolean;
         showNormals: boolean;
-        showBounds: boolean;
+        showAABBs: boolean;
         showPositionImpulses: boolean;
         showVelocity: boolean;
         showAngularVelocity: boolean;
@@ -88,7 +88,7 @@ export class Render {
         this.options = {
             scale: new Vector(20, 20),
             translate: new Vector(),
-            bounds: new Bounds(),
+            aabb: new AABB(),
             lineWidth: 1,
             backgroundColor: options.backgroundColor ?? 'rgb(48, 48, 48)',
             showBodies: options.showBodies ?? true,
@@ -98,7 +98,7 @@ export class Render {
             showRadius: options.showRadius ?? true,
             showCollisions: options.showCollisions ?? false,
             showNormals: options.showNormals ?? false,
-            showBounds: options.showBounds ?? false,
+            showAABBs: options.showAABBs ?? false,
             showPositionImpulses: options.showPositionImpulses ?? false,
             showVelocity: options.showVelocity ?? false,
             showAngularVelocity: options.showAngularVelocity ?? false,
@@ -156,7 +156,7 @@ export class Render {
 
         this.options.lineWidth = 1 / Math.pow(this.options.scale.x + this.options.scale.y, 0.5) * 3;
 
-        this.updateBounds();
+        this.updateAABB();
 
         const allBodies = this.engine.world.allBodies();
         const allConstraints = this.engine.world.allConstraints();
@@ -165,7 +165,7 @@ export class Render {
 
         for (const body of allBodies) {
             for (const shape of body.shapes) {
-                if (this.options.bounds.overlaps(shape.bounds)) {
+                if (this.options.aabb.overlaps(shape.aabb)) {
                     bodies.push(body);
                     break;
                 }
@@ -187,8 +187,8 @@ export class Render {
         if (this.options.showNormals) {
             this.normals(bodies);
         }
-        if (this.options.showBounds) {
-            this.bounds(bodies);
+        if (this.options.showAABBs) {
+            this.AABBs(bodies);
         }
         if (this.options.showPositionImpulses) {
             this.positionImpulses(bodies);
@@ -213,12 +213,12 @@ export class Render {
         
     }
 
-    updateBounds () {
-        this.options.bounds.min.x = (-this.canvas.width / 2) / this.options.scale.x - this.options.translate.x;
-        this.options.bounds.max.x = (this.canvas.width / 2) / this.options.scale.x - this.options.translate.x;
+    updateAABB () {
+        this.options.aabb.min.x = (-this.canvas.width / 2) / this.options.scale.x - this.options.translate.x;
+        this.options.aabb.max.x = (this.canvas.width / 2) / this.options.scale.x - this.options.translate.x;
 
-        this.options.bounds.min.y = (-this.canvas.height / 2) / this.options.scale.y - this.options.translate.y;
-        this.options.bounds.max.y = (this.canvas.height / 2) / this.options.scale.y - this.options.translate.y;
+        this.options.aabb.min.y = (-this.canvas.height / 2) / this.options.scale.y - this.options.translate.y;
+        this.options.aabb.max.y = (this.canvas.height / 2) / this.options.scale.y - this.options.translate.y;
     }
 
     bodies (bodies: Array<Body>) {
@@ -344,7 +344,7 @@ export class Render {
                 if (!shapePair.isActive) continue;
                 for (let i = 0; i < shapePair.contactsCount; ++i) {
                     const contact = shapePair.contacts[i];
-                    if (this.options.bounds.contains(contact.vertex)) {
+                    if (this.options.aabb.contains(contact.vertex)) {
                         Draw.circle(this.ctx, contact.vertex, this.options.lineWidth / 8, 'rgb(200, 80, 80)');
                         Draw.line(this.ctx, contact.vertex, shapePair.normal.scale(0.2, Vector.temp[0]).add(contact.vertex), 'rgb(200, 80, 80)', this.options.lineWidth / 8);
                     }
@@ -367,13 +367,13 @@ export class Render {
         }
     }
 
-    bounds (bodies: Array<Body>) {
+    AABBs (bodies: Array<Body>) {
         for (const body of bodies) {
             for (const shape of body.shapes) {
-                const shapeBounds = shape.bounds;
-                const shapeWidth = shapeBounds.max.x - shapeBounds.min.x;
-                const shapeHeight = shapeBounds.max.y - shapeBounds.min.y;
-                Draw.rect(this.ctx, Vector.temp[0].set(shapeBounds.min.x + shapeWidth / 2, shapeBounds.min.y + shapeHeight / 2), shapeWidth, shapeHeight, 0, 'rgb(96, 96, 96)', false, this.options.lineWidth / 50);
+                const shapeAABB = shape.aabb;
+                const shapeWidth = shapeAABB.max.x - shapeAABB.min.x;
+                const shapeHeight = shapeAABB.max.y - shapeAABB.min.y;
+                Draw.rect(this.ctx, Vector.temp[0].set(shapeAABB.min.x + shapeWidth / 2, shapeAABB.min.y + shapeHeight / 2), shapeWidth, shapeHeight, 0, 'rgb(96, 96, 96)', false, this.options.lineWidth / 50);
             }
         }
     }
@@ -402,10 +402,10 @@ export class Render {
         const position = Vector.temp[0];
         const offset = Vector.temp[1].set(0.5, 0.5);
 
-        const minX = Math.round(this.options.bounds.min.x / broadphase.gridSize - 0.5);
-        const minY = Math.round(this.options.bounds.min.y / broadphase.gridSize - 0.5);
-        const maxX = Math.round(this.options.bounds.max.x / broadphase.gridSize + 0.5);
-        const maxY = Math.round(this.options.bounds.max.y / broadphase.gridSize + 0.5);
+        const minX = Math.round(this.options.aabb.min.x / broadphase.gridSize - 0.5);
+        const minY = Math.round(this.options.aabb.min.y / broadphase.gridSize - 0.5);
+        const maxX = Math.round(this.options.aabb.max.x / broadphase.gridSize + 0.5);
+        const maxY = Math.round(this.options.aabb.max.y / broadphase.gridSize + 0.5);
         if (maxX - minX > 50 || maxY - minY > 50) {
             for (const position of grid.keys()) {
                 position.add(offset);

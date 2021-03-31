@@ -1,5 +1,5 @@
 import { Vector } from '../../math/Vector';
-import { Bounds } from '../../math/Bounds';
+import { AABB } from '../../math/AABB';
 import { Common } from '../../common/Common';
 import { Filter } from '../Filter';
 import { Solver } from '../../collision/solver/Solver';
@@ -36,7 +36,7 @@ export abstract class Shape {
     type: number = 0;
     body: undefined | Body;
     position: Vector = new Vector();
-    bounds: Bounds = new Bounds();
+    aabb: AABB = new AABB();
     inertia: number;
     area: number = 0;
     radius: number;
@@ -82,9 +82,9 @@ export abstract class Shape {
     abstract updateInertia (): number;
 
     /**
-     * Updates the bounds of the shape.
+     * Updates the aabb of the shape.
      */
-    abstract updateBounds (): Bounds;
+    abstract updateAABB (): AABB;
 
     abstract raycast (intersection: Intersection, from: Vector, to: Vector, delta: Vector): void;
 

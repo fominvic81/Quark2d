@@ -8,7 +8,7 @@ import { Edge } from './body/shapes/Edge';
 import { Filter } from './body/Filter';
 import { Sleeping, SleepingState, SleepingType } from './body/Sleeping';
 
-import { Bounds } from './math/Bounds';
+import { AABB } from './math/AABB';
 import { Vector } from './math/Vector';
 import { Vertex } from './math/Vertex';
 import { Vertices } from './math/Vertices';
@@ -75,7 +75,7 @@ export {
     SleepingState,
     SleepingType,
 
-    Bounds,
+    AABB,
     Vector,
     Vertex,
     Vertices,

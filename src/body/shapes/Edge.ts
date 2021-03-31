@@ -131,25 +131,25 @@ export class Edge extends Shape {
     }
 
     /**
-     * Updates the bounds of the shape.
-     * @returns The bounds
+     * Updates the aabb of the shape.
+     * @returns The aabb
      */
-    updateBounds () {
+    updateAABB () {
         if (this.start.x < this.end.x) {
-            this.bounds.min.x = this.start.x - this.radius;
-            this.bounds.max.x = this.end.x + this.radius;
+            this.aabb.min.x = this.start.x - this.radius;
+            this.aabb.max.x = this.end.x + this.radius;
         } else {
-            this.bounds.min.x = this.end.x - this.radius;
-            this.bounds.max.x = this.start.x + this.radius;
+            this.aabb.min.x = this.end.x - this.radius;
+            this.aabb.max.x = this.start.x + this.radius;
         }
         if (this.start.y < this.end.y) {
-            this.bounds.min.y = this.start.y - this.radius;
-            this.bounds.max.y = this.end.y + this.radius;
+            this.aabb.min.y = this.start.y - this.radius;
+            this.aabb.max.y = this.end.y + this.radius;
         } else {
-            this.bounds.min.y = this.end.y - this.radius;
-            this.bounds.max.y = this.start.y + this.radius;
+            this.aabb.min.y = this.end.y - this.radius;
+            this.aabb.max.y = this.start.y + this.radius;
         }
-        return this.bounds;
+        return this.aabb;
     }
 
     raycast (intersection: Intersection, from: Vector, to: Vector, delta: Vector) {

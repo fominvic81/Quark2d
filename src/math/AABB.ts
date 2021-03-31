@@ -1,23 +1,23 @@
 import { Vector } from './Vector';
 
 /**
- * The 'Bounds' is the class for manipulating AABBs(axis-aligned bounding boxes)
+ * The 'AABB' is the class for manipulating AABBs(axis-aligned bounding boxes)
  */
 
-export class Bounds {
+export class AABB {
     min: Vector = new Vector();
     max: Vector = new Vector();
 
-    static temp: Array<Bounds> = [
-        new Bounds(),
+    static temp: Array<AABB> = [
+        new AABB(),
     ];
 
     /**
-     * Returns a new bounds copied from 'this'.
+     * Returns a new aabb copied from 'this'.
      * @param output [output]
-     * @returns A clonned bounds
+     * @returns A clonned aabb
      */
-    clone (output: Bounds = new Bounds()): Bounds {
+    clone (output: AABB = new AABB()): AABB {
 
         output.min.x = this.min.x;
         output.min.y = this.min.y;
@@ -28,11 +28,11 @@ export class Bounds {
     }
 
     /**
-     * Computes the bounds of the given set of vertices.
+     * Computes the aabb of the given set of vertices.
      * @param vertices 
-     * @returns The bounds
+     * @returns The aabb
      */
-    fromVertices (vertices: Array<Vector>): Bounds {
+    fromVertices (vertices: Array<Vector>): AABB {
         this.min.x = Infinity;
         this.min.y = Infinity;
         this.max.x = -Infinity;
@@ -58,7 +58,7 @@ export class Bounds {
     }
 
     /**
-     * Translates the bounds by the given vector
+     * Translates the aabb by the given vector
      * @param vector
      */
     translate (vector: Vector) {
@@ -67,9 +67,9 @@ export class Bounds {
     }
 
     /**
-     * Returns true if the bounds contains the given point, otherwise false.
+     * Returns true if the aabb contains the given point, otherwise false.
      * @param point
-     * @returns True if the bounds contains the given point, otherwise false
+     * @returns True if the aabb contains the given point, otherwise false
      */
     contains (point: Vector): boolean {
         return point.x >= this.min.x && point.x <= this.max.x &&
@@ -77,26 +77,26 @@ export class Bounds {
     }
 
     /**
-     * Returns true if the bounds intersects with the given one, otherwise false.
-     * @param boundsB 
-     * @returns True if the bounds intersects with the given one, otherwise false
+     * Returns true if the aabb intersects with the given one, otherwise false.
+     * @param aabbB 
+     * @returns True if the aabb intersects with the given one, otherwise false
      */
-    overlaps (boundsB: Bounds): boolean {
-        return this.min.x <= boundsB.max.x && this.max.x >= boundsB.min.x &&
-               this.max.y >= boundsB.min.y && this.min.y <= boundsB.max.y;
+    overlaps (aabbB: AABB): boolean {
+        return this.min.x <= aabbB.max.x && this.max.x >= aabbB.min.x &&
+               this.max.y >= aabbB.min.y && this.min.y <= aabbB.max.y;
     }
 
     /**
-     * Returns the width of the bounds.
-     * @returns The width of the bounds
+     * Returns the width of the aabb.
+     * @returns The width of the aabb
      */
     getWidth (): number {
         return this.max.x - this.min.x;
     }
 
     /**
-     * Returns the height of the bounds.
-     * @returns The height of the bounds
+     * Returns the height of the aabb.
+     * @returns The height of the aabb
      */
     getHeight (): number {
         return this.max.y - this.min.y;

@@ -52,14 +52,14 @@ export class Circle extends Shape {
     }
 
     /**
-     * Updates the bounds of the shape.
-     * @returns The bounds
+     * Updates the aabb of the shape.
+     * @returns The aabb
      */
-    updateBounds () {
-        this.bounds.min.set(-this.radius, -this.radius);
-        this.bounds.max.set(this.radius, this.radius);
-        this.bounds.translate(this.position);
-        return this.bounds;
+    updateAABB () {
+        this.aabb.min.set(-this.radius, -this.radius);
+        this.aabb.max.set(this.radius, this.radius);
+        this.aabb.translate(this.position);
+        return this.aabb;
     }
 
     raycast (intersection: Intersection, from: Vector, to: Vector, delta: Vector) {

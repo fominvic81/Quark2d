@@ -1,5 +1,5 @@
 import { Vector } from '../../math/Vector';
-import { Bounds } from '../../math/Bounds';
+import { AABB } from '../../math/AABB';
 import { RaycastResult } from './RaycastResult';
 import { Common } from '../../common/Common';
 import { Intersection } from './Intersection';
@@ -21,7 +21,7 @@ export class Ray {
     from: Vector = new Vector();
     to: Vector = new Vector();
     delta: Vector = new Vector();
-    bounds: Bounds = new Bounds();
+    aabb: AABB = new AABB();
     needsUpdate: boolean = true;
     raycastResult: RaycastResult = new RaycastResult();
 
@@ -57,7 +57,7 @@ export class Ray {
         result.reset();
 
         if (this.needsUpdate) {
-            this.updateBounds();
+            this.updateAABB();
             Vector.subtract(this.to, this.from, this.delta);
         }
 
@@ -206,12 +206,12 @@ export class Ray {
         this.needsUpdate = true;
     }
 
-    private updateBounds () {
-        this.bounds.min.x = Math.min(this.from.x, this.to.x);
-        this.bounds.min.y = Math.min(this.from.y, this.to.y);
-        this.bounds.max.x = Math.max(this.from.x, this.to.x);
-        this.bounds.max.y = Math.max(this.from.y, this.to.y);
-        return this.bounds;
+    private updateAABB () {
+        this.aabb.min.x = Math.min(this.from.x, this.to.x);
+        this.aabb.min.y = Math.min(this.from.y, this.to.y);
+        this.aabb.max.x = Math.max(this.from.x, this.to.x);
+        this.aabb.max.y = Math.max(this.from.y, this.to.y);
+        return this.aabb;
     }
 
     private collide (intersection: Intersection) {
@@ -220,7 +220,7 @@ export class Ray {
 
         const shape = intersection.shape;
 
-        if (this.bounds.overlaps(shape.bounds)) {
+        if (this.aabb.overlaps(shape.aabb)) {
 
             intersection.reset();
             shape.raycast(intersection, this.from, this.to, this.delta);

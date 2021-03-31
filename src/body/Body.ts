@@ -138,9 +138,9 @@ export class Body {
         this.anglePrev = this.angle;
         this.rotate(this.angularVelocity);
 
-        // update bounds
+        // update AABB
         for (const shape of this.shapes) {
-            shape.updateBounds();
+            shape.updateAABB();
         }
     }
 
@@ -157,7 +157,7 @@ export class Body {
         shape.translate(this.position);
         shape.translate(offset);
 
-        shape.updateBounds();
+        shape.updateAABB();
 
         if (shape.type === ShapeType.CONVEX) {
             Vertices.translate((<Convex>shape).deltaVertices, offset);

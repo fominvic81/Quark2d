@@ -3,7 +3,7 @@ import { ShapePair } from '../pair/ShapePair';
 import { Common } from '../../common/Common';
 import { Grid } from '../../common/Grid';
 import { Vector } from '../../math/Vector';
-import { Bounds } from '../../math/Bounds';
+import { AABB } from '../../math/AABB';
 import { Shape } from '../../body/shapes/Shape';
 import { Body } from '../../body/Body';
 import { Engine } from '../../engine/Engine';
@@ -11,7 +11,7 @@ import { Manager } from './Manager';
 
 type Cell = Map<number, Shape>;
 
-export class Region extends Bounds {
+export class Region extends AABB {
     id: number = 0;
 
     static temp: Array<Region> = [new Region()];
@@ -44,7 +44,7 @@ export class Broadphase {
         for (const body of bodies) {
             for (const shape of body.shapes) {
 
-                const region = this.createRegion(shape.bounds, Region.temp[0]);
+                const region = this.createRegion(shape.aabb, Region.temp[0]);
 
                 if (shape.region && shape.region.id === region.id) continue;
 
@@ -54,7 +54,7 @@ export class Broadphase {
                 }
 
                 if (!shape.region) {
-                    shape.region = this.createRegion(shape.bounds, new Region());
+                    shape.region = this.createRegion(shape.aabb, new Region());
                 }
 
                 region.clone(shape.region);
@@ -63,9 +63,9 @@ export class Broadphase {
         }
     }
 
-    createRegion (bounds: Bounds, output: Region) {
-        bounds.min.divide(this.gridSize, output.min);
-        bounds.max.divide(this.gridSize, output.max);
+    createRegion (aabb: AABB, output: Region) {
+        aabb.min.divide(this.gridSize, output.min);
+        aabb.max.divide(this.gridSize, output.max);
 
         output.min.x = Math.floor(output.min.x);
         output.min.y = Math.floor(output.min.y);

@@ -154,16 +154,16 @@ export class Convex extends Shape {
     }
 
     /**
-     * Updates the bounds of the shape.
-     * @returns The bounds
+     * Updates the aabb of the shape.
+     * @returns The aabb
      */
-    updateBounds () {
-        this.bounds.fromVertices(this.vertices);
-        this.bounds.min.x -= this.radius;
-        this.bounds.min.y -= this.radius;
-        this.bounds.max.x += this.radius;
-        this.bounds.max.y += this.radius;
-        return this.bounds;
+    updateAABB () {
+        this.aabb.fromVertices(this.vertices);
+        this.aabb.min.x -= this.radius;
+        this.aabb.min.y -= this.radius;
+        this.aabb.max.x += this.radius;
+        this.aabb.max.y += this.radius;
+        return this.aabb;
     }
 
     /**
