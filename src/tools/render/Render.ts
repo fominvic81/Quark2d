@@ -2,7 +2,7 @@ import { Vector } from '../../math/Vector';
 import { Draw } from './Draw';
 import { ShapeType } from '../../body/shapes/Shape';
 import { Events } from '../../common/Events';
-import { Mouse } from '../mouse/Mouse';
+import { Mouse, QMouseEvent } from '../mouse/Mouse';
 import { SleepingState } from '../../body/Sleeping';
 import { Bounds } from '../../math/Bounds';
 import { Solver } from '../../collision/solver/Solver';
@@ -478,13 +478,13 @@ export class Render {
         translate.clone(this.options.translate);
     }
 
-    mouseMove (event: any) { //TODO-types
+    mouseMove (event: QMouseEvent) {
         if (this.mouse.rightButtonPressed) {
             Vector.add(this.options.translate, event.mouse.movement);
         }
     }
 
-    mouseWheel (event: any) { //TODO-types
+    mouseWheel (event: QMouseEvent) {
         this.options.scale.x -= event.event.deltaY * this.options.scale.x / 2500;
         this.options.scale.y -= event.event.deltaY * this.options.scale.y / 2500;
     }

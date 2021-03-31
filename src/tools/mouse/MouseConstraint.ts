@@ -2,7 +2,7 @@ import { Events } from '../../common/Events';
 import { Vector } from '../../math/Vector';
 import { DistanceConstraint } from '../../constraint/DistanceConstraint';
 import { Engine } from '../../engine/Engine';
-import { Mouse } from './Mouse';
+import { Mouse, QMouseEvent } from './Mouse';
 import { Constraint } from '../../constraint/Constraint';
 
 export class MouseConstraint {
@@ -19,13 +19,13 @@ export class MouseConstraint {
 
         engine.world.addConstraint(this.constraints);
 
-        this.mouse.events.on('mouse-down', (event) => {this.mouseDown(event)});
-        this.mouse.events.on('mouse-up', (event) => {this.mouseUp(event)});
-        this.mouse.events.on('mouse-move', (event) => {this.mouseMove(event)});
+        this.mouse.events.on('mouse-down', (event: QMouseEvent) => {this.mouseDown(event)});
+        this.mouse.events.on('mouse-up', (event: QMouseEvent) => {this.mouseUp(event)});
+        this.mouse.events.on('mouse-move', (event: QMouseEvent) => {this.mouseMove(event)});
 
     }
 
-    mouseDown (event: any) { //TODO-types
+    mouseDown (event: QMouseEvent) {
         if (!event.mouse.leftButtonPressed) return;
         for (const body of this.engine.world.bodies.values()) {
             if (body.isStatic) continue;
@@ -44,14 +44,14 @@ export class MouseConstraint {
         }
     }
 
-    mouseUp (event: any) { //TODO-types
+    mouseUp (event: QMouseEvent) {
         if (event.mouse.leftButtonPressed) return;
         for (const constraint of this.constraints) {
             constraint.bodyA = undefined;
         }
     }
 
-    mouseMove (event: any) { //TODO-types
+    mouseMove (event: QMouseEvent) {
         for (const constraint of this.constraints) {
             constraint.pointB.x = event.mouse.position.x;
             constraint.pointB.y = event.mouse.position.y;

@@ -2,9 +2,12 @@ import { Events } from '../../common/Events';
 import { Vector } from '../../math/Vector';
 import { Render } from '../render/Render';
 
+export interface QMouseEvent {
+    mouse: Mouse;
+    event: any;
+}
 
 export class Mouse {
-
     render: Render;
     events: Events = new Events();
     pressed: boolean = false;
