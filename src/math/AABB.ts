@@ -48,13 +48,31 @@ export class AABB {
     }
 
     /**
-     * Sets the 'min' and 'max' to the given ones.
+     * Sets the 'min' and 'max' to the given.
      * @param min
      * @param max
+     * @returns The aabb
      */
     set (min: Vector, max: Vector) {
         min.clone(this.min);
         max.clone(this.max);
+        return this;
+    }
+
+    /**
+     * Sets the coords of the aabb to the given.
+     * @param minX
+     * @param minY
+     * @param maxX
+     * @param maxY
+     * @returns The aabb
+     */
+    setNum (minX: number, minY: number, maxX: number, maxY: number) {
+        this.min.x = minX;
+        this.min.y = minY;
+        this.max.x = maxX;
+        this.max.y = maxY;
+        return this;
     }
 
     /**
