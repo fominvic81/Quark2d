@@ -109,7 +109,7 @@ export const collide = (shapePair: ShapePair): boolean => {
 
         const lengthSquared = normal.lengthSquared();
 
-        if (lengthSquared > radius * radius) {
+        if (lengthSquared > radius * radius || lengthSquared === 0) {
             return false;
         }
 
