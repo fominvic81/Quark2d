@@ -18,9 +18,7 @@
     "game engine"
   ],
   "scripts": {
-    "build": "NODE_ENV=development webpack --mode development",
-    "serve": "NODE_ENV=development tsc-watch",
-    "prod": "NODE_ENV=production webpack --mode production",
+    "serve": "tsc-watch",
     "docs": "NODE_ENV=development typedoc"
   },
   "devDependencies": {
