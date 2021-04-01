@@ -36,10 +36,10 @@ export class Solver {
      * Solves the collisions.
      */
     update () {
-        const pairs: Array<Pair> = this.engine.manager.activePairs;
+        const pairs: Array<Pair> = this.engine.manager.pairsToSolve;
 
         for (const pair of pairs) {
-            if (pair.isSleeping) continue;
+            // if (pair.isSleeping) continue;
             for (const shapePair of pair.activeShapePairs) {
                 shapePair.update();
             }
@@ -86,12 +86,12 @@ export class Solver {
      * Solves position correction.
      */
     solvePosition () {
-        const pairs: Array<Pair> = this.engine.manager.activePairs;
+        const pairs: Array<Pair> = this.engine.manager.pairsToSolve;
 
         let positionImpulse: number;
 
         for (const pair of pairs) {
-            if (pair.isSleeping) continue;
+            // if (pair.isSleeping) continue;
             for (const shapePair of pair.activeShapePairs) {
 
                 shapePair.separation = Vector.dot(
@@ -102,7 +102,7 @@ export class Solver {
         }
 
         for (const pair of pairs) {
-            if (pair.isSleeping) continue;
+            // if (pair.isSleeping) continue;
 
             for (const shapePair of pair.activeShapePairs) {
 
@@ -148,14 +148,14 @@ export class Solver {
      * Solves warm starting.
      */
     preSolveVelocity () {
-        const pairs: Array<Pair> = this.engine.manager.activePairs;
+        const pairs: Array<Pair> = this.engine.manager.pairsToSolve;
 
         const impulse: Vector = Solver.vecTemp[0];
         const temp: Vector = Solver.vecTemp[1];
 
         for (const pair of pairs) {
 
-            if (pair.isSleeping) continue;
+            // if (pair.isSleeping) continue;
 
             for (const shapePair of pair.activeShapePairs) {
 
@@ -180,7 +180,7 @@ export class Solver {
      * Solves velocity
      */
     solveVelocity () {
-        const pairs: Array<Pair> = this.engine.manager.activePairs;
+        const pairs: Array<Pair> = this.engine.manager.pairsToSolve;
 
         const contactVelocityA: Vector = Solver.vecTemp[0];
         const contactVelocityB: Vector = Solver.vecTemp[1];
@@ -199,7 +199,7 @@ export class Solver {
             angularVelocityB: number;
 
         for (const pair of pairs) {
-            if (pair.isSleeping) continue;
+            // if (pair.isSleeping) continue;
 
             for (const shapePair of pair.activeShapePairs) {
 

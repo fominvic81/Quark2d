@@ -24,7 +24,7 @@ export class Midphase {
                 continue;
             }
 
-            pair.isSleeping = pair.bodyA.sleepState === SleepingState.SLEEPING && pair.bodyB.sleepState === SleepingState.SLEEPING;
+            pair.isSleeping = (pair.bodyA.sleepState === SleepingState.SLEEPING || pair.bodyA.isStatic) && (pair.bodyB.sleepState === SleepingState.SLEEPING || pair.bodyB.isStatic);
             if (!pair.isSleeping) {
                 pair.isActive = false;
 

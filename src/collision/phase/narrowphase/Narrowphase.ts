@@ -43,6 +43,9 @@ export class Narrowphase {
             }
 
             if (pair.isActive) {
+                if (!pair.isSleeping) {
+                    this.manager.pairsToSolve.push(pair);
+                }
                 this.manager.activePairs.push(pair);
                 if (!pair.isActivePrev) {
                     this.manager.startedPairs.push(pair);

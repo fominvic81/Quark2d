@@ -22,6 +22,8 @@ export class Manager {
     startedPairs: Array<Pair> = [];
     activePairs: Array<Pair> = [];
     endedPairs: Array<Pair> = [];
+    
+    pairsToSolve: Array<Pair> = [];
 
     constructor (engine: Engine, options: ManagerOptions = {}) {
         this.engine = engine;
@@ -35,6 +37,8 @@ export class Manager {
         this.startedPairs.length = 0;
         this.activePairs.length = 0;
         this.endedPairs.length = 0;
+
+        this.pairsToSolve.length = 0;
 
         this.broadphase.update();
         this.midphase.update();
