@@ -46,6 +46,9 @@ export { Constraint, ConstraintType } from './constraint/Constraint';
 export { DistanceConstraint } from './constraint/DistanceConstraint';
 
 export { Factory } from './tools/factory/Factory';
+export { FactoryBody } from './tools/factory/FactoryBody';
+export { FactoryShape } from './tools/factory/FactoryShape';
+export { FactoryComposite } from './tools/factory/FactoryComposite';
 
 export { Mouse } from './tools/mouse/Mouse';
 export { MouseConstraint } from './tools/mouse/MouseConstraint';
