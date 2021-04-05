@@ -10,13 +10,13 @@ export class World extends Composite {
     sleepingBodies: Map<number, Body> = new Map();
     staticBodies: Map<number, Body> = new Map();
     activeBodies: Map<number, Body> = new Map();
-    private eventIds: Map<number, Array<number>> = new Map();
+    private eventIds: Map<number, number[]> = new Map();
 
     /**
      * Adds given objects to the world.
      * @param objects
      */
-    addBody (bodies: Array<Body> | Body) {
+    addBody (bodies: Body[] | Body) {
         super.addBody(bodies);
         if (!Array.isArray(bodies)) {
             bodies = [bodies];
@@ -57,7 +57,7 @@ export class World extends Composite {
      * Removes the given bodies from the world.
      * @param bodies
      */
-    removeBody (bodies: Array<Body> | Body) {
+    removeBody (bodies: Body[] | Body) {
         super.removeBody(bodies);
         if (!Array.isArray(bodies)) {
             bodies = [bodies];
@@ -68,7 +68,7 @@ export class World extends Composite {
             this.sleepingBodies.delete(body.id);
             this.activeBodies.delete(body.id);
 
-            for (const eventId of <Array<number>>this.eventIds.get(body.id)) {
+            for (const eventId of <number[]>this.eventIds.get(body.id)) {
                 body.events.off(eventId);
             }
         }

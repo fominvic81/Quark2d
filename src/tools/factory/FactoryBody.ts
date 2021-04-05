@@ -101,7 +101,7 @@ export class FactoryBody {
      * @param shapeOptions
      * @returns A new body created from set of vertices
      */
-    static fromVertices (position: Vector, vertices: Array<Vector>, bodyOptions: BodyOptions = {}, shapeOptions: ConvexOptions = {}): Body {
+    static fromVertices (position: Vector, vertices: Vector[], bodyOptions: BodyOptions = {}, shapeOptions: ConvexOptions = {}): Body {
     
         bodyOptions.position = position;
         const body = new Body(bodyOptions);

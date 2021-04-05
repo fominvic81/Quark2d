@@ -8,7 +8,7 @@ import { Manager } from './Manager';
 export class Midphase {
     manager: Manager;
     engine: Engine;
-    activePairs: Array<Pair> = [];
+    activePairs: Pair[] = [];
 
     constructor (manager: Manager) {
         this.manager = manager;

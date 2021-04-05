@@ -5,6 +5,7 @@ import { Common } from '../../common/Common';
 import { Intersection } from './Intersection';
 import { Composite } from '../../common/Composite';
 import { Engine } from '../../engine/Engine';
+import { Body } from '../../body/Body';
 
 interface RayOptions {
     from?: Vector;
@@ -234,12 +235,12 @@ export class Ray {
         if (cell) {
             for (const shape of cell.values()) {
                 const body = shape.body;
-                if (!composite.hasBody(body.id)) continue;
+                if (!composite.hasBody((<Body>body).id)) continue;
 
-                const id = Common.combineId(body.id, shape.id);
+                const id = Common.combineId((<Body>body).id, shape.id);
                 let intersection = intersections.get(id);
                 if (!intersection) {
-                    intersection = new Intersection(body, shape);
+                    intersection = new Intersection(<Body>body, shape);
                     intersections.set(id, intersection);
                 }
                 intersection.isActive = true;

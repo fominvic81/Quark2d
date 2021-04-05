@@ -11,8 +11,8 @@ export const ConvexVsCircle = (pair: Pair) => {
     const convex: Convex = <Convex>(flipped ? pair.shapeA : pair.shapeB);
     const circle: Circle = <Circle>(flipped ? pair.shapeB : pair.shapeA);
 
-    const vertices: Array<Vertex> = convex.vertices;
-    const normals: Array<Vertex> = convex.normals;
+    const vertices: Vertex[] = convex.vertices;
+    const normals: Vertex[] = convex.normals;
     const circlePosition: Vector = circle.position;
 
     const radius: number = convex.radius + circle.radius;

@@ -81,7 +81,7 @@ export class Solver {
      * Solves position correction.
      */
     solvePosition () {
-        const pairs: Array<Pair> = this.engine.manager.pairsToSolve;
+        const pairs: Pair[] = this.engine.manager.pairsToSolve;
 
         let positionImpulse: number;
 

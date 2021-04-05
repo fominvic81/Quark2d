@@ -13,7 +13,7 @@ type Cell = Map<number, Shape>;
 export class Region extends AABB {
     id: number = 0;
 
-    static temp: Array<Region> = [new Region()];
+    static temp: Region[] = [new Region()];
 
     constructor () {
         super();
@@ -28,7 +28,7 @@ export class Broadphase {
     manager: Manager;
     engine: Engine;
 
-    grid: Grid = new Grid();
+    grid: Grid<Cell> = new Grid();
     gridSize: number = 1;
     activePairs: Set<Pair> = new Set();
 

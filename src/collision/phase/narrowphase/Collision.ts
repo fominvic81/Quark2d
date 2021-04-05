@@ -5,7 +5,7 @@ import { Vector } from '../../../math/Vector';
 import { Pair } from '../../pair/Pair';
 import { GJK, SupportPoint } from './Distance';
 
-const convexSupportEdge = (convex: Convex, index: number, normal: Vector): Array<Vector> => {
+const convexSupportEdge = (convex: Convex, index: number, normal: Vector): Vector[] => {
     const vertices = convex.vertices;
     const vertex1 = Vector.temp[5];
     const vertex2 = Vector.temp[6];
@@ -24,11 +24,11 @@ const convexSupportEdge = (convex: Convex, index: number, normal: Vector): Array
     return [vertex1, vertex2];
 }
 
-const edgeSupportEdge = (edge: Edge, index: number): Array<Vector> => {
+const edgeSupportEdge = (edge: Edge, index: number): Vector[] => {
     return index ? [edge.end, edge.start] : [edge.start, edge.end];
 }
 
-const supportEdge = (shape: Shape, index: number, normal: Vector): Array<Vector> => {
+const supportEdge = (shape: Shape, index: number, normal: Vector): Vector[] => {
     switch (shape.type) {
         case ShapeType.CONVEX: return convexSupportEdge(<Convex>shape, index, normal);
         case ShapeType.EDGE: return edgeSupportEdge(<Edge>shape, index);
@@ -36,7 +36,7 @@ const supportEdge = (shape: Shape, index: number, normal: Vector): Array<Vector>
     return [];
 }
 
-export const clip = (output: Array<Vector>, incFace: Array<Vector>, normal: Vector, offset: number): number => {
+export const clip = (output: Vector[], incFace: Vector[], normal: Vector, offset: number): number => {
 
     const dist1 = Vector.dot(incFace[0], normal) + offset;
     const dist2 = Vector.dot(incFace[1], normal) + offset;
@@ -54,7 +54,7 @@ export const clip = (output: Array<Vector>, incFace: Array<Vector>, normal: Vect
     return count;
 }
 
-export const contacts = (pair: Pair, refFace: Array<Vector>, incFace: Array<Vector>, normal: Vector, tangent: Vector, radius: number) => {
+export const contacts = (pair: Pair, refFace: Vector[], incFace: Vector[], normal: Vector, tangent: Vector, radius: number) => {
     const offset1 = Vector.dot(tangent, refFace[0]);
     const offset2 = -Vector.dot(tangent, refFace[1]);
 
@@ -121,8 +121,8 @@ export const collide = (pair: Pair): boolean => {
         pair.contactsCount = 1;
         Vector.add(vertex1, normal.scale(shapeA.radius, Vector.temp[0]), pair.contacts[0].vertex);
     } else {
-        let incFace: Array<Vector>;
-        let refFace: Array<Vector>;
+        let incFace: Vector[];
+        let refFace: Vector[];
         let incRadius: number;
         let flipped: boolean = false;
 

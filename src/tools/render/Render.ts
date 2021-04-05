@@ -221,7 +221,7 @@ export class Render {
         this.options.aabb.max.y = (this.canvas.height / 2) / this.options.scale.y - this.options.translate.y;
     }
 
-    bodies (bodies: Array<Body>) {
+    bodies (bodies: Body[]) {
 
         for (const body of bodies) {
             const color = (body.sleepState === SleepingState.AWAKE || !this.options.showSleeping) ? 'rgb(200, 200, 200)' : 'rgb(100, 100, 100)';
@@ -250,7 +250,7 @@ export class Render {
         }
     }
 
-    constraints (constraints: Array<Constraint>) {
+    constraints (constraints: Constraint[]) {
 
         for (const constraint of constraints) {
             const start = constraint.getWorldPointA();
@@ -309,7 +309,7 @@ export class Render {
 
     }
 
-    angleIndicator (bodies: Array<Body>) {
+    angleIndicator (bodies: Body[]) {
         for (const body of bodies) {
             for (const shape of body.shapes) {
                 const pos = shape.position;
@@ -346,7 +346,7 @@ export class Render {
         }
     }
 
-    normals (bodies: Array<Body>) {
+    normals (bodies: Body[]) {
         for (const body of bodies) {
             for (const shape of body.shapes) {
                 if (shape.type === ShapeType.CONVEX) {
@@ -360,7 +360,7 @@ export class Render {
         }
     }
 
-    AABBs (bodies: Array<Body>) {
+    AABBs (bodies: Body[]) {
         for (const body of bodies) {
             for (const shape of body.shapes) {
                 const shapeAABB = shape.aabb;
@@ -371,19 +371,19 @@ export class Render {
         }
     }
 
-    positionImpulses (bodies: Array<Body>) {
+    positionImpulses (bodies: Body[]) {
         for (const body of bodies) {
             Draw.line(this.ctx, body.position, Vector.add(body.position, body.positionImpulse, Vector.temp[0]), 'rgb(80, 80, 200)', this.options.lineWidth / 10);
         }
     }
 
-    velocity (bodies: Array<Body>) {
+    velocity (bodies: Body[]) {
         for (const body of bodies) {
             Draw.line(this.ctx, body.position, Vector.add(body.position, body.velocity.scale(5, Vector.temp[0]), Vector.temp[0]), 'rgb(80, 200, 80)', this.options.lineWidth / 10);
         }
     }
 
-    angularVelocity (bodies: Array<Body>) {
+    angularVelocity (bodies: Body[]) {
         for (const body of bodies) {
             Draw.circle(this.ctx, body.position, Math.abs(body.angularVelocity) * 5, 'rgb(80, 200, 80)', false, this.options.lineWidth / 20);
         }
@@ -417,7 +417,7 @@ export class Render {
         }
     }
 
-    positions (bodies: Array<Body>) {
+    positions (bodies: Body[]) {
         for (const body of bodies) {
             Draw.circle(this.ctx, body.position, this.options.lineWidth / 4 , 'rgb(40, 160, 40)');
             for (const shape of body.shapes) {
@@ -426,7 +426,7 @@ export class Render {
         }
     }
 
-    vertexIds (bodies: Array<Body>) {
+    vertexIds (bodies: Body[]) {
         for (const body of bodies) {
             for (const shape of body.shapes) {
                 if (shape.type === ShapeType.CONVEX) {

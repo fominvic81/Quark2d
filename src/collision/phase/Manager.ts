@@ -20,13 +20,13 @@ export class Manager {
 
     pairs: Map<number, Pair> = new Map();
 
-    startedPairs: Array<Pair> = [];
-    activePairs: Array<Pair> = [];
-    endedPairs: Array<Pair> = [];
+    startedPairs: Pair[] = [];
+    activePairs: Pair[] = [];
+    endedPairs: Pair[] = [];
     
-    pairsToSolve: Array<Pair> = [];
+    pairsToSolve: Pair[] = [];
 
-    contacts: Array<Contact> = [];
+    contacts: Contact[] = [];
 
     constructor (engine: Engine, options: ManagerOptions = {}) {
         this.engine = engine;

@@ -5,7 +5,7 @@ import { Vertex } from '../../math/Vertex';
 import { Intersection } from '../../collision/ray/Intersection';
 
 export interface ConvexOptions extends ShapeOptions {
-    vertices?: Array<Vector>;
+    vertices?: Vector[];
 }
 
 /**
@@ -14,10 +14,10 @@ export interface ConvexOptions extends ShapeOptions {
 
 export class Convex extends Shape {
     type: number = ShapeType.CONVEX;
-    vertices: Array<Vertex>;
-    deltaVertices: Array<Vertex>;
-    normals: Array<Vertex> = [];
-    lengths: Array<number> = [];
+    vertices: Vertex[];
+    deltaVertices: Vertex[];
+    normals: Vertex[] = [];
+    lengths: number[] = [];
 
     private static DEFAULT_VERTICES = [new Vector(-1, -1), new Vector(1, -1), new Vector(1, 1), new Vector(-1, 1)];
 

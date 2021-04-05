@@ -8,10 +8,10 @@ import { Constraint } from '../../constraint/Constraint';
 export class MouseConstraint {
     engine: Engine;
     mouse: Mouse;
-    constraints: Array<Constraint>;
+    constraints: Constraint[];
     events = new Events();
     
-    constructor (engine: Engine, mouse: Mouse, constraints: Array<Constraint> = [new DistanceConstraint({stiffness: 0.2, length: 0})]) {
+    constructor (engine: Engine, mouse: Mouse, constraints: Constraint[] = [new DistanceConstraint({stiffness: 0.2, length: 0})]) {
 
         this.engine = engine;
         this.mouse = mouse;

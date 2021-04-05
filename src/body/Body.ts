@@ -59,7 +59,7 @@ export class Body {
     speedSquared: number = 0;
     angSpeedSquared: number = 0;
 
-    private static vecTemp: Array<Vector> = [
+    private static vecTemp: Vector[] = [
         new Vector(),
     ];
 

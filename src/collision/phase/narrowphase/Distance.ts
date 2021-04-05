@@ -35,8 +35,8 @@ export class SupportPoint {
     }
 }
 
-const GJK_Temp: Array<SupportPoint> = [new SupportPoint(), new SupportPoint(), new SupportPoint()];
-const EPA_Temp: Array<SupportPoint> = [];
+const GJK_Temp: SupportPoint[] = [new SupportPoint(), new SupportPoint(), new SupportPoint()];
+const EPA_Temp: SupportPoint[] = [];
 
 for (let i = 0; i <= MAX_EPA_ITERATIONS; ++i) {
     EPA_Temp.push(new SupportPoint());
@@ -64,7 +64,7 @@ const edgeSupportPoint = (edge: Edge, dir: Vector): [Vector, number] => {
     return [index ? edge.end : edge.start, index];
 }
 
-const pts = (p1: SupportPoint, p2: SupportPoint): Array<SupportPoint> => {
+const pts = (p1: SupportPoint, p2: SupportPoint): SupportPoint[] => {
     const t = Vector.zeroT(p1.point, p2.point);
 
     if (t === -1) {
@@ -76,7 +76,7 @@ const pts = (p1: SupportPoint, p2: SupportPoint): Array<SupportPoint> => {
     }
 }
 
-export const GJK = (shapeA: Shape, shapeB: Shape): Array<SupportPoint> => {
+export const GJK = (shapeA: Shape, shapeB: Shape): SupportPoint[] => {
 
     const dir = Vector.temp[1];
 
@@ -126,7 +126,7 @@ export const GJK = (shapeA: Shape, shapeB: Shape): Array<SupportPoint> => {
     }
 }
 
-export const EPA = (points: Array<SupportPoint>, shapeA: Shape, shapeB: Shape): Array<SupportPoint> => {
+export const EPA = (points: SupportPoint[], shapeA: Shape, shapeB: Shape): SupportPoint[] => {
 
     let iterations = 0;
 

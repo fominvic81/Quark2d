@@ -69,7 +69,7 @@ export class Events {
      * @param name
      * @param args
      */
-    trigger (name: string, args: Array<any> = []) {
+    trigger (name: string, args: any[] = []) {
         const event = this.events.get(name);
         if (!event) return;
         for (const callback of event.values()) {

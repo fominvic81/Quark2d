@@ -39,7 +39,7 @@ export class Composite {
      * Adds the given bodies to the composite.
      * @param bodies
      */
-    addBody (bodies: Array<Body> | Body) {
+    addBody (bodies: Body[] | Body) {
         if (!Array.isArray(bodies)) {
             bodies = [bodies];
         }
@@ -54,7 +54,7 @@ export class Composite {
      * Removes the given bodies from the composite.
      * @param bodies
      */
-    removeBody (bodies: Array<Body> | Body) {
+    removeBody (bodies: Body[] | Body) {
         if (!Array.isArray(bodies)) {
             bodies = [bodies];
         }
@@ -96,7 +96,7 @@ export class Composite {
     /**
      * Adds the given constraints to the composite.
      */
-    addConstraint (constraints: Array<Constraint> | Constraint) {
+    addConstraint (constraints: Constraint[] | Constraint) {
         if (!Array.isArray(constraints)) {
             constraints = [constraints];
         }
@@ -110,7 +110,7 @@ export class Composite {
      * Removes the given constraints from the composite.
      * @param constraints
      */
-    removeConstraint (constraints: Array<Constraint> | Constraint) {
+    removeConstraint (constraints: Constraint[] | Constraint) {
         if (!Array.isArray(constraints)) {
             constraints = [constraints];
         }

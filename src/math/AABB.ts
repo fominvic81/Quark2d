@@ -8,7 +8,7 @@ export class AABB {
     min: Vector = new Vector();
     max: Vector = new Vector();
 
-    static temp: Array<AABB> = [
+    static temp: AABB[] = [
         new AABB(),
     ];
 
@@ -32,7 +32,7 @@ export class AABB {
      * @param vertices 
      * @returns The aabb
      */
-    fromVertices (vertices: Array<Vector>): AABB {
+    fromVertices (vertices: Vector[]): AABB {
         this.min.x = Infinity;
         this.min.y = Infinity;
         this.max.x = -Infinity;

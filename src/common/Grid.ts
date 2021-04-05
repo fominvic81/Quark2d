@@ -4,15 +4,15 @@ import { Vector } from '../math/Vector';
  * The 'Grid' is the class for manipulating grids.
  */
 
-export class Grid {
-    private map: Map<number, any> = new Map();
+export class Grid<V> {
+    private map: Map<number, V> = new Map();
 
     /**
      * Returns the value of the given position.
      * @param position
      * @returns The value of the given position
      */
-    get (position: Vector): any {
+    get (position: Vector): V | undefined {
         return this.map.get(this.getId(position));
     }
 
@@ -21,7 +21,7 @@ export class Grid {
      * @param position
      * @param value
      */
-    set (position: Vector, value: any) {
+    set (position: Vector, value: V) {
         this.map.set(this.getId(position), value);
     }
 
@@ -64,7 +64,7 @@ export class Grid {
     /**
      * @returns Keys
      */
-    keys (): Array<Vector> {
+    keys (): Vector[] {
 
         const keys = [];
 
@@ -78,18 +78,18 @@ export class Grid {
     /**
      * @returns Values
      */
-    values (): Array<any> {
+    values (): V[] {
         return [...this.map.values()];
     }
 
     /**
      * @returns Entries
      */
-    entries (): Array<Array<any>> {
+    entries (): [Vector, V][] {
         const entries = [];
 
         for (const key of this.map.keys()) {
-            entries.push([this.getPositionById(key), this.map.get(key)]);
+            entries.push(<[Vector, V]>[this.getPositionById(key), <V>this.map.get(key)]);
         }
 
         return entries;

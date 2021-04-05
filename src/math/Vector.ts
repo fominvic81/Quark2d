@@ -409,7 +409,7 @@ export class Vector {
     /**
      * Temporary vectors
      */
-    static readonly temp: Array<Vector> = [
+    static readonly temp: Vector[] = [
         new Vector(), new Vector(),
         new Vector(), new Vector(),
         new Vector(), new Vector(),
@@ -419,5 +419,5 @@ export class Vector {
     /**
      * Private temporary vectors
      */
-    private static prTemp: Array<Vector> = [new Vector(), new Vector()];
+    private static prTemp: Vector[] = [new Vector(), new Vector()];
 }

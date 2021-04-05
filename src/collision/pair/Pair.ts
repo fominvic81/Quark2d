@@ -19,7 +19,7 @@ export class Pair {
     tangent: Vector = new Vector();
     penetration: Vector = new Vector();
     contactsCount: number = 0;
-    contacts: Array<Contact> = [new Contact(this), new Contact(this)];
+    contacts: Contact[] = [new Contact(this), new Contact(this)];
     isActiveBroadphase: boolean = false;
     broadphaseCellsCount: number = 0;
     isSleeping: boolean = false;

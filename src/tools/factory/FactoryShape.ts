@@ -53,7 +53,7 @@ export class FactoryShape {
         return new Convex(options);
     }
     
-    static fromVertices (vertices: Array<Vector>, options: ConvexOptions = {}): Array<Convex> {
+    static fromVertices (vertices: Vector[], options: ConvexOptions = {}): Convex[] {
     
         const output = [];
         const parts = Vertices.decomp(vertices);

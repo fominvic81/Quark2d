@@ -9,7 +9,7 @@ export class Intersection {
     id: number;
     isActive: boolean = false;
     contactsCount: number = 0;
-    contacts: Array<RayContact> = [new RayContact(), new RayContact()];
+    contacts: RayContact[] = [new RayContact(), new RayContact()];
 
     constructor (body: Body, shape: Shape) {
         this.body = body;

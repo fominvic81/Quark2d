@@ -104,7 +104,7 @@ export class Draw {
         ctx.restore();
     }
 
-    static polygon = (ctx: CanvasRenderingContext2D, polygon: Array<Vector>, color: string, fill: boolean = true, lineWidth: number = 1) => {
+    static polygon = (ctx: CanvasRenderingContext2D, polygon: Vector[], color: string, fill: boolean = true, lineWidth: number = 1) => {
 
         ctx.beginPath();
 

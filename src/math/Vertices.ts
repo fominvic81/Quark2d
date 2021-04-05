@@ -13,8 +13,8 @@ export class Vertices {
      * @param points Array of points
      * @returns A new set of points
      */
-    static create (points: Array<Vector>): Array<Vertex> {
-        const vertices: Array<Vertex> = [];
+    static create (points: Vector[]): Vertex[] {
+        const vertices: Vertex[] = [];
 
         let index: number = 0;
         for (const point of points) {
@@ -33,7 +33,7 @@ export class Vertices {
      * @param lengths [lengths output]
      * @returns The object that contains normals and lengths of vertices
      */
-    static normals (vertices: Array<Vector>, normals: Array<Vector> = [], lengths: Array<number> = []) {
+    static normals (vertices: Vector[], normals: Vector[] = [], lengths: number[] = []) {
 
         for (let i = 0; i < vertices.length; ++i) {
             const j = (i + 1) % vertices.length;
@@ -55,7 +55,7 @@ export class Vertices {
      * @param vector
      * @returns The vertices
      */
-    static translate (vertices: Array<Vector>, vector: Vector): Array<Vector> {
+    static translate (vertices: Vector[], vector: Vector): Vector[] {
 
         for (let i = 0; i < vertices.length; ++i) {
             vertices[i].add(vector);
@@ -71,7 +71,7 @@ export class Vertices {
      * @param output [output]
      * @returns The vertices
      */
-    static rotate (vertices: Array<Vector>, angle: number, point: Vector = Vector.zero, output: Array<Vector> = vertices): Array<Vector> {
+    static rotate (vertices: Vector[], angle: number, point: Vector = Vector.zero, output: Vector[] = vertices): Vector[] {
 
         const cos = Math.cos(angle);
         const sin = Math.sin(angle);
@@ -94,7 +94,7 @@ export class Vertices {
      * @param scalar
      * @returns The vertices
      */
-    static scale (vertices: Array<Vector>, scalar: number): Array<Vector> {
+    static scale (vertices: Vector[], scalar: number): Vector[] {
         for (let i = 0; i < vertices.length; ++i) {
             vertices[i].scale(scalar);
         }
@@ -107,7 +107,7 @@ export class Vertices {
      * @param vertices
      * @returns The area of the given set of vertices
      */
-    static area (vertices: Array<Vector>): number {
+    static area (vertices: Vector[]): number {
         let area = 0;
         let j = vertices.length - 1;
 
@@ -124,7 +124,7 @@ export class Vertices {
      * @param vertices
      * @returns The inertia of the given set of vertices
      */
-    static inertia (vertices: Array<Vector>): number {
+    static inertia (vertices: Vector[]): number {
         let numerator: number = 0;
         let denominator: number = 0;
 
@@ -150,7 +150,7 @@ export class Vertices {
      * @param vertices
      * @returns The centroid of the given set of vertices
      */
-    static center (vertices: Array<Vector>): Vector {
+    static center (vertices: Vector[]): Vector {
         const center: Vector = new Vector();
 
         for (let i = 0; i < vertices.length; ++i) {
@@ -171,7 +171,7 @@ export class Vertices {
      * @param point
      * @returns True if the given set of vertices contains the given point and false if not
      */
-    static contains (vertices: Array<Vector>, point: Vector): boolean {
+    static contains (vertices: Vector[], point: Vector): boolean {
         for (let i = 0; i < vertices.length; ++i) {
             const vertex = vertices[i];
             const nextVertex = vertices[(i + 1) % vertices.length];
@@ -188,7 +188,7 @@ export class Vertices {
      * @param vertices
      * @returns Еrue if the given set of vertices is a convex polygon (vertices must be in the clockwise winding)
      */
-    static isConvex (vertices: Array<Vector>): boolean | undefined {
+    static isConvex (vertices: Vector[]): boolean | undefined {
         // http://paulbourke.net/geometry/polygonmesh/
         // Copyright (c) Paul Bourke (use permitted)
         let flag = 0;
@@ -233,13 +233,13 @@ export class Vertices {
      * @param minArea
      * @returns The array of sets of vertices
      */
-    static decomp (vertices: Array<Vector>, rmCollinearPoints: boolean = true, minArea: number = 0): Array<Array<Vertex>> {
+    static decomp (vertices: Vector[], rmCollinearPoints: boolean = true, minArea: number = 0): Vertex[][] {
         
-        const poly = <Array<[number, number]>>vertices.map((vertex: Vector) => [vertex.x, vertex.y]);
+        const poly = <[number, number][]>vertices.map((vertex: Vector) => [vertex.x, vertex.y]);
         makeCCW(poly);
 
         if (Vertices.isConvex(vertices)) {
-            const part = Vertices.create(poly.map((vertex: Array<number>) => new Vector(vertex[0], vertex[1])));
+            const part = Vertices.create(poly.map((vertex: number[]) => new Vector(vertex[0], vertex[1])));
             return [part];
         } else {
             
@@ -250,7 +250,7 @@ export class Vertices {
                 if (rmCollinearPoints) {
                     removeCollinearPoints(p, 0.01);
                 }
-                const part = Vertices.create(p.map((vertex: Array<number>) => new Vector(vertex[0], vertex[1])));
+                const part = Vertices.create(p.map((vertex: number[]) => new Vector(vertex[0], vertex[1])));
                 if (Math.abs(Vertices.area(part)) > minArea) {
                     parts.push(part);
                 }
@@ -266,7 +266,7 @@ export class Vertices {
      * @param vertices
      * @returns The convex hull of the given set of vertices
      */
-    static hull (vertices: Array<Vector>) {
+    static hull (vertices: Vector[]) {
         const upper = [];
         const lower = []; 
 
