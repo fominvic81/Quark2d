@@ -34,7 +34,6 @@ export { Narrowphase } from './collision/phase/narrowphase/Narrowphase';
 
 export { Contact } from './collision/pair/Contact';
 export { Pair } from './collision/pair/Pair';
-export { ShapePair } from './collision/pair/ShapePair';
 
 export { Solver } from './collision/solver/Solver';
 

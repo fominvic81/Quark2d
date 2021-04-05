@@ -1,4 +1,5 @@
 import { Vector } from '../../math/Vector';
+import { Pair } from './Pair';
 
 export class Contact {
     vertex: Vector = new Vector();
@@ -8,4 +9,9 @@ export class Contact {
     offsetB: Vector = new Vector();
     tangentShare: number = 0;
     normalShare: number = 0;
+    pair: Pair;
+
+    constructor (pair: Pair) {
+        this.pair = pair;
+    }
 }

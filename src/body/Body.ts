@@ -31,7 +31,7 @@ export class Body {
     positionImpulse: Vector = new Vector();
     constraintImpulse: Vector = new Vector();
     constraintAngleImpulse: number = 0;
-    contactsCount: number = 0;
+    pairsCount: number = 0;
     angularAcceleration: number = 0;
     angle: number = 0;
     anglePrev: number = 0;

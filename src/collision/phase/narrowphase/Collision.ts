@@ -2,7 +2,7 @@ import { Convex } from '../../../body/shapes/Convex';
 import { Edge } from '../../../body/shapes/Edge';
 import { Shape, ShapeType } from '../../../body/shapes/Shape';
 import { Vector } from '../../../math/Vector';
-import { ShapePair } from '../../pair/ShapePair';
+import { Pair } from '../../pair/Pair';
 import { GJK, SupportPoint } from './Distance';
 
 const convexSupportEdge = (convex: Convex, index: number, normal: Vector): Array<Vector> => {
@@ -54,7 +54,7 @@ export const clip = (output: Array<Vector>, incFace: Array<Vector>, normal: Vect
     return count;
 }
 
-export const contacts = (shapePair: ShapePair, refFace: Array<Vector>, incFace: Array<Vector>, normal: Vector, tangent: Vector, radius: number) => {
+export const contacts = (pair: Pair, refFace: Array<Vector>, incFace: Array<Vector>, normal: Vector, tangent: Vector, radius: number) => {
     const offset1 = Vector.dot(tangent, refFace[0]);
     const offset2 = -Vector.dot(tangent, refFace[1]);
 
@@ -64,20 +64,20 @@ export const contacts = (shapePair: ShapePair, refFace: Array<Vector>, incFace: 
     ];
 
     const contacts1 = [
-        shapePair.contacts[0].vertex,
-        shapePair.contacts[1].vertex,
+        pair.contacts[0].vertex,
+        pair.contacts[1].vertex,
     ];
 
     let count = clip(contacts2, incFace, tangent.neg(Vector.temp[2]), offset1);
     if (count < 2) {
-        shapePair.contactsCount = count;
+        pair.contactsCount = count;
         contacts2[0].clone(contacts1[0]);
         return;
     }
 
     count = clip(contacts1, contacts2, tangent, offset2);
 
-    shapePair.contactsCount = count;
+    pair.contactsCount = count;
     if (count < 2) {
         return;
     }
@@ -85,20 +85,20 @@ export const contacts = (shapePair: ShapePair, refFace: Array<Vector>, incFace: 
     const separation = Vector.dot(contacts1[1], normal) - Vector.dot(refFace[0], normal);
 
     if (separation > radius) {
-        --shapePair.contactsCount;
+        --pair.contactsCount;
     }
 }
 
-export const collide = (shapePair: ShapePair): boolean => {
+export const collide = (pair: Pair): boolean => {
 
-    const shapeA = shapePair.shapeA;
-    const shapeB = shapePair.shapeB;
+    const shapeA = pair.shapeA;
+    const shapeB = pair.shapeB;
 
     const points = GJK(shapeA, shapeB);
 
     if (!points.length) return false;
 
-    const normal = shapePair.normal;
+    const normal = pair.normal;
     const radius = shapeA.radius + shapeB.radius;
 
     if (points.length === 1) {
@@ -116,10 +116,10 @@ export const collide = (shapePair: ShapePair): boolean => {
         const length = Math.sqrt(lengthSquared);
         normal.divide(length);
 
-        shapePair.depth = radius - length;
+        pair.depth = radius - length;
 
-        shapePair.contactsCount = 1;
-        Vector.add(vertex1, normal.scale(shapeA.radius, Vector.temp[0]), shapePair.contacts[0].vertex);
+        pair.contactsCount = 1;
+        Vector.add(vertex1, normal.scale(shapeA.radius, Vector.temp[0]), pair.contacts[0].vertex);
     } else {
         let incFace: Array<Vector>;
         let refFace: Array<Vector>;
@@ -128,7 +128,7 @@ export const collide = (shapePair: ShapePair): boolean => {
 
         if (points[0].indexA === points[1].indexA) {
             shapeB.getNormal(points[1].indexB, normal);
-            shapePair.depth = -Vector.dot(normal, points[0].point) + radius;
+            pair.depth = -Vector.dot(normal, points[0].point) + radius;
             incRadius = shapeA.radius;
             
 
@@ -136,7 +136,7 @@ export const collide = (shapePair: ShapePair): boolean => {
             refFace = [shapeB.getPoint(points[0].indexB), shapeB.getPoint(points[1].indexB)];
         } else {
             shapeA.getNormal(points[1].indexA, normal);
-            shapePair.depth = Vector.dot(normal, points[0].point) + radius;
+            pair.depth = Vector.dot(normal, points[0].point) + radius;
             incRadius = shapeB.radius;
             
             incFace = supportEdge(shapeB, points[0].indexB, normal.neg(Vector.temp[0]));
@@ -145,17 +145,17 @@ export const collide = (shapePair: ShapePair): boolean => {
             flipped = true;
         }
 
-        if (shapePair.depth < 0) return false;
+        if (pair.depth < 0) return false;
 
         const tangent = normal.rotate270(Vector.temp[0]);
-        contacts(shapePair, refFace, incFace, normal, tangent, radius);
+        contacts(pair, refFace, incFace, normal, tangent, radius);
 
-        for (let i = 0; i < shapePair.contactsCount; ++i) {
-            shapePair.contacts[i].vertex.subtract(normal.scale(incRadius, Vector.temp[0]));
+        for (let i = 0; i < pair.contactsCount; ++i) {
+            pair.contacts[i].vertex.subtract(normal.scale(incRadius, Vector.temp[0]));
         }
         if (!flipped) normal.neg();
 
     }
-    shapePair.isActive = true;
+    pair.isActive = true;
     return true;
 }

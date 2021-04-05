@@ -1,15 +1,15 @@
 import { Vector } from '../../../math/Vector';
 import { ShapeType } from '../../../body/shapes/Shape';
-import { ShapePair } from '../../pair/ShapePair';
+import { Pair } from '../../pair/Pair';
 import { Convex } from '../../../body/shapes/Convex';
 import { Circle } from '../../../body/shapes/Circle';
 import { Vertex } from '../../../math/Vertex';
 
-export const ConvexVsCircle = (shapePair: ShapePair) => {
+export const ConvexVsCircle = (pair: Pair) => {
 
-    const flipped: boolean = shapePair.shapeA.type === ShapeType.CONVEX;
-    const convex: Convex = <Convex>(flipped ? shapePair.shapeA : shapePair.shapeB);
-    const circle: Circle = <Circle>(flipped ? shapePair.shapeB : shapePair.shapeA);
+    const flipped: boolean = pair.shapeA.type === ShapeType.CONVEX;
+    const convex: Convex = <Convex>(flipped ? pair.shapeA : pair.shapeB);
+    const circle: Circle = <Circle>(flipped ? pair.shapeB : pair.shapeA);
 
     const vertices: Array<Vertex> = convex.vertices;
     const normals: Array<Vertex> = convex.normals;
@@ -64,20 +64,20 @@ export const ConvexVsCircle = (shapePair: ShapePair) => {
 
         } else {
 
-            normals[normalIndex].clone(shapePair.normal);
+            normals[normalIndex].clone(pair.normal);
             if (!flipped) {
-                shapePair.normal.neg();
+                pair.normal.neg();
             }
 
             Vector.subtract(circlePosition, normals[normalIndex].scale(radius, temp2), temp2).clone(closestPoint);
-            shapePair.depth = radius - maxDist;
+            pair.depth = radius - maxDist;
 
         }
     }
     if (vertex) {
-        Vector.subtract(closestPoint, circlePosition, shapePair.normal);
+        Vector.subtract(closestPoint, circlePosition, pair.normal);
 
-        const distSquared: number = shapePair.normal.lengthSquared();
+        const distSquared: number = pair.normal.lengthSquared();
 
         if (Math.pow(radius, 2) < distSquared) {
             return;
@@ -89,18 +89,18 @@ export const ConvexVsCircle = (shapePair: ShapePair) => {
 
         const dist: number = Math.sqrt(distSquared);
 
-        shapePair.depth = radius - dist;
-        shapePair.normal.divide(dist);
+        pair.depth = radius - dist;
+        pair.normal.divide(dist);
         if (flipped) {
-            shapePair.normal.neg();
+            pair.normal.neg();
         }
     }
     
-    const offset: Vector = (flipped ? shapePair.normal : shapePair.normal.neg(temp2)).scale(convex.radius, temp2);
+    const offset: Vector = (flipped ? pair.normal : pair.normal.neg(temp2)).scale(convex.radius, temp2);
     
-    shapePair.contactsCount = 1;
-    offset.add(closestPoint).clone(shapePair.contacts[0].vertex);
+    pair.contactsCount = 1;
+    offset.add(closestPoint).clone(pair.contacts[0].vertex);
     
-    shapePair.isActive = true;
+    pair.isActive = true;
     return;
 }

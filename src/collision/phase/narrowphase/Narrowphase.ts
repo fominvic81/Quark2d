@@ -1,4 +1,5 @@
 import { Engine } from '../../../engine/Engine';
+import { Pair } from '../../pair/Pair';
 import { Manager } from '../Manager';
 import { Colliders } from './Colliders';
 
@@ -11,48 +12,27 @@ export class Narrowphase {
         this.engine = manager.engine;
     }
 
-    update () {
+    update (pairs: Iterable<Pair>) {
 
-        const midphasePairs = this.manager.midphase.activePairs.values();
+        for (const pair of pairs) {
+            pair.isActive = false;
 
-        for (const pair of midphasePairs) {
-            if (!pair.isActive) {
-                if (pair.isActivePrev) {
-                    this.manager.endedPairs.push(pair);
-                }
-                continue;
-            };
-            pair.activeShapePairs.length = 0;
-
-            if (!pair.isSleeping) {
-                pair.isActive = false;
-                pair.contactsCount = 0;
-
-                for (const shapePair of pair.shapePairs.values()) {
-                    if (!shapePair.isActive) continue;
-                    shapePair.isActive = false;
-
-                    Colliders[shapePair.shapeA.type | shapePair.shapeB.type](shapePair);
-
-                    if (shapePair.isActive) {
-                        pair.isActive = true;
-                        pair.activeShapePairs.push(shapePair);
-                        pair.contactsCount += shapePair.contactsCount;
-                    }
-                }
-            }
+            Colliders[pair.shapeA.type | pair.shapeB.type](pair);
 
             if (pair.isActive) {
+                for (let i = 0; i < pair.contactsCount; ++i) {
+                    this.manager.contacts.push(pair.contacts[i]);
+                }
+                this.manager.activePairs.push(pair);
                 if (!pair.isSleeping) {
                     this.manager.pairsToSolve.push(pair);
                 }
-                this.manager.activePairs.push(pair);
                 if (!pair.isActivePrev) {
                     this.manager.startedPairs.push(pair);
                 }
             } else if (pair.isActivePrev) {
                 this.manager.endedPairs.push(pair);
-            } 
+            }
         }
     }
 }

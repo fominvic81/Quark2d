@@ -1,4 +1,5 @@
 import { Engine } from "../engine/Engine";
+import { Body } from "./Body";
 
 export enum SleepingState {
     AWAKE,
@@ -78,15 +79,17 @@ export class Sleeping {
         const pairs = this.engine.manager.activePairs;
 
         for (const pair of pairs) {
+            const bodyA = <Body>pair.shapeA.body;
+            const bodyB = <Body>pair.shapeB.body;
 
-            if (pair.bodyA.sleepState !== SleepingState.SLEEPING && pair.bodyB.sleepState !== SleepingState.SLEEPING) continue;
+            if (bodyA.sleepState !== SleepingState.SLEEPING && bodyB.sleepState !== SleepingState.SLEEPING) continue;
 
-            const bodyASleeping = pair.bodyA.sleepState === SleepingState.SLEEPING;
-            const sleepingBody = bodyASleeping ? pair.bodyA : pair.bodyB;
+            const bodyASleeping = bodyA.sleepState === SleepingState.SLEEPING;
+            const sleepingBody = bodyASleeping ? bodyA : bodyB;
             
             if (sleepingBody.isStatic) continue;
 
-            const awakeBody = bodyASleeping ? pair.bodyB : pair.bodyA;
+            const awakeBody = bodyASleeping ? bodyB : bodyA;
 
             if (awakeBody.motion > Sleeping.COLLISION_MOTION_SLEEP_LIMIT) {
                 sleepingBody.setSleeping(SleepingState.AWAKE);
@@ -96,15 +99,15 @@ export class Sleeping {
         const endedPairs = this.engine.manager.endedPairs;
 
         for (const pair of endedPairs) {
-            if (!pair.bodyA.isStatic) pair.bodyA.setSleeping(SleepingState.AWAKE);
-            if (!pair.bodyB.isStatic) pair.bodyB.setSleeping(SleepingState.AWAKE);
+            if (!pair.shapeA.body?.isStatic) pair.shapeA.body?.setSleeping(SleepingState.AWAKE);
+            if (!pair.shapeB.body?.isStatic) pair.shapeB.body?.setSleeping(SleepingState.AWAKE);
         }
 
         const startedPairs = this.engine.manager.startedPairs;
 
         for (const pair of startedPairs) {
-            if (!pair.bodyA.isStatic) pair.bodyA.setSleeping(SleepingState.AWAKE);
-            if (!pair.bodyB.isStatic) pair.bodyB.setSleeping(SleepingState.AWAKE);
+            if (!pair.shapeA.body?.isStatic) pair.shapeA.body?.setSleeping(SleepingState.AWAKE);
+            if (!pair.shapeB.body?.isStatic) pair.shapeB.body?.setSleeping(SleepingState.AWAKE);
         }
     }
 }

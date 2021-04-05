@@ -336,19 +336,12 @@ export class Render {
     }
 
     collisions () {
-        const pairs = this.engine.manager.activePairs;
+        const contacts = this.engine.manager.contacts;
 
-        for (const pair of pairs) {
-
-            for (const shapePair of pair.shapePairs.values()) {
-                if (!shapePair.isActive) continue;
-                for (let i = 0; i < shapePair.contactsCount; ++i) {
-                    const contact = shapePair.contacts[i];
-                    if (this.options.aabb.contains(contact.vertex)) {
-                        Draw.circle(this.ctx, contact.vertex, this.options.lineWidth / 8, 'rgb(200, 80, 80)');
-                        Draw.line(this.ctx, contact.vertex, shapePair.normal.scale(0.2, Vector.temp[0]).add(contact.vertex), 'rgb(200, 80, 80)', this.options.lineWidth / 8);
-                    }
-                }
+        for (const contact of contacts) {
+            if (this.options.aabb.contains(contact.vertex)) {
+                Draw.circle(this.ctx, contact.vertex, this.options.lineWidth / 8, 'rgb(200, 80, 80)');
+                Draw.line(this.ctx, contact.vertex, contact.pair.normal.scale(0.2, Vector.temp[0]).add(contact.vertex), 'rgb(200, 80, 80)', this.options.lineWidth / 8);
             }
         }
     }

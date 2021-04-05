@@ -1,13 +1,13 @@
 import { Circle } from '../../../body/shapes/Circle';
 import { Vector } from '../../../math/Vector';
-import { ShapePair } from '../../pair/ShapePair';
+import { Pair } from '../../pair/Pair';
 
-export const CircleVsCircle = (shapePair: ShapePair) => {
+export const CircleVsCircle = (pair: Pair) => {
 
-    const circleA: Circle = <Circle>shapePair.shapeA;
-    const circleB: Circle = <Circle>shapePair.shapeB;
+    const circleA: Circle = <Circle>pair.shapeA;
+    const circleB: Circle = <Circle>pair.shapeB;
 
-    const normal: Vector = shapePair.normal;
+    const normal: Vector = pair.normal;
 
     Vector.subtract(circleB.position, circleA.position, normal);
 
@@ -17,14 +17,14 @@ export const CircleVsCircle = (shapePair: ShapePair) => {
 
     if (distSquared > Math.pow(radius, 2)) return;
 
-    shapePair.contactsCount = 1;
+    pair.contactsCount = 1;
 
     const dist: number = normal.length();
 
-    shapePair.depth = radius - dist;
+    pair.depth = radius - dist;
     normal.divide(dist)
 
-    shapePair.normal.scale(circleA.radius, Vector.temp[0]).add(circleA.position).clone(shapePair.contacts[0].vertex);
+    pair.normal.scale(circleA.radius, Vector.temp[0]).add(circleA.position).clone(pair.contacts[0].vertex);
 
-    shapePair.isActive = true;
+    pair.isActive = true;
 }

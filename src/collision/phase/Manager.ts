@@ -1,4 +1,5 @@
 import { Engine } from '../../engine/Engine';
+import { Contact } from '../pair/Contact';
 import { Pair } from '../pair/Pair';
 import { Broadphase } from './Broadphase';
 import { Midphase } from './Midphase';
@@ -25,6 +26,8 @@ export class Manager {
     
     pairsToSolve: Array<Pair> = [];
 
+    contacts: Array<Contact> = [];
+
     constructor (engine: Engine, options: ManagerOptions = {}) {
         this.engine = engine;
 
@@ -39,9 +42,10 @@ export class Manager {
         this.endedPairs.length = 0;
 
         this.pairsToSolve.length = 0;
+        this.contacts.length = 0;
 
         this.broadphase.update();
-        this.midphase.update();
-        this.narrowphase.update();
+        this.midphase.update(this.broadphase.activePairs);
+        this.narrowphase.update(this.midphase.activePairs);
     }
 }
