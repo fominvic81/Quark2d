@@ -88,7 +88,6 @@ export class Broadphase {
         const pairId: number = Common.combineId(shapeA.id, shapeB.id);
         const s: Pair | undefined = this.manager.pairs.get(pairId);
         const pair: Pair = s || new Pair(shapeA, shapeB);
-        pair.isActiveBroadphase = true;
 
         this.activePairs.add(pair);
 
@@ -138,7 +137,6 @@ export class Broadphase {
                 pair.broadphaseCellsCount -= 1;
 
                 if (pair.broadphaseCellsCount <= 0) {
-                    pair.isActiveBroadphase = false;
                     this.activePairs.delete(pair);
                 }
             }

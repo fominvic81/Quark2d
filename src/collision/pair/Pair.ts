@@ -20,7 +20,6 @@ export class Pair {
     penetration: Vector = new Vector();
     contactsCount: number = 0;
     contacts: Contact[] = [new Contact(this), new Contact(this)];
-    isActiveBroadphase: boolean = false;
     broadphaseCellsCount: number = 0;
     isSleeping: boolean = false;
 
