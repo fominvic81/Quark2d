@@ -1,5 +1,5 @@
-import { Engine } from "../engine/Engine";
-import { Body } from "./Body";
+import { Engine } from '../engine/Engine';
+import { Body, BodyType } from './Body';
 
 export enum SleepingState {
     AWAKE,
@@ -86,8 +86,8 @@ export class Sleeping {
 
             const bodyASleeping = bodyA.sleepState === SleepingState.SLEEPING;
             const sleepingBody = bodyASleeping ? bodyA : bodyB;
-            
-            if (sleepingBody.isStatic) continue;
+
+            if (sleepingBody.type !== BodyType.dynamic) continue;
 
             const awakeBody = bodyASleeping ? bodyB : bodyA;
 
@@ -99,15 +99,15 @@ export class Sleeping {
         const endedPairs = this.engine.manager.endedPairs;
 
         for (const pair of endedPairs) {
-            if (!pair.shapeA.body?.isStatic) pair.shapeA.body?.setSleeping(SleepingState.AWAKE);
-            if (!pair.shapeB.body?.isStatic) pair.shapeB.body?.setSleeping(SleepingState.AWAKE);
+            if (pair.shapeA.body?.type === BodyType.dynamic) pair.shapeA.body?.setSleeping(SleepingState.AWAKE);
+            if (pair.shapeB.body?.type === BodyType.dynamic) pair.shapeB.body?.setSleeping(SleepingState.AWAKE);
         }
 
         const startedPairs = this.engine.manager.startedPairs;
 
         for (const pair of startedPairs) {
-            if (!pair.shapeA.body?.isStatic) pair.shapeA.body?.setSleeping(SleepingState.AWAKE);
-            if (!pair.shapeB.body?.isStatic) pair.shapeB.body?.setSleeping(SleepingState.AWAKE);
+            if (pair.shapeA.body?.type === BodyType.dynamic) pair.shapeA.body?.setSleeping(SleepingState.AWAKE);
+            if (pair.shapeB.body?.type === BodyType.dynamic) pair.shapeB.body?.setSleeping(SleepingState.AWAKE);
         }
     }
 }

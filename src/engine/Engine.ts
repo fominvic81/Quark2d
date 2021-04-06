@@ -96,6 +96,9 @@ export class Engine {
         for (const body of this.world.activeBodies.values()) {
             body.updatePosition();
         }
+        for (const body of this.world.kinematicBodies.values()) {
+            body.updatePosition();
+        }
 
         this.events.trigger('after-update', [{engine: this, timestamp}]);
         

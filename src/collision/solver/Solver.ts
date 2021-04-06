@@ -4,7 +4,7 @@ import { Common } from '../../common/Common';
 import { Contact } from '../pair/Contact';
 import { Engine } from '../../engine/Engine';
 import { Pair } from '../pair/Pair';
-import { Body } from '../../body/Body';
+import { Body, BodyType } from '../../body/Body';
 
 /**
  * The 'Solver' is a class for solving collisions.
@@ -98,17 +98,19 @@ export class Solver {
 
             positionImpulse = (pair.separation - Solver.SLOP) * 0.5;
 
-            if (!(bodyA.isStatic || bodyB.isStatic)) {
+            // test
+            // if (!(bodyA.type !== BodyType.dynamic || bodyB.type !== BodyType.dynamic)) {
+            if (bodyA.type === BodyType.dynamic && bodyB.type === BodyType.dynamic) {
                 positionImpulse *= 0.5;
             }
-            
-            if (!(bodyA.isStatic || bodyA.sleepState === SleepingState.SLEEPING)) { 
+
+            if (bodyA.type === BodyType.dynamic && bodyA.sleepState !== SleepingState.SLEEPING) { 
                 const share = Solver.DEPTH_DAMPING / bodyA.pairsCount;
                 bodyA.positionImpulse.x -= pair.normal.x * positionImpulse * share;
                 bodyA.positionImpulse.y -= pair.normal.y * positionImpulse * share;
             }
             
-            if (!(bodyB.isStatic || bodyB.sleepState === SleepingState.SLEEPING)) {
+            if (bodyB.type === BodyType.dynamic && bodyB.sleepState !== SleepingState.SLEEPING) {
                 const share = Solver.DEPTH_DAMPING / bodyB.pairsCount;
                 bodyB.positionImpulse.x += pair.normal.x * positionImpulse * share;
                 bodyB.positionImpulse.y += pair.normal.y * positionImpulse * share;
@@ -149,10 +151,10 @@ export class Solver {
             contact.pair.normal.scale(contact.normalImpulse, impulse);
             impulse.add(contact.pair.tangent.scale(contact.tangentImpulse, temp));
 
-            if (!(bodyA.isStatic || bodyA.sleepState === SleepingState.SLEEPING)) {
+            if (bodyA.type === BodyType.dynamic && bodyA.sleepState !== SleepingState.SLEEPING) {
                 bodyA.applyImpulse(impulse.neg(temp), contact.offsetA);
             }
-            if (!(bodyB.isStatic || bodyB.sleepState === SleepingState.SLEEPING)) {
+            if (bodyB.type === BodyType.dynamic && bodyB.sleepState !== SleepingState.SLEEPING) {
                 bodyB.applyImpulse(impulse, contact.offsetB);
             }
         }
@@ -200,10 +202,10 @@ export class Solver {
 
                 pair.tangent.scale(tangentImpulse, impulse);
 
-                if (!(bodyA.isStatic || bodyA.sleepState === SleepingState.SLEEPING)) {
+                if (bodyA.type === BodyType.dynamic && bodyA.sleepState !== SleepingState.SLEEPING) {
                     bodyA.applyImpulse(impulse.neg(temp), contact.offsetA);
                 }
-                if (!(bodyB.isStatic || bodyB.sleepState === SleepingState.SLEEPING)) {
+                if (bodyB.type === BodyType.dynamic && bodyB.sleepState !== SleepingState.SLEEPING) {
                     bodyB.applyImpulse(impulse, contact.offsetB);
                 }
             }
@@ -233,10 +235,10 @@ export class Solver {
 
                 pair.normal.scale(normalImpulse, impulse);
 
-                if (!(bodyA.isStatic || bodyA.sleepState === SleepingState.SLEEPING)) {
+                if (bodyA.type === BodyType.dynamic && bodyA.sleepState !== SleepingState.SLEEPING) {
                     bodyA.applyImpulse(impulse.neg(temp), contact.offsetA);
                 }
-                if (!(bodyB.isStatic || bodyB.sleepState === SleepingState.SLEEPING)) {
+                if (bodyB.type === BodyType.dynamic && bodyB.sleepState !== SleepingState.SLEEPING) {
                     bodyB.applyImpulse(impulse, contact.offsetB);
                 }
             }
@@ -245,10 +247,12 @@ export class Solver {
 
     preSolveConstraints () {
 
-        for (const body of this.engine.world.activeBodies.values()) {
-
+        for (const body of this.engine.world.bodies.values()) {
             body.dir.clone(body.constraintDir);
             body.constraintAngle = body.angle;
+        }
+
+        for (const body of this.engine.world.activeBodies.values()) {
 
             body.constraintImpulse.x *= Solver.CONSTRAINT_IMPULSE_DAMPING;
             body.constraintImpulse.y *= Solver.CONSTRAINT_IMPULSE_DAMPING;

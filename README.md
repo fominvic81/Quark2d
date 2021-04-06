@@ -24,6 +24,7 @@ Mouse wheel to zoom.
         Vector,
         MouseConstraint,
         Body,
+        BodyType,
         Circle,
         Convex,
         Factory,
@@ -38,7 +39,7 @@ Mouse wheel to zoom.
 
     // Create an empty body
     const circleBody = new Body({
-        position: new Vector(0, 0)
+        position: new Vector(0.5, -2)
     });
 
     // Create a circle shape
@@ -53,17 +54,17 @@ Mouse wheel to zoom.
     engine.world.add(circleBody);
 
     // Create a rounded rectangular body
-    const rectBody = Factory.Body.rectangle(new Vector(0.4, -2), 0, 1, 1, {}, {
+    const rectBody = Factory.Body.rectangle(new Vector(0, 0), 0, 1, 1, {}, {
         radius: 0.1, // Rounding radius. All shapes can have a rounding radius
     });
 
     // Add the the rect body to the world
     engine.world.add(rectBody);
 
-    // Create an empty body
+    // Create an empty static body
     const ground = new Body({
         position: new Vector(0, 10),
-        isStatic: true
+        type: BodyType.static,
     });
 
     // Create rectangular shape
@@ -86,6 +87,8 @@ Mouse wheel to zoom.
     // Create a render
     const render = new Render(engine, {
         element: document.body,
+        width: 800,
+        height: 600,
     });
 
     // Create a mouse constraint

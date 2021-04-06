@@ -4,6 +4,7 @@ import { DistanceConstraint } from '../../constraint/DistanceConstraint';
 import { Engine } from '../../engine/Engine';
 import { Mouse, QMouseEvent } from './Mouse';
 import { Constraint } from '../../constraint/Constraint';
+import { BodyType } from '../../body/Body';
 
 export class MouseConstraint {
     engine: Engine;
@@ -28,7 +29,7 @@ export class MouseConstraint {
     mouseDown (event: QMouseEvent) {
         if (!event.mouse.leftButtonPressed) return;
         for (const body of this.engine.world.bodies.values()) {
-            if (body.isStatic) continue;
+            if (body.type !== BodyType.dynamic) continue;
             for (const shape of body.shapes) {
                 if (shape.aabb.contains(event.mouse.position)) {
                     if (shape.contains(event.mouse.position)) {

@@ -1,4 +1,4 @@
-import { Body } from '../body/Body';
+import { Body, BodyType } from '../body/Body';
 import { SleepingState } from '../body/Sleeping';
 import { Composite } from './Composite';
 
@@ -9,6 +9,7 @@ import { Composite } from './Composite';
 export class World extends Composite {
     sleepingBodies: Map<number, Body> = new Map();
     staticBodies: Map<number, Body> = new Map();
+    kinematicBodies: Map<number, Body> = new Map();
     activeBodies: Map<number, Body> = new Map();
     private eventIds: Map<number, number[]> = new Map();
 
@@ -24,12 +25,16 @@ export class World extends Composite {
 
         for (const body of bodies) {
 
-            if (body.isStatic) {
+            if (body.type === BodyType.dynamic) {
+                if (body.sleepState === SleepingState.SLEEPING) {
+                    this.sleepingBodies.set(body.id, body);
+                } else {
+                    this.activeBodies.set(body.id, body);
+                }
+            } else if (body.type === BodyType.static) {
                 this.staticBodies.set(body.id, body);
-            } else if (body.sleepState === SleepingState.SLEEPING) {
-                this.sleepingBodies.set(body.id, body);
-            } else {
-                this.activeBodies.set(body.id, body);
+            } else if (body.type === BodyType.kinematic) {
+                this.kinematicBodies.set(body.id, body);
             }
 
             const sleepStartId = body.events.on('sleep-start', () => {
@@ -40,16 +45,42 @@ export class World extends Composite {
                 this.sleepingBodies.delete(body.id);
                 this.activeBodies.set(body.id, body);
             });
-            const becomeStaticId = body.events.on('become-static', () => {
-                this.activeBodies.delete(body.id);
-                this.sleepingBodies.delete(body.id);
-                this.staticBodies.set(body.id, body);
-            });
-            const becomeDynamicId = body.events.on('become-dynamic', () => {
-                this.staticBodies.delete(body.id);
+            const becomeDynamicId = body.events.on('become-dynamic', (event) => {
+                if (event.previousType === BodyType.static) {
+                    this.staticBodies.delete(body.id);
+                } else if (event.previousType === BodyType.kinematic) {
+                    this.kinematicBodies.delete(body.id);
+                }
+
                 this.activeBodies.set(body.id, body);
             });
-            this.eventIds.set(body.id, [sleepStartId, sleepEndId, becomeStaticId, becomeDynamicId]);
+            const becomeStaticId = body.events.on('become-static', (event) => {
+                if (event.previousType === BodyType.dynamic) {
+                    if (body.sleepState === SleepingState.SLEEPING) {
+                        this.sleepingBodies.delete(body.id);
+                    } else {
+                        this.activeBodies.delete(body.id);
+                    }
+                } else if (event.previousType === BodyType.kinematic) {
+                    this.kinematicBodies.delete(body.id);
+                }
+
+                this.staticBodies.set(body.id, body);
+            });
+            const becomeKinematicId = body.events.on('become-kinematic', (event) => {
+                if (event.previousType === BodyType.dynamic) {
+                    if (body.sleepState === SleepingState.SLEEPING) {
+                        this.sleepingBodies.delete(body.id);
+                    } else {
+                        this.activeBodies.delete(body.id);
+                    }
+                } else if (event.previousType === BodyType.static) {
+                    this.staticBodies.delete(body.id);
+                }
+
+                this.kinematicBodies.set(body.id, body);
+            });
+            this.eventIds.set(body.id, [sleepStartId, sleepEndId, becomeDynamicId, becomeStaticId, becomeKinematicId]);
         }
     }
 
@@ -64,9 +95,17 @@ export class World extends Composite {
         }
 
         for (const body of bodies) {
-            this.staticBodies.delete(body.id);
-            this.sleepingBodies.delete(body.id);
-            this.activeBodies.delete(body.id);
+            if (body.type === BodyType.dynamic) {
+                if (body.sleepState === SleepingState.SLEEPING) {
+                    this.sleepingBodies.delete(body.id);
+                } else {
+                    this.activeBodies.delete(body.id);
+                }
+            } else if (body.type === BodyType.static) {
+                this.staticBodies.delete(body.id);
+            } else if (body.type === BodyType.kinematic) {
+                this.kinematicBodies.delete(body.id);
+            }
 
             for (const eventId of <number[]>this.eventIds.get(body.id)) {
                 body.events.off(eventId);

@@ -4,7 +4,7 @@ import { Grid } from '../../common/Grid';
 import { Vector } from '../../math/Vector';
 import { AABB } from '../../math/AABB';
 import { Shape } from '../../body/shapes/Shape';
-import { Body } from '../../body/Body';
+import { Body, BodyType } from '../../body/Body';
 import { Engine } from '../../engine/Engine';
 import { Manager } from './Manager';
 
@@ -83,7 +83,7 @@ export class Broadphase {
         const bodyA: Body = <Body>shapeA.body;
         const bodyB: Body = <Body>shapeB.body;
 
-        if ((bodyA === bodyB) || (bodyA.isStatic && bodyB.isStatic)) return;
+        if ((bodyA === bodyB) || (bodyA.type !== BodyType.dynamic && bodyB.type !== BodyType.dynamic)) return;
 
         const pairId: number = Common.combineId(shapeA.id, shapeB.id);
         const s: Pair | undefined = this.manager.pairs.get(pairId);

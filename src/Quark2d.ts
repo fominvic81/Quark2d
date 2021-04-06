@@ -1,6 +1,6 @@
 export { Engine } from './engine/Engine';
 
-export { Body } from './body/Body';
+export { Body, BodyType } from './body/Body';
 export { Shape, ShapeType } from './body/shapes/Shape';
 export { Circle } from './body/shapes/Circle';
 export { Convex } from './body/shapes/Convex';

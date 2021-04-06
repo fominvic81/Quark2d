@@ -1,3 +1,4 @@
+import { BodyType } from '../body/Body';
 import { SleepingState } from '../body/Sleeping';
 import { Vector } from '../math/Vector';
 import { Constraint, ConstraintOptions, ConstraintType } from './Constraint';
@@ -55,12 +56,12 @@ export class DistanceConstraint extends Constraint {
                         mass;
 
         let ratioA, ratioB, inertiaRatioA, inertiaRatioB;
-        if (this.bodyA && !this.bodyA.isStatic) {
+        if (this.bodyA && this.bodyA.type === BodyType.dynamic) {
             ratioA = this.bodyA.inverseMass / mass;
             inertiaRatioA = this.bodyA.inverseInertia / inertia;
         }
 
-        if (this.bodyB && !this.bodyB.isStatic) {
+        if (this.bodyB && this.bodyB.type === BodyType.dynamic) {
             ratioB = this.bodyB.inverseMass / mass;
             inertiaRatioB = this.bodyB.inverseInertia / inertia;
         }
@@ -88,7 +89,7 @@ export class DistanceConstraint extends Constraint {
             normal.scale(normalVelocity, relativeVelocity);
         }
 
-        if (this.bodyA && !this.bodyA.isStatic) {
+        if (this.bodyA && this.bodyA.type === BodyType.dynamic) {
             this.bodyA.setSleeping(SleepingState.AWAKE);
 
             const x = impulse.x * <number>ratioA;
@@ -114,7 +115,7 @@ export class DistanceConstraint extends Constraint {
                 this.bodyA.velocity.y += damping.y;
             }
         }
-        if (this.bodyB && !this.bodyB.isStatic) {
+        if (this.bodyB && this.bodyB.type === BodyType.dynamic) {
             this.bodyB.setSleeping(SleepingState.AWAKE);
 
             const x = impulse.x * <number>ratioB;

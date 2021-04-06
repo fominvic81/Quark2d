@@ -12,15 +12,33 @@ export interface BodyOptions {
     angle?: number,
     mass?: number,
     density?: number,
-    isStatic?: boolean,
+    type?: BodyType,
     velocityDamping?: number,
     fixedRotation?: boolean,
 }
 
+export enum BodyType {
+    dynamic,
+    static,
+    kinematic,
+}
+
 /**
- * The bodies have position, angle, velocity, mass, area.
+ * The bodies have position, angle, velocity.
  * You can apply forces, impulses and add the shapes to the bodies.
- * The bodies can be static, or dynamic.
+ * The bodies can be dynamic, static or kinematic.
+ * 
+ * A dynamic bodies normally move according to forces but can be moved manually by the user.
+ * Dynamic bodies collide with all body types.
+ * You can set the mass of the dynamic bodies, but it can't be zero.
+ * 
+ * A static bodies do not respond to forces and can't be moved by other bodies and behaves as if it has infinite mass.
+ * Static bodies can be moved manually by the user.
+ * Static bodies do not collide with other static and kinematic bodies.
+ * 
+ * A kinematic bodies do not respond to forces and can't be moved by other bodies and behaves as if it has infinite mass.
+ * Kinematic can be moved manually by the user, but normally it must be moved by setting its velocity.
+ * Kinematic bodies do not collide with other kinematic and static bodies.
  */
 
 export class Body {
@@ -45,7 +63,7 @@ export class Body {
     dir: Vector = new Vector(1, 0);
     constraintDir: Vector = new Vector(1, 0);
     constraintAngle: number = 0;
-    isStatic: boolean = false;
+    type: BodyType = BodyType.dynamic;
     velocityDamping: number = 0;
     density: number = 100;
     mass: number = 0;
@@ -87,8 +105,8 @@ export class Body {
                 case 'density':
                     this.setDensity(option[1]);
                     break;
-                case 'isStatic':
-                    this.setStatic(option[1]);
+                case 'type':
+                    this.setType(option[1]);
                     break;
                 case 'velocityDamping':
                     this.velocityDamping = option[1];
@@ -198,10 +216,7 @@ export class Body {
     updateInertia () {
         let inertia = 0;
     
-        if (this.isStatic) {
-            this.inertia = 0;
-            this.inverseInertia = 0;
-        } else {
+        if (this.type === BodyType.dynamic) {
             const inverseArea = 1/this.area;
             for(const shape of this.shapes) {
 
@@ -211,6 +226,9 @@ export class Body {
     
                 inertia += shapeInertia;
             }
+        } else {
+            this.inertia = 0;
+            this.inverseInertia = 0;
         }
 
         this.inertia = this.mass * inertia;
@@ -222,12 +240,12 @@ export class Body {
      */
     updateMass () {
 
-        if (this.isStatic) {
-            this.mass = 0;
-            this.inverseMass = 0;
-        } else {
+        if (this.type === BodyType.dynamic) {
             this.mass = this.area * this.density;
             this.inverseMass = this.mass === 0 ? 0 : (1 / this.mass);
+        } else {
+            this.mass = 0;
+            this.inverseMass = 0;
         }
     }
 
@@ -391,26 +409,29 @@ export class Body {
     }
 
     /**
-     * Sets body.isStatic to the given value.
-     * If value is true sets zero acceleration and velocity.
+     * Sets body's type to the given.
      * @param value
      */
-    setStatic (value: boolean) {
-        if (this.isStatic === value) return;
-        this.isStatic = value;
+    setType (type: BodyType) {
+        if (this.type === type) return;
+        const previousType = this.type;
+        this.type = type;
 
-        if (value) {
-            this.acceleration.set(0, 0);
-            this.velocity.set(0, 0);
-            this.force.set(0, 0);
-            this.angularAcceleration = 0;
-            this.angularVelocity = 0;
-            this.torque = 0;
-            this.positionImpulse.set(0, 0);
-            this.events.trigger('become-static');
-        } else {
+        this.acceleration.set(0, 0);
+        this.velocity.set(0, 0);
+        this.force.set(0, 0);
+        this.angularAcceleration = 0;
+        this.angularVelocity = 0;
+        this.torque = 0;
+        this.positionImpulse.set(0, 0);
+
+        if (type === BodyType.dynamic) {
             this.setSleeping(SleepingState.AWAKE);
-            this.events.trigger('become-dynamic');
+            this.events.trigger('become-dynamic', [{previousType}]);
+        } else if (type === BodyType.static) {
+            this.events.trigger('become-static', [{previousType}]);
+        } else if (type === BodyType.kinematic) {
+            this.events.trigger('become-kinematic', [{previousType}]);
         }
         this.updateMass();
         this.updateInertia();
