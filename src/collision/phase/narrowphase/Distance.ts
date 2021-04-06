@@ -178,3 +178,42 @@ export const EPA = (points: SupportPoint[], shapeA: Shape, shapeB: Shape): Suppo
         }
     }
 }
+
+export const distance = (shapeA: Shape, shapeB: Shape) => {
+
+    const points = GJK(shapeA, shapeB);
+
+    if (!points.length) return;
+
+    if (points.length === 1) {
+        const vertex1 = shapeA.getPoint(points[0].indexA);
+        const vertex2 = shapeB.getPoint(points[0].indexB);
+
+        const normal = new Vector();
+
+        Vector.subtract(vertex2, vertex1, normal);
+        const length = normal.length();
+
+        normal.divide(length);
+
+        return {a: [vertex1], b: [vertex2], distance: length, normal};
+    } else {
+        if (points[0].indexA === points[1].indexA) {
+            const normal = shapeB.getNormal(points[1].indexB, new Vector());
+            return {
+                a: [shapeA.getPoint(points[0].indexA)],
+                b: [shapeB.getPoint(points[0].indexB), shapeB.getPoint(points[1].indexB)],
+                distance: Vector.dot(normal, points[0].point),
+                normal,
+            };
+        } else {
+            const normal = shapeA.getNormal(points[1].indexA, new Vector());
+            return {
+                a: [shapeA.getPoint(points[0].indexA), shapeA.getPoint(points[1].indexA)],
+                b: [shapeB.getPoint(points[0].indexB)],
+                distance: -Vector.dot(normal, points[0].point),
+                normal,
+            };
+        }
+    }
+}

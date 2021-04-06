@@ -26,6 +26,7 @@ export { collide } from './collision/phase/narrowphase/Collision';
 export { Colliders } from './collision/phase/narrowphase/Colliders';
 export { GJK } from './collision/phase/narrowphase/Distance';
 export { EPA } from './collision/phase/narrowphase/Distance';
+export { distance } from './collision/phase/narrowphase/Distance';
 
 export { Manager } from './collision/phase/Manager';
 export { Broadphase } from './collision/phase/Broadphase';
