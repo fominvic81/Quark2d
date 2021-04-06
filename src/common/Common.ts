@@ -44,9 +44,9 @@ export class Common {
      */
     static combineId (idA: number, idB: number): number {
         if (idA < idB) {
-            return (idA << 20) + idB;
+            return (idA << 16) + idB;
         }
-        return (idB << 20) + idA;
+        return (idB << 16) + idA;
     }
 
     /**
