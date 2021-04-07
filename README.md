@@ -1,6 +1,6 @@
 # Quark2d
 
-[Install](#install) - [Getting started](https://github.com/fominvic81/Quark2d/wiki/Getting-started) - [Example](#Example) - [Docs](https://github.com/fominvic81/Quark2d/wiki/Documentation)
+[Install](#install) - [Getting started](https://github.com/fominvic81/Quark2d/wiki/Getting-started) - [Example](#Example) - [Docs](https://fominvic81.github.io/Quark2d/index.html)
 
 ## Install
 
