@@ -1,6 +1,6 @@
 {
   "name": "quark2d",
-  "version": "2.0.3",
+  "version": "2.0.4",
   "repository": {
     "type": "git",
     "url": "https://github.com/fominvic81/Quark2d"
@@ -11,7 +11,7 @@
   "main": "dist/Quark2d.js",
   "types": "dist/Quark2d.d.ts",
   "directories": {
-    "dist": "./dist"
+    "lib": "./dist"
   },
   "keywords": [
     "javascript",
