@@ -8,10 +8,10 @@
   "author": "fominvic81 <fomin.vic81@gmail.com>",
   "description": "2d javascript physics engine",
   "license": "MIT",
-  "main": "dist/Quark2d.js",
-  "types": "dist/Quark2d.d.ts",
+  "main": "build/Quark2d.js",
+  "types": "build/Quark2d.d.ts",
   "files": [
-    "dist/"
+    "build/"
   ],
   "keywords": [
     "javascript",
