@@ -17,7 +17,7 @@ export class Solver {
     constraintIterations: number = 5;
 
     static SLOP: number = 0.005;
-    static DEPTH_DAMPING: number = 0.6;
+    static DEPTH_DAMPING: number = 0.7;
     static POSITION_IMPULSE_DAMPING: number = 0.4;
     static CONSTRAINT_IMPULSE_DAMPING: number = 0.4;
     static RESTING_THRESHOLD: number = 0.08;
@@ -88,7 +88,7 @@ export class Solver {
         for (const pair of pairs) {
             pair.separation = Vector.dot(
                 pair.normal,
-                Vector.subtract(pair.penetration, Vector.subtract((<Body>pair.shapeA.body).positionImpulse, (<Body>pair.shapeA.body).positionImpulse, Solver.vecTemp[0]), Solver.vecTemp[1]),
+                Vector.subtract(pair.penetration, Vector.subtract((<Body>pair.shapeB.body).positionImpulse, (<Body>pair.shapeA.body).positionImpulse, Solver.vecTemp[0]), Solver.vecTemp[1]),
             );
         }
 
@@ -96,12 +96,10 @@ export class Solver {
             const bodyA = <Body>pair.shapeA.body;
             const bodyB = <Body>pair.shapeB.body;
 
-            positionImpulse = (pair.separation - Solver.SLOP) * 0.5;
+            positionImpulse = pair.separation - Solver.SLOP;
 
-            // test
-            // if (!(bodyA.type !== BodyType.dynamic || bodyB.type !== BodyType.dynamic)) {
-            if (bodyA.type === BodyType.dynamic && bodyB.type === BodyType.dynamic) {
-                positionImpulse *= 0.5;
+            if (bodyA.type !== BodyType.dynamic || bodyB.type !== BodyType.dynamic) {
+                positionImpulse *= 2;
             }
 
             if (bodyA.type === BodyType.dynamic && bodyA.sleepState !== SleepingState.SLEEPING) { 
@@ -109,7 +107,7 @@ export class Solver {
                 bodyA.positionImpulse.x -= pair.normal.x * positionImpulse * share;
                 bodyA.positionImpulse.y -= pair.normal.y * positionImpulse * share;
             }
-            
+
             if (bodyB.type === BodyType.dynamic && bodyB.sleepState !== SleepingState.SLEEPING) {
                 const share = Solver.DEPTH_DAMPING / bodyB.pairsCount;
                 bodyB.positionImpulse.x += pair.normal.x * positionImpulse * share;
