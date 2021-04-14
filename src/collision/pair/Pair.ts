@@ -22,6 +22,7 @@ export class Pair {
     contacts: Contact[] = [new Contact(this), new Contact(this)];
     broadphaseCellsCount: number = 0;
     isSleeping: boolean = false;
+    isSensor: boolean = false;
 
     constructor (shapeA: Shape, shapeB: Shape) {
         this.shapeA = shapeA;

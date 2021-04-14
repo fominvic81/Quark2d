@@ -64,19 +64,7 @@ const edgeSupportPoint = (edge: Edge, dir: Vector): [Vector, number] => {
     return [index ? edge.end : edge.start, index];
 }
 
-const pts = (p1: SupportPoint, p2: SupportPoint): SupportPoint[] => {
-    const t = Vector.zeroT(p1.point, p2.point);
-
-    if (t === -1) {
-        return [p1];
-    } else if (t === 1) {
-        return [p2];
-    } else {
-        return [p2, p1];
-    }
-}
-
-export const GJK = (shapeA: Shape, shapeB: Shape): SupportPoint[] => {
+export const GJK = (shapeA: Shape, shapeB: Shape, useEpa: boolean, output: SupportPoint[]): boolean => {
 
     const dir = Vector.temp[1];
 
@@ -105,10 +93,24 @@ export const GJK = (shapeA: Shape, shapeB: Shape): SupportPoint[] => {
         support.compute(shapeA, shapeB, dir);
 
         if (Vector.zeroSide(p1.point, support.point) && Vector.zeroSide(support.point, p2.point)) {
-            return EPA([p1, p2, support], shapeA, shapeB);
+            if (useEpa) {
+                EPA([p1, p2, support], shapeA, shapeB, output);
+                return true;
+            }
+            output.push(p1, p2, support);
+            return true;
         } else {
             if (Vector.dot(support.point, dir) <= Math.max(Vector.dot(p1.point, dir), Vector.dot(p2.point, dir))) {
-                return pts(p1, p2);
+                const t = Vector.zeroT(p1.point, p2.point);
+
+                if (t === -1) {
+                    output.push(p1);
+                } else if (t === 1) {
+                    output.push(p2);
+                } else {
+                    output.push(p2, p1);
+                }
+                return true;
             } else {
                 if (Vector.distSquaredToZero(p1.point, support.point) < Vector.distSquaredToZero(p2.point, support.point)) {
                     support.clone(p2);
@@ -121,12 +123,12 @@ export const GJK = (shapeA: Shape, shapeB: Shape): SupportPoint[] => {
         ++iterations;
         if (iterations > MAX_GJK_ITERATIONS) {
             console.warn('Too many GJK iterations');
-            return [];
+            return false;
         }
     }
 }
 
-export const EPA = (points: SupportPoint[], shapeA: Shape, shapeB: Shape): SupportPoint[] => {
+export const EPA = (points: SupportPoint[], shapeA: Shape, shapeB: Shape, output: SupportPoint[]): void => {
 
     let iterations = 0;
 
@@ -152,14 +154,16 @@ export const EPA = (points: SupportPoint[], shapeA: Shape, shapeB: Shape): Suppo
 
         if (iterations > MAX_EPA_ITERATIONS) {
             console.warn('Too many EPA iterations');
-            return [p1, p2];
+            output.push(p1, p2);
+            return;
         }
 
         const p = EPA_Temp[iterations];
         p.compute(shapeA, shapeB, Vector.subtract(p2.point, p1.point, Vector.temp[1]).rotate90());
 
         if (p1.index === p.index || p2.index === p.index) {
-            return [p1, p2];
+            output.push(p1, p2);
+            return;
         } else {
             const points2 = [p];
 
@@ -181,9 +185,9 @@ export const EPA = (points: SupportPoint[], shapeA: Shape, shapeB: Shape): Suppo
 
 export const distance = (shapeA: Shape, shapeB: Shape) => {
 
-    const points = GJK(shapeA, shapeB);
+    const points: SupportPoint[] = [];
 
-    if (!points.length) return;
+    if (!GJK(shapeA, shapeB, true, points)) return;
 
     if (points.length === 1) {
         const vertex1 = shapeA.getPoint(points[0].indexA);

@@ -20,12 +20,13 @@ export class Narrowphase {
             Colliders[pair.shapeA.type | pair.shapeB.type](pair);
 
             if (pair.isActive) {
-                for (let i = 0; i < pair.contactsCount; ++i) {
-                    this.manager.contacts.push(pair.contacts[i]);
-                }
+                pair.isSensor = pair.shapeA.isSensor || pair.shapeB.isSensor;
                 this.manager.activePairs.push(pair);
-                if (!pair.isSleeping) {
+                if (!pair.isSleeping && !pair.isSensor) {
                     this.manager.pairsToSolve.push(pair);
+                    for (let i = 0; i < pair.contactsCount; ++i) {
+                        this.manager.contacts.push(pair.contacts[i]);
+                    }
                 }
                 if (!pair.isActivePrev) {
                     this.manager.startedPairs.push(pair);

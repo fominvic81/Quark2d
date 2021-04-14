@@ -18,6 +18,7 @@ export interface ShapeOptions {
     restitution?: number;
     friction?: number;
     surfaceVelocity?: number;
+    isSensor?: boolean;
 }
 
 export enum ShapeType {
@@ -44,19 +45,21 @@ export abstract class Shape {
     restitution: number;
     friction: number;
     surfaceVelocity: number;
+    isSensor: boolean;
     region?: Region;
 
     constructor (options: ShapeOptions = {}) {
         this.inertia = options.inertia ?? 0;
         this.radius = options.radius ?? Solver.SLOP * 2;
         if (options.filter) {
-            if (options.filter.category !== undefined) this.filter.category = options.filter.category;
-            if (options.filter.mask !== undefined) this.filter.mask = options.filter.mask;
-            if (options.filter.group !== undefined) this.filter.group = options.filter.group;
+            this.filter.category = options.filter.category ?? this.filter.category;
+            this.filter.mask = options.filter.mask ?? this.filter.category;
+            this.filter.group = options.filter.group ?? this.filter.group;
         }
-        this.restitution = options.restitution !== undefined ? options.restitution : 0.1;
-        this.friction = options.friction !== undefined ? options.friction : 0.4;
-        this.surfaceVelocity = options.surfaceVelocity !== undefined ? options.surfaceVelocity : 0;
+        this.restitution = options.restitution ?? 0.1;
+        this.friction = options.friction ?? 0.4;
+        this.surfaceVelocity = options.surfaceVelocity ?? 0;
+        this.isSensor = options.isSensor ?? false;
     }
 
     /**

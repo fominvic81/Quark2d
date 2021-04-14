@@ -94,9 +94,9 @@ export const collide = (pair: Pair): boolean => {
     const shapeA = pair.shapeA;
     const shapeB = pair.shapeB;
 
-    const points = GJK(shapeA, shapeB);
+    const points: SupportPoint[] = [];
 
-    if (!points.length) return false;
+    if (!GJK(shapeA, shapeB, true, points)) return false;
 
     const normal = pair.normal;
     const radius = shapeA.radius + shapeB.radius;
