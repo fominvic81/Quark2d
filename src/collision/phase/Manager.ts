@@ -25,8 +25,7 @@ export class Manager {
     endedPairs: Pair[] = [];
     
     pairsToSolve: Pair[] = [];
-
-    contacts: Contact[] = [];
+    contactsToSolve: Contact[] = [];
 
     constructor (engine: Engine, options: ManagerOptions = {}) {
         this.engine = engine;
@@ -42,7 +41,7 @@ export class Manager {
         this.endedPairs.length = 0;
 
         this.pairsToSolve.length = 0;
-        this.contacts.length = 0;
+        this.contactsToSolve.length = 0;
 
         this.broadphase.update();
         this.midphase.update(this.broadphase.activePairs);

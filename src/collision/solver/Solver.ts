@@ -137,7 +137,7 @@ export class Solver {
      * Solves warm starting.
      */
     warmStart () {
-        const contacts = this.engine.manager.contacts;
+        const contacts = this.engine.manager.contactsToSolve;
 
         const impulse: Vector = Solver.vecTemp[0];
         const temp: Vector = Solver.vecTemp[1];

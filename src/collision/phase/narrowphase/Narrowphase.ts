@@ -15,24 +15,28 @@ export class Narrowphase {
     update (pairs: Iterable<Pair>) {
 
         for (const pair of pairs) {
-            pair.isActive = false;
+            if (!pair.isSleeping) {
+                pair.isActive = false;
 
-            Colliders[pair.shapeA.type | pair.shapeB.type](pair);
+                Colliders[pair.shapeA.type | pair.shapeB.type](pair);
 
-            if (pair.isActive) {
-                pair.isSensor = pair.shapeA.isSensor || pair.shapeB.isSensor;
-                this.manager.activePairs.push(pair);
-                if (!pair.isSleeping && !pair.isSensor) {
-                    this.manager.pairsToSolve.push(pair);
-                    for (let i = 0; i < pair.contactsCount; ++i) {
-                        this.manager.contacts.push(pair.contacts[i]);
+                if (pair.isActive) {
+                    pair.isSensor = pair.shapeA.isSensor || pair.shapeB.isSensor;
+                    this.manager.activePairs.push(pair);
+                    if (!pair.isSleeping && !pair.isSensor) {
+                        this.manager.pairsToSolve.push(pair);
+                        for (let i = 0; i < pair.contactsCount; ++i) {
+                            this.manager.contactsToSolve.push(pair.contacts[i]);
+                        }
                     }
+                    if (!pair.isActivePrev) {
+                        this.manager.startedPairs.push(pair);
+                    }
+                } else if (pair.isActivePrev) {
+                    this.manager.endedPairs.push(pair);
                 }
-                if (!pair.isActivePrev) {
-                    this.manager.startedPairs.push(pair);
-                }
-            } else if (pair.isActivePrev) {
-                this.manager.endedPairs.push(pair);
+            } else {
+                this.manager.activePairs.push(pair);
             }
         }
     }

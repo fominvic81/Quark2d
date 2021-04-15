@@ -336,12 +336,13 @@ export class Render {
     }
 
     collisions () {
-        const contacts = this.engine.manager.contacts;
-
-        for (const contact of contacts) {
-            if (this.options.aabb.contains(contact.vertex)) {
-                Draw.circle(this.ctx, contact.vertex, this.options.lineWidth / 8, 'rgb(200, 80, 80)');
-                Draw.line(this.ctx, contact.vertex, contact.pair.normal.scale(0.2, Vector.temp[0]).add(contact.vertex), 'rgb(200, 80, 80)', this.options.lineWidth / 8);
+        for (const pair of this.engine.manager.activePairs) {
+            for (let i = 0; i < pair.contactsCount; ++i) {
+                const contact = pair.contacts[i];
+                if (this.options.aabb.contains(contact.vertex)) {
+                    Draw.circle(this.ctx, contact.vertex, this.options.lineWidth / 8, 'rgb(200, 80, 80)');
+                    Draw.line(this.ctx, contact.vertex, contact.pair.normal.scale(0.2, Vector.temp[0]).add(contact.vertex), 'rgb(200, 80, 80)', this.options.lineWidth / 8);
+                }
             }
         }
     }

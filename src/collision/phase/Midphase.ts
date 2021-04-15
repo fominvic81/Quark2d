@@ -25,14 +25,18 @@ export class Midphase {
                 continue;
             }
             pair.isSleeping = ((<Body>pair.shapeA.body).sleepState === SleepingState.SLEEPING || (<Body>pair.shapeA.body).type !== BodyType.dynamic) && ((<Body>pair.shapeB.body).sleepState === SleepingState.SLEEPING || (<Body>pair.shapeB.body).type !== BodyType.dynamic);
-            pair.isActive = false;
-            if (!Filter.canCollide(pair.shapeA.filter, pair.shapeB.filter)) continue;
+            if (!pair.isSleeping) {
+                pair.isActive = false;
+                if (!Filter.canCollide(pair.shapeA.filter, pair.shapeB.filter)) continue;
 
-            if (pair.shapeA.aabb.overlaps(pair.shapeB.aabb)) {
-                pair.isActive = true;
+                if (pair.shapeA.aabb.overlaps(pair.shapeB.aabb)) {
+                    pair.isActive = true;
+                    this.activePairs.push(pair);
+                } else if (pair.isActivePrev) {
+                    this.manager.endedPairs.push(pair);
+                }
+            } else if (pair.isActive) {
                 this.activePairs.push(pair);
-            } else if (pair.isActivePrev) {
-                this.manager.endedPairs.push(pair);
             }
         }
     }
