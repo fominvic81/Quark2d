@@ -15,7 +15,7 @@ export class Runner {
     delta: number = 0;
     deltaAccumulator: number = 0;
     fps: number = 0;
-    renderDelta: number = 0;
+    renderDelta: number = 0.01;
 
     renderTime: number = performance.now() / 1000;
     time: number = performance.now() / 1000;
@@ -82,7 +82,7 @@ export class Runner {
 
             this.event.time = this.time - this.deltaAccumulator;
             this.event.delta = this.fixedDelta;
-            this.event.tps = this.fixedTps;
+            this.event.tps = Math.min(this.fixedTps, this.tps);
             
             this.events.trigger('before-update', [this.event]);
             this.events.trigger('update', [this.event]);
@@ -108,7 +108,7 @@ export class Runner {
     runRender () {
         if (this.enabledRender) return;
         this.enabledRender = true;
-        this.renderTime = performance.now() - this.renderDelta;
+        this.renderTime = performance.now() / 1000 - this.renderDelta;
         this.render();
     }
 
