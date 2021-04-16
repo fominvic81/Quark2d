@@ -53,7 +53,7 @@ export class Mouse {
             this.rightButtonPressed = true;
         }
 
-        this.localPosition.set(event.clientX, event.clientY);
+        this.localPosition.set(event.offsetX, event.offsetY);
         this.updatePosition();
         
         this.events.trigger('mouse-down', [{mouse: this, event}]);
@@ -73,14 +73,14 @@ export class Mouse {
             this.rightButtonPressed = false;
         }
 
-        this.localPosition.set(event.clientX, event.clientY);
+        this.localPosition.set(event.offsetX, event.offsetY);
         this.updatePosition();
 
         this.events.trigger('mouse-up', [{mouse: this, event}]);
     }
 
     mouseMove (event: MouseEvent) {
-        this.localPosition.set(event.clientX, event.clientY);
+        this.localPosition.set(event.offsetX, event.offsetY);
         this.updatePosition();
 
         this.localMovement.set(event.movementX, event.movementY);
