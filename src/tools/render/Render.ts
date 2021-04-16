@@ -503,11 +503,6 @@ export class Render {
 
     createCanvas (width: number, height: number) {
         const canvas = document.createElement('canvas');
-        canvas.style.position = 'fixed';
-        canvas.style.left = '0px';
-        canvas.style.top = '0px';
-        canvas.style.right = '0px';
-        canvas.style.bottom = '0px';
         canvas.width = width;
         canvas.height = height;
         canvas.oncontextmenu = () => false;
@@ -516,11 +511,6 @@ export class Render {
 
     static createCanvas (width: number, height: number) {
         const canvas = document.createElement('canvas');
-        canvas.style.position = 'fixed';
-        canvas.style.left = '0px';
-        canvas.style.top = '0px';
-        canvas.style.right = '0px';
-        canvas.style.bottom = '0px';
         canvas.width = width;
         canvas.height = height;
         canvas.oncontextmenu = function() { return false; };
