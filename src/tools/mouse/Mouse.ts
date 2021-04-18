@@ -19,27 +19,26 @@ export class Mouse {
     localMovement: Vector = new Vector();
     movement: Vector = new Vector();
     scroll: Vector = new Vector();
+    mousedownListener = (event: MouseEvent) => this.mouseDown(event);
+    mouseupListener = (event: MouseEvent) => this.mouseUp(event);
+    mousemoveListener = (event: MouseEvent) => this.mouseMove(event);
+    wheelListener = (event: MouseEvent) => this.mouseWheel(event);
 
     constructor (render: Render) {
 
         this.render = render;
 
-        this.render.canvas.addEventListener('mousedown', (event) => {
-            this.mouseDown(event);
-        });
+        this.render.canvas.addEventListener('mousedown', this.mousedownListener);
+        this.render.canvas.addEventListener('mouseup', this.mouseupListener);
+        this.render.canvas.addEventListener('mousemove', this.mousemoveListener);
+        this.render.canvas.addEventListener('wheel', this.wheelListener);
+    }
 
-        this.render.canvas.addEventListener('mouseup', (event) => {
-            this.mouseUp(event);
-        });
-
-        this.render.canvas.addEventListener('mousemove', (event) => {
-            this.mouseMove(event);
-        });
-
-        this.render.canvas.addEventListener('wheel', (event) => {
-            this.mouseWheel(event);
-        });
-
+    removeListeners () {
+        this.render.canvas.removeEventListener('mousedown', this.mousedownListener);
+        this.render.canvas.removeEventListener('mouseup', this.mouseupListener);
+        this.render.canvas.removeEventListener('mousemove', this.mousemoveListener);
+        this.render.canvas.removeEventListener('wheel', this.wheelListener);
     }
 
     mouseDown (event: MouseEvent) {
