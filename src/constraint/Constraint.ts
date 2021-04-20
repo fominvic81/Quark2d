@@ -40,6 +40,10 @@ export abstract class Constraint {
 
         this.bodyA = options.bodyA;
         this.bodyB = options.bodyB;
+        this.bodyA?.dir.clone(this.bodyA.constraintDir);
+        this.bodyB?.dir.clone(this.bodyB.constraintDir);
+        if (this.bodyA) this.bodyA.constraintAngle = this.bodyA.angle;
+        if (this.bodyB) this.bodyB.constraintAngle = this.bodyB.angle;
         this.pointA = options.pointA ? options.pointA.clone() : new Vector();
         this.pointB = options.pointB ? options.pointB.clone() : new Vector();
         this.worldPointA = this.bodyA ? new Vector() : this.pointA.clone();
