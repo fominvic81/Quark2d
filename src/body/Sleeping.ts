@@ -41,6 +41,23 @@ export class Sleeping {
     }
 
     /**
+     * Sets the sleeping type to the given.
+     * @param type 
+     */
+    setType (type: SleepingType) {
+        if (this.type === type) return;
+        if (this.type === SleepingType.NO_SLEEPING) {
+            this.type = type;
+            return;
+        }
+        this.type = type;
+
+        for (const body of this.engine.world.sleepingBodies.values()) {
+            body.setSleeping(SleepingState.AWAKE);
+        }
+    }
+
+    /**
      * Updates the sleep state of bodies depending on their motion.
      * @param delta
      */
