@@ -1,6 +1,6 @@
 # Quark2d
 
-[Install](#install) - [Getting started](https://github.com/fominvic81/Quark2d/wiki/Getting-started) - [Example](#Example) - [Docs](https://fominvic81.github.io/Quark2d/index.html)
+[Install](#install) - [Getting started](https://github.com/fominvic81/Quark2d/wiki/Getting-started) - [Example](#Example) - [Docs](https://fominvic81.github.io/Quark2d/index.html) - [Demos](https://fominvic81.github.io/Quark2d-Demo)
 
 ## Install
 
@@ -8,6 +8,40 @@
     npm install quark2d
 #### Yarn
     yarn add quark2d
+
+## Features
+
+Rigid bodies
+
+Circles, Polygons and Capsules
+
+Multiple shapes attached to a single body
+
+Friction and restitution
+
+Dynamic, static and kinematic bodies
+
+Sleeping bodies
+
+Sensor shapes
+
+Rounded shapes
+
+Stable stacking
+
+Warm starting
+
+Mass, density, area
+
+Constraints
+
+Fast collsion detection and solving
+
+Grid broadphase
+
+Collision filtering
+
+Events
 
 ## Example
 
@@ -39,7 +73,7 @@ Mouse wheel to zoom.
 
     // Create an empty body
     const circleBody = new Body({
-        position: new Vector(0.5, -2)
+        position: new Vector(0, 9),
     });
 
     // Create a circle shape
@@ -53,13 +87,12 @@ Mouse wheel to zoom.
     // Add the the body to the world
     engine.world.add(circleBody);
 
-    // Create a rounded rectangular body
-    const rectBody = Factory.Body.rectangle(new Vector(0, 0), 0, 1, 1, {}, {
-        radius: 0.1, // Rounding radius. All shapes can have a rounding radius
-    });
-
-    // Add the the rect body to the world
-    engine.world.add(rectBody);
+    // Create boxes
+    for (let i = 0; i < 8; ++i) {
+        for (let j = 0; j < 5; ++j) {
+            engine.world.add(Factory.Body.rectangle(new Vector(i - 3.5, j), 0, 0.8, 0.8, {}, {radius: 0.05}));
+        }
+    }
 
     // Create an empty static body
     const ground = new Body({
