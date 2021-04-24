@@ -9,6 +9,8 @@ export class Filter {
     mask: number = 4294967295;
     category: number = 1;
     group: number = 0;
+    private static group = 1;
+    private static nonCollidingGroup = -1;
 
     /**
      * Creates a new filter.
@@ -52,11 +54,11 @@ export class Filter {
      * @param nonColliding
      * @returns The next unique group
      */
-    static nextGroup (engine: Engine, nonColliding = false) {
+    static nextGroup (nonColliding = false) {
         if (nonColliding) {
-            return engine.nonCollidingGroup--;
+            return this.nonCollidingGroup--;
         }
-        return engine.group++;
+        return this.group++;
     }
 
 }
