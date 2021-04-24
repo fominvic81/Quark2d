@@ -44,6 +44,7 @@ export { Intersection } from './collision/ray/Intersection';
 
 export { Constraint, ConstraintType } from './constraint/Constraint';
 export { DistanceConstraint } from './constraint/DistanceConstraint';
+export { PointConstraint } from './constraint/PointConstraint';
 
 export { Factory } from './tools/factory/Factory';
 export { FactoryBody } from './tools/factory/FactoryBody';

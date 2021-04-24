@@ -4,7 +4,7 @@ import { Body } from '../body/Body';
 
 export enum ConstraintType {
     DISTANCE_CONSTRAINT = Math.pow(2, 0),
-    ANGLE_CONSTRAINT = Math.pow(2, 1),
+    Point_CONSTRAINT = Math.pow(2, 1),
 }
 
 export interface ConstraintOptions {
