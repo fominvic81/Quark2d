@@ -3,14 +3,12 @@
  * The 'Filter' is class for creating collision filters.
  */
 
+import { Engine } from '../engine/Engine';
+
 export class Filter {
     mask: number = 4294967295;
     category: number = 1;
     group: number = 0;
-
-    private static category = 1;
-    private static group = 1;
-    private static nonCollidingGroup = -1;
 
     /**
      * Creates a new filter.
@@ -39,24 +37,26 @@ export class Filter {
     }
 
     /**
+     * @param engine
      * @returns The next unique category(there are 32 available)
      */
-    static nextCategory () {
-        this.category = this.category << 1;
-        return this.category;
+    static nextCategory (engine: Engine) {
+        engine.category = engine.category << 1;
+        return engine.category;
     }
 
     /**
      * If 'nonColliding' is false returns the next unique group for which bodies will collide,
      * otherwise returns the next unique group for which bodies will NOT collide.
+     * @param engine
      * @param nonColliding
      * @returns The next unique group
      */
-    static nextGroup (nonColliding = false) {
+    static nextGroup (engine: Engine, nonColliding = false) {
         if (nonColliding) {
-            return this.nonCollidingGroup--;
+            return engine.nonCollidingGroup--;
         }
-        return this.group++;
+        return engine.group++;
     }
 
 }

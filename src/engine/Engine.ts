@@ -113,4 +113,8 @@ export class Engine {
             body.force.y += this.gravity.y * body.mass;
         }
     }
+
+    category: number = 1;
+    group: number = 1;
+    nonCollidingGroup: number = -1;
 };
