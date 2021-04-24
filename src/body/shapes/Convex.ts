@@ -33,10 +33,7 @@ export class Convex extends Shape {
 
         this.updateArea();
         this.updateCenterOfMass();
-
-        if (!this.inertia) {
-            this.inertia = this.updateInertia();
-        }
+        this.updateInertia();
     }
 
     /**
@@ -173,6 +170,8 @@ export class Convex extends Shape {
         const center = Vertices.center(this.vertices);
 
         center.clone(this.position);
+
+        this.updateInertia();
     }
 
     raycast (intersection: Intersection, from: Vector, to: Vector, delta: Vector) {

@@ -34,7 +34,6 @@ export class Edge extends Shape {
         this.set(options.start || this.start, options.end || this.end);
 
         this.updateArea();
-
         this.updateInertia();
     }
 

@@ -219,6 +219,7 @@ export class Body {
         if (this.type === BodyType.dynamic) {
             const inverseArea = 1/this.area;
             for(const shape of this.shapes) {
+                shape.updateInertia();
 
                 const areaFraction = shape.area * inverseArea;
                 const distSquared = Vector.distSquared(this.position, shape.position);
@@ -270,6 +271,7 @@ export class Body {
                 Vertices.translate((<Convex>shape).deltaVertices, cm);
             }
         }
+        this.updateInertia();
     }
 
     /**

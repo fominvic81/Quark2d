@@ -14,10 +14,7 @@ export class Circle extends Shape {
         this.radius = (options.radius ?? 0.5) + Solver.SLOP * 2;
 
         this.updateArea();
-
-        if (!this.inertia) {
-            this.inertia = this.updateInertia();
-        }
+        this.inertia = this.updateInertia();
     }
 
     /**

@@ -8,7 +8,6 @@ import { Body } from '../Body';
 import { Intersection } from '../../collision/ray/Intersection';
 
 export interface ShapeOptions {
-    inertia?: number;
     radius?: number;
     filter?: {
         category?: number,
@@ -38,7 +37,7 @@ export abstract class Shape {
     body: undefined | Body;
     position: Vector = new Vector();
     aabb: AABB = new AABB();
-    inertia: number;
+    inertia: number = 0;
     area: number = 0;
     radius: number;
     filter: Filter = new Filter();
@@ -49,7 +48,6 @@ export abstract class Shape {
     region?: Region;
 
     constructor (options: ShapeOptions = {}) {
-        this.inertia = options.inertia ?? 0;
         this.radius = options.radius ?? Solver.SLOP * 2;
         if (options.filter) {
             this.filter.category = options.filter.category ?? this.filter.category;
