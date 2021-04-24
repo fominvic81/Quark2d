@@ -41,7 +41,7 @@ export enum BodyType {
  * Kinematic bodies do not collide with other kinematic and static bodies.
  */
 
-export class Body {
+export class Body<UserData = any> {
     id: number = Common.nextId();
     name: string = 'body';
     shapes: Set<Shape> = new Set();
@@ -76,6 +76,7 @@ export class Body {
     motion: number = 0;
     speedSquared: number = 0;
     angSpeedSquared: number = 0;
+    userData?: UserData;
 
     private static vecTemp: Vector[] = [
         new Vector(),
