@@ -72,10 +72,10 @@ export class FactoryComposite {
             });
             circle.addShape(new Circle({
                 radius,
-                inertia: Infinity,
                 restitution: 1,
                 friction: 0,
             }));
+            circle.setFixedRotation(true);
     
             if (i < leftCount) {
                 circle.translate(new Vector(-halfHeight * 2, -halfHeight * 2));
