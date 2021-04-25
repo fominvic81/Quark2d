@@ -65,4 +65,23 @@ export class FactoryShape {
     
         return output;
     }
+
+    static ellipse (radiusX: number, radiusY: number, quality: number = 6, options: ConvexOptions = {}): Convex {
+        const sides = quality * 4;
+
+        const delta = Common.PI2 / sides;
+        const initAngle = (delta + Math.PI) * 0.5;
+        const vertices = [];
+    
+        for (let i = 0; i < sides; ++i) {
+            const angle = initAngle + delta * i;
+            vertices.push(new Vector(
+                Math.cos(angle) * radiusX,
+                Math.sin(angle) * radiusY,
+            ));
+        }
+        
+        options.vertices = vertices;
+        return new Convex(options);
+    }
 }

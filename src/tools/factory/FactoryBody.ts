@@ -115,4 +115,24 @@ export class FactoryBody {
     
         return body;
     }
+
+    /**
+     * Creates an ellipse(many sided polygon). Quality by default is 6.
+     * @param position
+     * @param radiusX
+     * @param radiusY
+     * @param quality
+     * @param bodyOptions
+     * @param shapeOptions
+     * @returns An ellipse
+     */
+    static ellipse (position: Vector, radiusX: number, radiusY: number, quality: number = 6, bodyOptions: BodyOptions = {}, shapeOptions: ConvexOptions = {}): Body {
+
+        bodyOptions.position = position;
+        const body = new Body(bodyOptions);
+        const shape = Factory.Shape.ellipse(radiusX, radiusY, quality, shapeOptions);
+        body.addShape(shape);
+
+        return body
+    }
 }
