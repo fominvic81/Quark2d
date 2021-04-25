@@ -18,7 +18,7 @@ export class MouseConstraint {
         this.mouse = mouse;
         this.constraints = constraints;
 
-        engine.world.addConstraint(this.constraints);
+        engine.world.addConstraint(...this.constraints);
 
         this.mouse.events.on('mouse-down', (event: QMouseEvent) => {this.mouseDown(event)});
         this.mouse.events.on('mouse-up', (event: QMouseEvent) => {this.mouseUp(event)});

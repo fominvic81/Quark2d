@@ -50,8 +50,8 @@ export class FactoryComposite {
             stiffness: 1,
         });
     
-        composite.addBody([car, frontWheel, backWheel]);
-        composite.addConstraint([frontConstraint, backConstraint]);
+        composite.addBody(car, frontWheel, backWheel);
+        composite.addConstraint(frontConstraint, backConstraint);
     
         return composite;
     }

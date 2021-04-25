@@ -17,11 +17,8 @@ export class World extends Composite {
      * Adds given objects to the world.
      * @param objects
      */
-    addBody (bodies: Body[] | Body) {
-        super.addBody(bodies);
-        if (!Array.isArray(bodies)) {
-            bodies = [bodies];
-        }
+    addBody (...bodies: Body[]) {
+        super.addBody(...bodies);
 
         for (const body of bodies) {
 
@@ -88,11 +85,8 @@ export class World extends Composite {
      * Removes the given bodies from the world.
      * @param bodies
      */
-    removeBody (bodies: Body[] | Body) {
-        super.removeBody(bodies);
-        if (!Array.isArray(bodies)) {
-            bodies = [bodies];
-        }
+    removeBody (...bodies: Body[]) {
+        super.removeBody(...bodies);
 
         for (const body of bodies) {
             if (body.type === BodyType.dynamic) {

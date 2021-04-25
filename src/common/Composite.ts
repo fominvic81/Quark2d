@@ -18,10 +18,7 @@ export class Composite {
      * Adds given objects to the composite.
      * @param objects
      */
-    add (objects: Array<Body | Constraint> | Body | Constraint) {
-        if (!Array.isArray(objects)) {
-            objects = [objects];
-        }
+    add (...objects: Array<Body | Constraint>) {
         for (const object of objects) {
             switch (object.name) {
                 case 'body':
@@ -39,11 +36,7 @@ export class Composite {
      * Adds the given bodies to the composite.
      * @param bodies
      */
-    addBody (bodies: Body[] | Body) {
-        if (!Array.isArray(bodies)) {
-            bodies = [bodies];
-        }
-
+    addBody (...bodies: Body[]) {
         for (const body of bodies) {
             this.events.trigger('add-body', [{body}]);
             this.bodies.set(body.id, body);
@@ -54,11 +47,7 @@ export class Composite {
      * Removes the given bodies from the composite.
      * @param bodies
      */
-    removeBody (bodies: Body[] | Body) {
-        if (!Array.isArray(bodies)) {
-            bodies = [bodies];
-        }
-
+    removeBody (...bodies: Body[]) {
         for (const body of bodies) {
             if (this.bodies.has(body.id)) {
                 this.events.trigger('remove-body', [{body}]);
@@ -70,7 +59,7 @@ export class Composite {
     /**
      * Returns the body with the given id if the body exists in the composite.
      * @param id
-     * @returns
+     * @returns The Body with the given id if the body exists in the composite
      */
     getBody (id: number) {
         return this.bodies.get(id);
@@ -79,7 +68,7 @@ export class Composite {
     /**
      * Returns true if the body with the given id exists in the composite.
      * @param id 
-     * @returns
+     * @returns True if the body with the given id exists in the composite
      */
     hasBody (id: number) {
         return this.bodies.has(id);
@@ -87,7 +76,7 @@ export class Composite {
 
     /**
      * Returns all bodies that exists in the composite.
-     * @returns
+     * @returns All bodies that exists in the composite
      */
     allBodies () {
         return [...this.bodies.values()];
@@ -96,10 +85,7 @@ export class Composite {
     /**
      * Adds the given constraints to the composite.
      */
-    addConstraint (constraints: Constraint[] | Constraint) {
-        if (!Array.isArray(constraints)) {
-            constraints = [constraints];
-        }
+    addConstraint (...constraints: Constraint[]) {
         for (const constraint of constraints) {
             this.events.trigger('add-constraint', [{constraint}]);
             this.constraints.set(constraint.id, constraint);
@@ -110,11 +96,7 @@ export class Composite {
      * Removes the given constraints from the composite.
      * @param constraints
      */
-    removeConstraint (constraints: Constraint[] | Constraint) {
-        if (!Array.isArray(constraints)) {
-            constraints = [constraints];
-        }
-
+    removeConstraint (...constraints: Constraint[]) {
         for (const constraint of constraints) {
             if (this.constraints.has(constraint.id)) {
                 this.events.trigger('remove-constraint', [{constraint}]);
@@ -126,7 +108,7 @@ export class Composite {
     /**
      * Returns the constraint with the given id if the constraint exists in the composite.
      * @param id
-     * @returns
+     * @returns The constraint with the given id if the constraint exists in the composite
      */
     getConstraint (id: number) {
         return this.constraints.get(id);
@@ -135,7 +117,7 @@ export class Composite {
     /**
      * Returns true if the constraint with the given id exists in the composite.
      * @param id
-     * @returns
+     * @returns True if the constraint with the given id exists in the composite
      */
     hasConstraint (id: number) {
         return this.constraints.has(id);
@@ -143,15 +125,23 @@ export class Composite {
 
     /**
      * Returns all constraints that exists in the composite.
-     * @returns
+     * @returns All constraints that exists in the composite
      */
     allConstraints () {
         return [...this.constraints.values()];
     }
 
     /**
+     * Adds all bodies and constraints from given composite.
+     * @param composite
+     */
+    merge (composite: Composite) {
+        // this.add
+    }
+
+    /**
      * Returns the array of all bodies and constraints that exists in the composite.
-     * @returns
+     * @returns The array of all bodies and constraints that exists in the composite
      */
     all () {
         let all = [...this.bodies.values(), ...this.constraints.values()];
