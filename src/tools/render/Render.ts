@@ -462,9 +462,9 @@ export class Render {
             this.statusText += `midphasePairs: ${this.engine.manager.midphase.activePairs.length}   `;
             this.statusText += `narrowphasePairs: ${this.engine.manager.activePairs.length}   `;
 
-            this.statusText += `positionIterations: ${this.engine.solver.positionIterations}   `;
-            this.statusText += `velocityIterations: ${this.engine.solver.velocityIterations}   `;
-            this.statusText += `constraintIterations: ${this.engine.solver.constraintIterations}   `;
+            this.statusText += `positionIterations: ${this.engine.solver.options.positionIterations}   `;
+            this.statusText += `velocityIterations: ${this.engine.solver.options.velocityIterations}   `;
+            this.statusText += `constraintIterations: ${this.engine.solver.options.constraintIterations}   `;
         }
 
         this.ctx.font = '12px Arial';
