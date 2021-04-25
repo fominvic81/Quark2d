@@ -4,13 +4,16 @@ import { DistanceConstraint } from '../../constraint/DistanceConstraint';
 import { Engine } from '../../engine/Engine';
 import { Mouse, QMouseEvent } from './Mouse';
 import { Constraint } from '../../constraint/Constraint';
-import { BodyType } from '../../body/Body';
+import { Body, BodyType } from '../../body/Body';
+import { Shape } from '../../body/shapes/Shape';
 
 export class MouseConstraint {
     engine: Engine;
     mouse: Mouse;
     constraints: Constraint[];
     events = new Events();
+    body?: Body;
+    shape?: Shape;
     
     constructor (engine: Engine, mouse: Mouse, constraints: Constraint[] = [new DistanceConstraint({stiffness: 0.2, length: 0})]) {
 
@@ -33,6 +36,8 @@ export class MouseConstraint {
             for (const shape of body.shapes) {
                 if (shape.aabb.contains(event.mouse.position)) {
                     if (shape.contains(event.mouse.position)) {
+                        this.body = body;
+                        this.shape = shape;
                         for (const constraint of this.constraints) {
                             constraint.bodyA = body;
                             Vector.subtract(event.mouse.position, body.position, constraint.pointA).rotate(-body.angle);
@@ -47,8 +52,13 @@ export class MouseConstraint {
 
     mouseUp (event: QMouseEvent) {
         if (event.mouse.leftButtonPressed) return;
-        for (const constraint of this.constraints) {
-            constraint.bodyA = undefined;
+        if (this.body && this.shape) {
+            for (const constraint of this.constraints) {
+                constraint.bodyA = undefined;
+            }
+            this.events.trigger('throw-body', [{body: this.body, shape: this.shape}]);
+            this.body = undefined;
+            this.shape = undefined;
         }
     }
 
