@@ -42,11 +42,9 @@ export class PointConstraint extends Constraint {
 
             this.bodyA.setSleeping(SleepingState.AWAKE);
 
-            const offset =  Vector.subtract(pointA, this.bodyA.position, Constraint.vecTemp[2]);
-
             const x = impulse.x * radio;
             const y = impulse.y * radio;
-            const angle = Vector.cross(<Vector>offset, impulse) * inertiaRatio;
+            const angle = Vector.cross(this.offsetA, impulse) * inertiaRatio;
 
             this.bodyA.translate(Vector.temp[0].set(-x, -y));
             this.bodyA.constraintDir.rotate(-angle);
@@ -67,11 +65,9 @@ export class PointConstraint extends Constraint {
 
             this.bodyB.setSleeping(SleepingState.AWAKE);
 
-            const offset = this.bodyB ? Vector.subtract(pointB, this.bodyB.position, Constraint.vecTemp[2]) : undefined;
-
             const x = impulse.x * radio;
             const y = impulse.y * radio;
-            const angle = Vector.cross(<Vector>offset, impulse) * inertiaRatio;
+            const angle = Vector.cross(this.offsetB, impulse) * inertiaRatio;
 
             this.bodyB.translate(Vector.temp[0].set(x, y));
             this.bodyB.constraintDir.rotate(angle);
