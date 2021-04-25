@@ -1,7 +1,22 @@
+import { Common } from '../../common/Common';
 import { Events } from '../../common/Events';
+
+export enum RunnerType {
+    /**
+     * Fixed delta
+     */
+    fixed,
+    /**
+     * Dynamic delta
+     */
+    dynamic,
+}
 
 interface RunnerOptions {
     tps?: number;
+    type?: RunnerType;
+    timescale?: number;
+    correction?: boolean;
 }
 
 /**
@@ -9,36 +24,57 @@ interface RunnerOptions {
  */
 
 export class Runner {
-    fixedTps: number = 60;
-    fixedDelta: number = 1 / this.fixedTps;
+    options: {
+        type: RunnerType;
+        fixedTps: number;
+        fixedDelta: number;
+        timescale: number;
+        correction: boolean;
+    };
     tps: number = 0;
     delta: number = 0;
     deltaAccumulator: number = 0;
+    deltas: number[] = [];
+    deltasSize: number = 40;
+    lag: number = 0;
+
     fps: number = 0;
     renderDelta: number = 0.01;
 
     renderTime: number = performance.now() / 1000;
     time: number = performance.now() / 1000;
+    worldTime: number = 0;
 
-    events: Events = new Events();
-    event = {
+    readonly events: Events = new Events();
+    private event = {
         time: 0,
         delta: 0,
         tps: 0,
     }
-    renderEvent = {
+    private renderEvent = {
         time: 0,
         delta: 0,
-        fps: 0,
     }
 
     enabled: boolean = false; 
     enabledRender: boolean = false;
 
-    tickRequestId: number = 0;
-    renderRequestId: number = 0;
+    private tickRequestId: number = 0;
+    private renderRequestId: number = 0;
+
+    static LAG_C = 0.1;
+    static DELTA_C = 0.4;
+    static AVERAGE_C = 0.3;
+    static MIN_C = 1 - (Runner.DELTA_C + Runner.AVERAGE_C);
 
     constructor (options: RunnerOptions = {}) {
+        this.options = {
+            type: options.type ?? RunnerType.fixed,
+            fixedTps: 60,
+            fixedDelta: 1/60,
+            timescale: options.timescale ?? 1,
+            correction: options.correction ?? true,
+        }
         if (options.tps) this.setTps(options.tps);
     }
 
@@ -48,7 +84,7 @@ export class Runner {
     run () {
         if (this.enabled) return;
         this.enabled = true;
-        this.time = performance.now() / 1000 - this.fixedDelta;
+        this.time = performance.now() / 1000 - this.options.fixedDelta;
         this.tick();
     }
 
@@ -67,30 +103,76 @@ export class Runner {
         this.tps = 1 / this.delta;
         this.time = now;
 
-        this.event.time = this.time;
-        this.event.delta = this.delta;
-        this.event.tps = this.tps;
+        switch (this.options.type) {
+            case RunnerType.fixed:
+                this.deltaAccumulator += this.delta * this.options.timescale;
+                this.deltaAccumulator = Math.min(this.deltaAccumulator, Math.max(this.options.fixedDelta, 0.016666666666666666) * 1.5 * Math.max(this.options.timescale, 1));
 
-        this.events.trigger('before-tick', [this.event]);
-        this.events.trigger('tick', [this.event]);
+                while (this.deltaAccumulator > this.options.fixedDelta) {
+                    this.deltaAccumulator -= this.options.fixedDelta;
+                    this.worldTime += this.options.fixedDelta;
 
-        this.deltaAccumulator += this.delta;
-        this.deltaAccumulator = Math.min(this.deltaAccumulator, this.fixedDelta * 5);
+                    this.event.time = this.worldTime - this.deltaAccumulator;
+                    this.event.delta = this.options.fixedDelta;
+                    this.event.tps = Math.min(this.options.fixedTps, this.tps);
 
-        while (this.deltaAccumulator > this.fixedDelta) {
-            this.deltaAccumulator -= this.fixedDelta;
+                    this.events.trigger('before-update', [this.event]);
+                    this.events.trigger('update', [this.event]);
+                    this.events.trigger('after-update', [this.event]);
+                }
+                break
+            case RunnerType.dynamic:
+                if (this.options.correction) {
+                    const d = this.delta;
 
-            this.event.time = this.time - this.deltaAccumulator;
-            this.event.delta = this.fixedDelta;
-            this.event.tps = Math.min(this.fixedTps, this.tps);
-            
-            this.events.trigger('before-update', [this.event]);
-            this.events.trigger('update', [this.event]);
-            this.events.trigger('after-update', [this.event]);
+                    let min = 1 / 60;
+                    let average = 1 / 60;
+                    for (const delta of this.deltas) {
+                        average += delta;
+                        min = Math.min(delta, min);
+                    }
+                    average /= (this.deltas.length + 1);
+
+                    this.delta =
+                    Common.clamp(this.delta, average*0.5, average*1.5) * Runner.DELTA_C +
+                    average * Runner.AVERAGE_C +
+                    min * Runner.MIN_C +
+                    this.lag * Runner.LAG_C;
+
+                    this.delta = Math.min(this.delta, 0.1);
+
+                    this.lag += d - this.delta;
+                } else {
+                    this.delta = Math.min(this.delta, 0.1);
+                }
+
+                let iters, delta;
+                if (this.options.timescale > 1) {
+                    iters = Math.trunc(this.options.timescale);
+                    const r = (this.options.timescale - iters) / iters;
+                    delta = this.delta * (r + 1);
+                } else {
+                    iters = 1;
+                    delta = this.delta * this.options.timescale;
+                }
+
+                for (let i = 0; i < iters; ++i) {
+                    this.worldTime += delta;
+
+                    this.event.time = this.worldTime;
+                    this.event.delta = delta;
+                    this.event.tps = this.tps;
+
+                    this.events.trigger('before-update', [this.event]);
+                    this.events.trigger('update', [this.event]);
+                    this.events.trigger('after-update', [this.event]);
+                }
+                this.deltas.push(delta);
+                if (this.deltas.length > this.deltasSize) {
+                    this.deltas.shift();
+                }
+                break;
         }
-
-        this.events.trigger('before-tick', [this.event]);
-
     }
 
     /**
@@ -98,8 +180,25 @@ export class Runner {
      * @param tps
      */
     setTps (tps: number) {
-        this.fixedTps = tps;
-        this.fixedDelta = 1 / tps;
+        this.options.fixedTps = tps;
+        this.options.fixedDelta = 1 / tps;
+    }
+
+    /**
+     * Single step.
+     * @param delta
+     */
+    singleStep (delta: number = this.options.fixedDelta) {
+        if (this.enabled) return console.warn('Single step can be called only when loop is disabled');
+        this.worldTime += delta;
+
+        this.event.time = this.worldTime;
+        this.event.delta = delta;
+        this.event.tps = 1 / delta;
+
+        this.events.trigger('before-update', [this.event]);
+        this.events.trigger('update', [this.event]);
+        this.events.trigger('after-update', [this.event]);
     }
 
     /**
@@ -130,7 +229,6 @@ export class Runner {
 
         this.renderEvent.time = this.renderTime;
         this.renderEvent.delta = this.renderDelta;
-        this.renderEvent.fps = this.fps;
 
         this.events.trigger('before-render', [this.renderEvent]);
         this.events.trigger('render', [this.renderEvent]);

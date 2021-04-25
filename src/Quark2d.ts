@@ -57,4 +57,4 @@ export { MouseConstraint } from './tools/mouse/MouseConstraint';
 export { Render } from './tools/render/Render';
 export { Draw } from './tools/render/Draw';
 
-export { Runner } from './tools/runner/Runner';
+export { Runner, RunnerType } from './tools/runner/Runner';
