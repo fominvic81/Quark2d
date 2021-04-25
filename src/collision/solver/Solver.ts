@@ -6,16 +6,23 @@ import { Engine } from '../../engine/Engine';
 import { Pair } from '../pair/Pair';
 import { Body, BodyType } from '../../body/Body';
 
+interface SolverOptions {
+    positionIterations?: number;
+    velocityIterations?: number;
+    constraintIterations?: number;
+}
+
 /**
  * The 'Solver' is a class for solving collisions.
  */
 
 export class Solver {
     engine: Engine;
-    positionIterations: number = 5;
-    velocityIterations: number = 5;
-    constraintIterations: number = 5;
-
+    options: {
+        positionIterations: number,
+        velocityIterations: number,
+        constraintIterations: number,
+    }
     static SLOP: number = 0.005;
     static DEPTH_DAMPING: number = 0.7;
     static POSITION_IMPULSE_DAMPING: number = 0.4;
@@ -29,8 +36,13 @@ export class Solver {
         new Vector(), new Vector(),
     ];
 
-    constructor (engine: Engine) {
+    constructor (engine: Engine, options: SolverOptions = {}) {
         this.engine = engine;
+        this.options = {
+            positionIterations: options.positionIterations ?? 5,
+            velocityIterations: options.velocityIterations ?? 5,
+            constraintIterations: options.constraintIterations ?? 3,
+        }
     }
 
     /**
@@ -44,21 +56,21 @@ export class Solver {
         this.preSolve();
 
         // solve position
-        for (let i = 0; i < this.positionIterations; ++i) {
+        for (let i = 0; i < this.options.positionIterations; ++i) {
             this.solvePosition();
         }
         this.postSolvePosition();
 
         // solve constraints
         this.preSolveConstraints();
-        for (let i = 0; i < this.constraintIterations; ++i) {
+        for (let i = 0; i < this.options.constraintIterations; ++i) {
             this.solveConstraints();
         }
         this.postSolveConstraints();
 
         // solve velocity
         this.warmStart();
-        for (let i = 0; i < this.velocityIterations; ++i) {
+        for (let i = 0; i < this.options.velocityIterations; ++i) {
             this.solveVelocity();
         }
     }
