@@ -27,7 +27,6 @@ export class Solver {
     static DEPTH_DAMPING: number = 0.7;
     static POSITION_IMPULSE_DAMPING: number = 0.4;
     static CONSTRAINT_IMPULSE_DAMPING: number = 0.4;
-    static RESTING_THRESHOLD: number = 0.08;
 
     private static vecTemp = [
         new Vector(), new Vector(),
@@ -233,15 +232,11 @@ export class Solver {
                 Vector.subtract(contactVelocityA, contactVelocityB, relativeVelocity);
 
                 normalVelocity = Vector.dot(relativeVelocity, pair.normal);
-                normalImpulse = (normalVelocity) * (1 + pair.restitution) * contact.normalShare;
+                normalImpulse = normalVelocity * (1 + pair.restitution) * contact.normalShare;
 
-                if (normalVelocity > Solver.RESTING_THRESHOLD) {
-                    contact.normalImpulse = 0;
-                } else {
-                    const newImpulse = Math.max(contact.normalImpulse + normalImpulse, 0);
-                    normalImpulse = newImpulse - contact.normalImpulse;
-                    contact.normalImpulse = newImpulse;
-                }
+                const newImpulse = Math.max(contact.normalImpulse + normalImpulse, 0);
+                normalImpulse = newImpulse - contact.normalImpulse;
+                contact.normalImpulse = newImpulse;
 
                 pair.normal.scale(normalImpulse, impulse);
 

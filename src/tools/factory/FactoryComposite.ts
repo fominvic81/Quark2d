@@ -55,44 +55,4 @@ export class FactoryComposite {
     
         return composite;
     }
-    
-    static newtonsCradle (position: Vector, count: number, radius: number, length: number, leftCount: number = 1, rightCount: number = 0, composite: Composite = new Composite()): Composite {
-    
-        const halfWidth = radius * count - radius;
-        const halfHeight = length / 2 + radius;
-    
-        for (let i = 0; i < count; ++i) {
-    
-            const circle = new Body({
-                position: new Vector(
-                    i * radius * 2 + position.x - halfWidth,
-                    position.y + halfHeight,
-                ),
-                velocityDamping: 0,
-            });
-            circle.addShape(new Circle({
-                radius,
-                restitution: 1,
-                friction: 0,
-            }));
-            circle.setFixedRotation(true);
-    
-            if (i < leftCount) {
-                circle.translate(new Vector(-halfHeight * 2, -halfHeight * 2));
-            } else if (i > count - rightCount - 1) {
-                circle.translate(new Vector(halfHeight * 2, -halfHeight * 2));
-            }
-            
-            const constraint = new DistanceConstraint({
-                bodyA: circle,
-                pointB: new Vector(i * radius * 2 + position.x - halfWidth, position.y - halfHeight),
-                stiffness: 1,
-            });
-    
-            composite.addBody(circle);
-            composite.addConstraint(constraint);
-        }
-    
-        return composite;
-    }
 }
