@@ -7,6 +7,8 @@ import { Manager } from '../collision/phase/Manager';
 import { Broadphase } from '../collision/phase/Broadphase';
 import { Midphase } from '../collision/phase/Midphase';
 import { Narrowphase } from '../collision/phase/narrowphase/Narrowphase';
+import { Shape } from '../body/shapes/Shape';
+import { Body } from '../body/Body';
 
 interface EngineOptions {
     world?: World;
@@ -39,10 +41,6 @@ export class Engine {
         this.sleeping = options.sleeping || new Sleeping(this);
         this.events = new Events();
         this.timestamp = undefined;
-
-        this.world.events.on('remove-body', (event) => {
-            this.manager.broadphase.removeBodyFromGrid(event.body);
-        });
     }
 
     /**
@@ -101,7 +99,26 @@ export class Engine {
         }
 
         this.events.trigger('after-update', [{engine: this, timestamp}]);
-        
+    }
+
+    /**
+     * Removes shape from broadphase. Must be called after removing shape from body.
+     * @param shape
+     */
+    removeShape (...shapes: Shape[]) {
+        for (const shape of shapes) {
+            this.manager.removeShape(shape);
+        }
+    }
+
+    /**
+     * Removes body from broadphase. Must be called after removing body from world.
+     * @param body
+     */
+    removeBody (...bodies: Body[]) {
+        for (const body of bodies) {
+            this.manager.removeBody(body);
+        }
     }
 
     /**

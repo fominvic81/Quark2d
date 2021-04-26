@@ -1,3 +1,5 @@
+import { Body } from '../../body/Body';
+import { Shape } from '../../body/shapes/Shape';
 import { Engine } from '../../engine/Engine';
 import { Contact } from '../pair/Contact';
 import { Pair } from '../pair/Pair';
@@ -46,5 +48,13 @@ export class Manager {
         this.broadphase.update();
         this.midphase.update(this.broadphase.activePairs);
         this.narrowphase.update(this.midphase.activePairs);
+    }
+
+    removeShape (shape: Shape) {
+        this.broadphase.removeShape(shape);
+    }
+
+    removeBody (body: Body) {
+        this.broadphase.removeBody(body);
     }
 }

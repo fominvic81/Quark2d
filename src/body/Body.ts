@@ -195,7 +195,29 @@ export class Body<UserData = any> {
         this.updateMass();
         this.updateInertia();
 
-        this.events.trigger('add-shape', [{shape, updateCenterOfMass, offset, angle, body: this}])
+        this.events.trigger('add-shape', [{shape, body: this}]);
+        return shape;
+    }
+
+    /**
+     * Removes shape from body(after removing shape from body you must call engine.removeShape()).
+     * @param shape
+     */
+    removeShape (shape: Shape, updateCenterOfMass: boolean = true) {
+        this.shapes.delete(shape);
+        shape.body = undefined;
+
+        this.updateArea();
+
+        if (updateCenterOfMass) {
+            this.updateCenterOfMass();
+        }
+
+        this.updateMass();
+        this.updateInertia();
+
+        this.events.trigger('add-shape', [{shape, body: this}]);
+        return shape;
     }
 
     /**

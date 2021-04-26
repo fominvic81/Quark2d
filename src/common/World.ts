@@ -82,7 +82,7 @@ export class World extends Composite {
     }
 
     /**
-     * Removes the given bodies from the world.
+     * Removes the given bodies from the world(after removing body from world you must call engine.removeBody()).
      * @param bodies
      */
     removeBody (...bodies: Body[]) {

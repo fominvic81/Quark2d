@@ -45,7 +45,7 @@ export abstract class Shape {
     friction: number;
     surfaceVelocity: number;
     isSensor: boolean;
-    region?: Region;
+    region: Region = new Region();
 
     constructor (options: ShapeOptions = {}) {
         this.radius = options.radius ?? Solver.SLOP * 2;

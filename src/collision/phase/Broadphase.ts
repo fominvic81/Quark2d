@@ -40,20 +40,41 @@ export class Broadphase {
     update () {
         const bodies = this.engine.world.bodies.values();
 
+        let x, y, tx, ty;
         for (const body of bodies) {
             for (const shape of body.shapes) {
 
                 const region = this.createRegion(shape.aabb, Region.temp[0]);
+                const oldRegion = shape.region;
 
-                if (shape.region && shape.region.id === region.id) continue;
+                if (oldRegion.id === region.id) continue;
 
-                this.updateRegion(region, region, shape);
-                if (shape.region) {
-                    this.updateRegion(shape.region, region, shape);
+                const position = Vector.temp[2];
+                tx = region.max.x;
+                ty = region.max.y;
+                for (x = region.min.x; x <= tx; ++x) {
+                    for (y = region.min.y; y <= ty; ++y) {
+                        position.set(x, y);
+
+                        const insideOldRegion = shape.region.contains(position);
+
+                        if (!insideOldRegion) {
+                            this.addShapeToCell(position, shape);
+                        }
+                    }
                 }
-
-                if (!shape.region) {
-                    shape.region = this.createRegion(shape.aabb, new Region());
+                tx = oldRegion.max.x;
+                ty = oldRegion.max.y;
+                for (x = oldRegion.min.x; x <= tx; ++x) {
+                    for (y = oldRegion.min.y; y <= ty; ++y) {
+                        position.set(x, y);
+        
+                        const insideNewRegion = region.contains(position);
+        
+                        if (!insideNewRegion) {
+                            this.removeShapeFromCell(position, shape);
+                        }
+                    }
                 }
 
                 region.clone(shape.region);
@@ -147,37 +168,7 @@ export class Broadphase {
         }
     }
 
-    updateRegion (region: Region, newRegion: Region, shape: Shape) {
-        if (!shape.region) {
-            for (let x = region.min.x; x <= region.max.x; ++x) {
-                for (let y = region.min.y; y <= region.max.y; ++y) {
-                    this.addShapeToCell(Vector.temp[2].set(x, y), shape);
-                }
-            }
-            return;
-        }
-        for (let x = region.min.x; x <= region.max.x; ++x) {
-            for (let y = region.min.y; y <= region.max.y; ++y) {
-
-                const position = Vector.temp[2].set(x, y);
-
-                const insideOldRegion = shape.region.contains(position);
-                const insideNewRegion = newRegion.contains(position);
-
-                if (insideNewRegion && !insideOldRegion) {
-                    this.addShapeToCell(position, shape);
-                    continue;
-                }
-                if (!insideNewRegion && insideOldRegion) {
-                    this.removeShapeFromCell(position, shape);
-                    continue;
-                }
-
-            }
-        }
-    }
-
-    removeShapeFromGrid (shape: Shape) {
+    removeShape (shape: Shape) {
         if (!shape || !shape.region) return;
 
         for (let x = shape.region.min.x; x <= shape.region.max.x; ++x) {
@@ -188,9 +179,9 @@ export class Broadphase {
         }
     }
 
-    removeBodyFromGrid (body: Body) {
+    removeBody (body: Body) {
         for (const shape of body.shapes) {
-            this.removeShapeFromGrid(shape);
+            this.removeShape(shape);
         }
     }
 }
