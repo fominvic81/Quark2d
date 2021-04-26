@@ -69,7 +69,7 @@ Mouse wheel to zoom.
     const engine = new Engine();
 
     // Disable sleeping
-    engine.sleeping.type = SleepingType.NO_SLEEPING;
+    engine.sleeping.setType(SleepingType.NO_SLEEPING);
 
     // Create an empty body
     const circleBody = new Body({
