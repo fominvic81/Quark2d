@@ -136,7 +136,8 @@ export class Composite {
      * @param composite
      */
     merge (composite: Composite) {
-        // this.add
+        this.add(...composite.bodies.values());
+        this.add(...composite.constraints.values());
     }
 
     /**
