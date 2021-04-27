@@ -50,29 +50,40 @@ export class Broadphase {
                 if (oldRegion.id === region.id) continue;
 
                 const position = Vector.temp[2];
-                tx = region.max.x;
-                ty = region.max.y;
-                for (x = region.min.x; x <= tx; ++x) {
-                    for (y = region.min.y; y <= ty; ++y) {
-                        position.set(x, y);
+                if (oldRegion.id) {
+                    tx = region.max.x;
+                    ty = region.max.y;
+                    for (x = region.min.x; x <= tx; ++x) {
+                        for (y = region.min.y; y <= ty; ++y) {
+                            position.set(x, y);
 
-                        const insideOldRegion = shape.region.contains(position);
+                            const insideOldRegion = shape.region.contains(position);
 
-                        if (!insideOldRegion) {
-                            this.addShapeToCell(position, shape);
+                            if (!insideOldRegion) {
+                                this.addShapeToCell(position, shape);
+                            }
                         }
                     }
-                }
-                tx = oldRegion.max.x;
-                ty = oldRegion.max.y;
-                for (x = oldRegion.min.x; x <= tx; ++x) {
-                    for (y = oldRegion.min.y; y <= ty; ++y) {
-                        position.set(x, y);
-        
-                        const insideNewRegion = region.contains(position);
-        
-                        if (!insideNewRegion) {
-                            this.removeShapeFromCell(position, shape);
+                    tx = oldRegion.max.x;
+                    ty = oldRegion.max.y;
+                    for (x = oldRegion.min.x; x <= tx; ++x) {
+                        for (y = oldRegion.min.y; y <= ty; ++y) {
+                            position.set(x, y);
+            
+                            const insideNewRegion = region.contains(position);
+            
+                            if (!insideNewRegion) {
+                                this.removeShapeFromCell(position, shape);
+                            }
+                        }
+                    }
+                } else {
+                    tx = region.max.x;
+                    ty = region.max.y;
+                    for (x = region.min.x; x <= tx; ++x) {
+                        for (y = region.min.y; y <= ty; ++y) {
+                            position.set(x, y);
+                            this.addShapeToCell(position, shape);
                         }
                     }
                 }
