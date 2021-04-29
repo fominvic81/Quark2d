@@ -31,22 +31,19 @@ export class MouseConstraint {
 
     mouseDown (event: QMouseEvent) {
         if (!event.mouse.leftButtonPressed) return;
-        for (const body of this.engine.world.bodies.values()) {
+        const shapes = this.engine.pointTest(this.mouse.position);
+
+        for (const shape of shapes) {
+            const body = <Body>shape.body;
             if (body.type !== BodyType.dynamic) continue;
-            for (const shape of body.shapes) {
-                if (shape.aabb.contains(event.mouse.position)) {
-                    if (shape.contains(event.mouse.position)) {
-                        this.body = body;
-                        this.shape = shape;
-                        for (const constraint of this.constraints) {
-                            constraint.bodyA = body;
-                            Vector.subtract(event.mouse.position, body.position, constraint.pointA).rotate(-body.angle);
-                            this.events.trigger('catch-body', [{body, shape}]);
-                        }
-                        break;
-                    }
-                }
+            this.body = body;
+            this.shape = shape;
+            for (const constraint of this.constraints) {
+                constraint.bodyA = body;
+                Vector.subtract(event.mouse.position, body.position, constraint.pointA).rotate(-body.angle);
+                this.events.trigger('catch-body', [{body, shape}]);
             }
+            break;
         }
     }
 

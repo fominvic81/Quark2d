@@ -195,4 +195,12 @@ export class Broadphase {
             this.removeShape(shape);
         }
     }
+
+    *pointTest (point: Vector) {
+        const position = Vector.temp[0].set(Math.floor(point.x / this.gridSize), Math.floor(point.y / this.gridSize));
+        const shapes = this.grid.get(position);
+        if (shapes) for (const shape of shapes?.values()) {
+            yield shape;
+        }
+    }
 }

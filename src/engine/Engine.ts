@@ -131,6 +131,22 @@ export class Engine {
         }
     }
 
+    /**
+     * Returns all shapes that contains given point.
+     * @param point
+     */
+    *pointTest (point: Vector) {
+        const broadphaseShapes = this.manager.broadphase.pointTest(point);
+
+        for (const shape of broadphaseShapes) {
+            if (shape.aabb.contains(point)) {
+                if (shape.contains(point)) {
+                    yield shape;
+                }
+            }
+        }
+    }
+
     category: number = 1;
     group: number = 1;
     nonCollidingGroup: number = -1;
