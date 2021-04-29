@@ -205,4 +205,22 @@ export class Broadphase {
             yield shape;
         }
     }
+
+    *aabbTest (aabb: AABB) {
+        const region = this.createRegion(aabb, Region.temp[0]);
+        const shapesSet: Set<Shape> = new Set();
+
+        let y;
+        for (let x = region.minX; x <= region.maxX; ++x) {
+            for (y = region.minY; y <= region.maxY; ++y) {
+                const position = Vector.temp[0].set(Math.floor(x / this.gridSize), Math.floor(y / this.gridSize));
+                const shapes = this.grid.get(position);
+                if (shapes) for (const shape of shapes?.values()) {
+                    if (shapesSet.has(shape)) continue;
+                    shapesSet.add(shape);
+                    yield shape;
+                }
+            }
+        }
+    }
 }

@@ -9,6 +9,7 @@ import { Midphase } from '../collision/phase/Midphase';
 import { Narrowphase } from '../collision/phase/narrowphase/Narrowphase';
 import { Shape } from '../body/shapes/Shape';
 import { Body } from '../body/Body';
+import { AABB } from '../math/AABB';
 
 interface EngineOptions {
     world?: World;
@@ -143,6 +144,22 @@ export class Engine {
                 if (shape.contains(point)) {
                     yield shape;
                 }
+            }
+        }
+    }
+
+
+    /**
+     * Returns all shapes whose aabbs overlaps given aabb.
+     * @param aabb
+     */
+
+    *aabbTest (aabb: AABB) {
+        const broadphaseShapes = this.manager.broadphase.aabbTest(aabb);
+
+        for (const shape of broadphaseShapes) {
+            if (aabb.overlaps(shape.aabb)) {
+                yield shape;
             }
         }
     }
