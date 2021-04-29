@@ -208,10 +208,10 @@ export class Ray {
     }
 
     private updateAABB () {
-        this.aabb.min.x = Math.min(this.from.x, this.to.x);
-        this.aabb.min.y = Math.min(this.from.y, this.to.y);
-        this.aabb.max.x = Math.max(this.from.x, this.to.x);
-        this.aabb.max.y = Math.max(this.from.y, this.to.y);
+        this.aabb.minX = Math.min(this.from.x, this.to.x);
+        this.aabb.minY = Math.min(this.from.y, this.to.y);
+        this.aabb.maxX = Math.max(this.from.x, this.to.x);
+        this.aabb.maxY = Math.max(this.from.y, this.to.y);
         return this.aabb;
     }
 

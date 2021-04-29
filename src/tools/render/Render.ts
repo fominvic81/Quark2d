@@ -214,11 +214,11 @@ export class Render {
     }
 
     updateAABB () {
-        this.options.aabb.min.x = (-this.canvas.width / 2) / this.options.scale.x - this.options.translate.x;
-        this.options.aabb.max.x = (this.canvas.width / 2) / this.options.scale.x - this.options.translate.x;
+        this.options.aabb.minX = (-this.canvas.width / 2) / this.options.scale.x - this.options.translate.x;
+        this.options.aabb.maxX = (this.canvas.width / 2) / this.options.scale.x - this.options.translate.x;
 
-        this.options.aabb.min.y = (-this.canvas.height / 2) / this.options.scale.y - this.options.translate.y;
-        this.options.aabb.max.y = (this.canvas.height / 2) / this.options.scale.y - this.options.translate.y;
+        this.options.aabb.minY = (-this.canvas.height / 2) / this.options.scale.y - this.options.translate.y;
+        this.options.aabb.maxY = (this.canvas.height / 2) / this.options.scale.y - this.options.translate.y;
     }
 
     bodies (bodies: Body[]) {
@@ -365,9 +365,9 @@ export class Render {
         for (const body of bodies) {
             for (const shape of body.shapes) {
                 const shapeAABB = shape.aabb;
-                const shapeWidth = shapeAABB.max.x - shapeAABB.min.x;
-                const shapeHeight = shapeAABB.max.y - shapeAABB.min.y;
-                Draw.rect(this.ctx, Vector.temp[0].set(shapeAABB.min.x + shapeWidth / 2, shapeAABB.min.y + shapeHeight / 2), shapeWidth, shapeHeight, 0, 'rgb(96, 96, 96)', false, this.options.lineWidth / 50);
+                const shapeWidth = shapeAABB.maxX - shapeAABB.minX;
+                const shapeHeight = shapeAABB.maxY - shapeAABB.minY;
+                Draw.rect(this.ctx, Vector.temp[0].set(shapeAABB.minX + shapeWidth / 2, shapeAABB.minY + shapeHeight / 2), shapeWidth, shapeHeight, 0, 'rgb(96, 96, 96)', false, this.options.lineWidth / 50);
             }
         }
     }
@@ -396,10 +396,11 @@ export class Render {
         const position = Vector.temp[0];
         const offset = Vector.temp[1].set(0.5, 0.5);
 
-        const minX = Math.round(this.options.aabb.min.x / broadphase.gridSize - 0.5);
-        const minY = Math.round(this.options.aabb.min.y / broadphase.gridSize - 0.5);
-        const maxX = Math.round(this.options.aabb.max.x / broadphase.gridSize + 0.5);
-        const maxY = Math.round(this.options.aabb.max.y / broadphase.gridSize + 0.5);
+        const minX = Math.round(this.options.aabb.minX / broadphase.gridSize - 0.5);
+        const minY = Math.round(this.options.aabb.minY / broadphase.gridSize - 0.5);
+        const maxX = Math.round(this.options.aabb.maxX / broadphase.gridSize + 0.5);
+        const maxY = Math.round(this.options.aabb.maxY / broadphase.gridSize + 0.5);
+
         if (maxX - minX > 50 || maxY - minY > 50) {
             for (const position of grid.keys()) {
                 position.add(offset);

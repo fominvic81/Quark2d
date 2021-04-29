@@ -53,8 +53,7 @@ export class Circle extends Shape {
      * @returns The aabb
      */
     updateAABB () {
-        this.aabb.min.set(-this.radius, -this.radius);
-        this.aabb.max.set(this.radius, this.radius);
+        this.aabb.setNum(-this.radius, -this.radius, this.radius, this.radius);
         this.aabb.translate(this.position);
         return this.aabb;
     }

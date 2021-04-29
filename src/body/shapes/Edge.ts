@@ -135,18 +135,18 @@ export class Edge extends Shape {
      */
     updateAABB () {
         if (this.start.x < this.end.x) {
-            this.aabb.min.x = this.start.x - this.radius;
-            this.aabb.max.x = this.end.x + this.radius;
+            this.aabb.minX= this.start.x - this.radius;
+            this.aabb.maxX = this.end.x + this.radius;
         } else {
-            this.aabb.min.x = this.end.x - this.radius;
-            this.aabb.max.x = this.start.x + this.radius;
+            this.aabb.minX = this.end.x - this.radius;
+            this.aabb.maxX = this.start.x + this.radius;
         }
         if (this.start.y < this.end.y) {
-            this.aabb.min.y = this.start.y - this.radius;
-            this.aabb.max.y = this.end.y + this.radius;
+            this.aabb.minY = this.start.y - this.radius;
+            this.aabb.maxY = this.end.y + this.radius;
         } else {
-            this.aabb.min.y = this.end.y - this.radius;
-            this.aabb.max.y = this.start.y + this.radius;
+            this.aabb.minY = this.end.y - this.radius;
+            this.aabb.maxY = this.start.y + this.radius;
         }
         return this.aabb;
     }

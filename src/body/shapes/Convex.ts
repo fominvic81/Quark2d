@@ -156,10 +156,10 @@ export class Convex extends Shape {
      */
     updateAABB () {
         this.aabb.fromVertices(this.vertices);
-        this.aabb.min.x -= this.radius;
-        this.aabb.min.y -= this.radius;
-        this.aabb.max.x += this.radius;
-        this.aabb.max.y += this.radius;
+        this.aabb.minX -= this.radius;
+        this.aabb.minY -= this.radius;
+        this.aabb.maxX += this.radius;
+        this.aabb.maxY += this.radius;
         return this.aabb;
     }
 

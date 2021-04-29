@@ -20,7 +20,7 @@ export class Region extends AABB {
     }
 
     updateId () {
-        this.id = (this.min.x << 30) + (this.min.y << 20) + (this.max.x << 10) + this.max.y;
+        this.id = (this.minX << 30) + (this.minY << 20) + (this.maxX << 10) + this.maxY;
     }
 }
 
@@ -51,10 +51,10 @@ export class Broadphase {
 
                 const position = Vector.temp[2];
                 if (oldRegion.id) {
-                    tx = region.max.x;
-                    ty = region.max.y;
-                    for (x = region.min.x; x <= tx; ++x) {
-                        for (y = region.min.y; y <= ty; ++y) {
+                    tx = region.maxX;
+                    ty = region.maxY;
+                    for (x = region.minX; x <= tx; ++x) {
+                        for (y = region.minY; y <= ty; ++y) {
                             position.set(x, y);
 
                             const insideOldRegion = shape.region.contains(position);
@@ -64,10 +64,10 @@ export class Broadphase {
                             }
                         }
                     }
-                    tx = oldRegion.max.x;
-                    ty = oldRegion.max.y;
-                    for (x = oldRegion.min.x; x <= tx; ++x) {
-                        for (y = oldRegion.min.y; y <= ty; ++y) {
+                    tx = oldRegion.maxX;
+                    ty = oldRegion.maxY;
+                    for (x = oldRegion.minX; x <= tx; ++x) {
+                        for (y = oldRegion.minY; y <= ty; ++y) {
                             position.set(x, y);
             
                             const insideNewRegion = region.contains(position);
@@ -78,10 +78,10 @@ export class Broadphase {
                         }
                     }
                 } else {
-                    tx = region.max.x;
-                    ty = region.max.y;
-                    for (x = region.min.x; x <= tx; ++x) {
-                        for (y = region.min.y; y <= ty; ++y) {
+                    tx = region.maxX;
+                    ty = region.maxY;
+                    for (x = region.minX; x <= tx; ++x) {
+                        for (y = region.minY; y <= ty; ++y) {
                             position.set(x, y);
                             this.addShapeToCell(position, shape);
                         }
@@ -95,13 +95,15 @@ export class Broadphase {
     }
 
     createRegion (aabb: AABB, output: Region) {
-        aabb.min.divide(this.gridSize, output.min);
-        aabb.max.divide(this.gridSize, output.max);
+        output.minX = aabb.minX / this.gridSize;
+        output.minY = aabb.minY / this.gridSize;
+        output.maxX = aabb.maxX / this.gridSize;
+        output.maxY = aabb.maxY / this.gridSize;
 
-        output.min.x = Math.floor(output.min.x);
-        output.min.y = Math.floor(output.min.y);
-        output.max.x = Math.floor(output.max.x);
-        output.max.y = Math.floor(output.max.y);
+        output.minX = Math.floor(output.minX);
+        output.minY = Math.floor(output.minY);
+        output.maxX = Math.floor(output.maxX);
+        output.maxY = Math.floor(output.maxY);
         output.updateId();
         
         return output;
@@ -182,8 +184,8 @@ export class Broadphase {
     removeShape (shape: Shape) {
         if (!shape || !shape.region) return;
 
-        for (let x = shape.region.min.x; x <= shape.region.max.x; ++x) {
-            for (let y = shape.region.min.y; y <= shape.region.max.y; ++y) {
+        for (let x = shape.region.minX; x <= shape.region.maxX; ++x) {
+            for (let y = shape.region.minY; y <= shape.region.maxY; ++y) {
                 const position = Vector.temp[2].set(x, y);
                 this.removeShapeFromCell(position, shape);
             }

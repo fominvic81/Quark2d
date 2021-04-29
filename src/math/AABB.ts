@@ -5,8 +5,17 @@ import { Vector } from './Vector';
  */
 
 export class AABB {
-    min: Vector = new Vector();
-    max: Vector = new Vector();
+    minX: number;
+    minY: number;
+    maxX: number;
+    maxY: number;
+
+    constructor (minX: number = 0, minY: number = 0, maxX: number = 0, maxY: number = 0) {
+        this.minX = minX;
+        this.minY = minY;
+        this.maxX = maxX;
+        this.maxY = maxY;
+    }
 
     static temp: AABB[] = [
         new AABB(),
@@ -19,10 +28,10 @@ export class AABB {
      */
     clone (output: AABB = new AABB()): AABB {
 
-        output.min.x = this.min.x;
-        output.min.y = this.min.y;
-        output.max.x = this.max.x;
-        output.max.y = this.max.y;
+        output.minX = this.minX;
+        output.minY = this.minY;
+        output.maxX = this.maxX;
+        output.maxY = this.maxY;
 
         return output;
     }
@@ -33,16 +42,16 @@ export class AABB {
      * @returns The aabb
      */
     fromVertices (vertices: Vector[]): AABB {
-        this.min.x = Infinity;
-        this.min.y = Infinity;
-        this.max.x = -Infinity;
-        this.max.y = -Infinity;
+        this.minX = Infinity;
+        this.minY = Infinity;
+        this.maxX = -Infinity;
+        this.maxY = -Infinity;
 
         for (const vertex of vertices) {
-            if (vertex.x > this.max.x) this.max.x = vertex.x;
-            if (vertex.x < this.min.x) this.min.x = vertex.x;
-            if (vertex.y > this.max.y) this.max.y = vertex.y;
-            if (vertex.y < this.min.y) this.min.y = vertex.y;
+            if (vertex.x > this.maxX) this.maxX = vertex.x;
+            if (vertex.x < this.minX) this.minX = vertex.x;
+            if (vertex.y > this.maxY) this.maxY = vertex.y;
+            if (vertex.y < this.minY) this.minY = vertex.y;
         }
         return this;
     }
@@ -54,8 +63,10 @@ export class AABB {
      * @returns The aabb
      */
     set (min: Vector, max: Vector) {
-        min.clone(this.min);
-        max.clone(this.max);
+        this.minX = min.x;
+        this.minY = min.y;
+        this.maxX = max.x;
+        this.maxY = max.y;
         return this;
     }
 
@@ -68,10 +79,10 @@ export class AABB {
      * @returns The aabb
      */
     setNum (minX: number, minY: number, maxX: number, maxY: number) {
-        this.min.x = minX;
-        this.min.y = minY;
-        this.max.x = maxX;
-        this.max.y = maxY;
+        this.minX = minX;
+        this.minY = minY;
+        this.maxX = maxX;
+        this.maxY = maxY;
         return this;
     }
 
@@ -80,8 +91,10 @@ export class AABB {
      * @param vector
      */
     translate (vector: Vector) {
-        this.min.add(vector);
-        this.max.add(vector);
+        this.minX += vector.x;
+        this.minY += vector.y;
+        this.maxX += vector.x;
+        this.maxY += vector.y;
     }
 
     /**
@@ -90,8 +103,8 @@ export class AABB {
      * @returns True if the aabb contains the given point, otherwise false
      */
     contains (point: Vector): boolean {
-        return point.x >= this.min.x && point.x <= this.max.x &&
-               point.y >= this.min.y && point.y <= this.max.y;
+        return point.x >= this.minX && point.x <= this.maxX &&
+               point.y >= this.minY && point.y <= this.maxY;
     }
 
     /**
@@ -100,8 +113,8 @@ export class AABB {
      * @returns True if the aabb intersects with the given one, otherwise false
      */
     overlaps (aabbB: AABB): boolean {
-        return this.min.x <= aabbB.max.x && this.max.x >= aabbB.min.x &&
-               this.max.y >= aabbB.min.y && this.min.y <= aabbB.max.y;
+        return this.minX <= aabbB.maxX && this.maxX >= aabbB.minX &&
+               this.maxY >= aabbB.minY && this.minY <= aabbB.maxY;
     }
 
     /**
@@ -109,7 +122,7 @@ export class AABB {
      * @returns The width of the aabb
      */
     getWidth (): number {
-        return this.max.x - this.min.x;
+        return this.maxX - this.minX;
     }
 
     /**
@@ -117,6 +130,6 @@ export class AABB {
      * @returns The height of the aabb
      */
     getHeight (): number {
-        return this.max.y - this.min.y;
+        return this.maxY - this.minY;
     }
 };
