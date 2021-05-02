@@ -6,6 +6,7 @@ import { Shape, ShapeType } from './shapes/Shape';
 import { Vertices } from '../math/Vertices';
 import { Convex } from './shapes/Convex';
 import { Edge } from './shapes/Edge';
+import { Constraint } from '../constraint/Constraint';
 
 export interface BodyOptions {
     position?: Vector,
@@ -76,6 +77,7 @@ export class Body<UserData = any> {
     motion: number = 0;
     speedSquared: number = 0;
     angSpeedSquared: number = 0;
+    constraints: Set<Constraint> = new Set();
     userData?: UserData;
 
     private static vecTemp: Vector[] = [

@@ -253,6 +253,7 @@ export class Render {
     constraints (constraints: Constraint[]) {
 
         for (const constraint of constraints) {
+            if (!constraint.bodyA && !constraint.bodyB) continue;
             const start = constraint.getWorldPointA();
             const end = constraint.getWorldPointB();
 
@@ -273,10 +274,9 @@ export class Render {
                     if (distanceConstraint.length <= 1 || distanceConstraint.stiffness > 0.8) {
                         Draw.line(this.ctx, start, end, 'rgb(128, 128, 128)', this.options.lineWidth / 20);
                     } else {
-                        const n = Vector.subtract(end, start, Vector.temp[0]);
-                        const len = n.length();
+                        const delta = Vector.subtract(end, start, Vector.temp[0]);
 
-                        const normal = n.divide(len, Vector.temp[1]).rotate90();
+                        const normal = distanceConstraint.normal.rotate90(Vector.temp[1]);
                         const count = Math.max(distanceConstraint.length * 2, 4);
 
                         this.ctx.beginPath();
@@ -288,8 +288,8 @@ export class Render {
                             const p = i / count;
 
                             this.ctx.lineTo(
-                                start.x + n.x * p + offset.x,
-                                start.y + n.y * p + offset.y,
+                                start.x + delta.x * p + offset.x,
+                                start.y + delta.y * p + offset.y,
                             );
 
                         }

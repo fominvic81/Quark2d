@@ -40,8 +40,8 @@ export abstract class Constraint {
 
     constructor (options: ConstraintOptions = {}) {
 
-        this.bodyA = options.bodyA;
-        this.bodyB = options.bodyB;
+        this.setBodyA(options.bodyA);
+        this.setBodyB(options.bodyB);
         this.bodyA?.dir.clone(this.bodyA.constraintDir);
         this.bodyB?.dir.clone(this.bodyB.constraintDir);
         if (this.bodyA) this.bodyA.constraintAngle = this.bodyA.angle;
@@ -58,6 +58,37 @@ export abstract class Constraint {
      * Solves a constraint.
      */
     abstract solve (): void;
+
+
+    /**
+     * Sets constraint.bodyA to the given body. Body can be undefined.
+     * @param body
+     */
+    setBodyA (body?: Body) {
+        if (this.bodyA) {
+            this.bodyA.constraints.delete(this);
+            this.bodyA = undefined;
+        }
+        if (body) {
+            this.bodyA = body;
+            body.constraints.add(this);
+        }
+    }
+
+    /**
+     * Sets constraint.bodyB to the given body. Body can be undefined.
+     * @param body
+     */
+    setBodyB (body?: Body) {
+        if (this.bodyB) {
+            this.bodyB.constraints.delete(this);
+            this.bodyB = undefined;
+        }
+        if (body) {
+            this.bodyB = body;
+            body.constraints.add(this);
+        }
+    }
 
     /**
      * Returns the world-space position of 'pointA'.

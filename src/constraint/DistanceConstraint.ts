@@ -21,13 +21,16 @@ export class DistanceConstraint extends Constraint {
     damping: number;
     length: number;
     minLength: number | undefined;
+    curLength: number;
+    normal: Vector = new Vector();
 
     constructor (options: DistanceConstraintOptions = {}) {
         super(options);
         this.stiffness = options.stiffness ?? 0.1;
         this.damping = options.damping ?? 0;
 
-        this.length = options.length ?? Vector.dist(this.getWorldPointA(), this.getWorldPointB());
+        this.curLength = Vector.dist(this.getWorldPointA(), this.getWorldPointB());
+        this.length = options.length ?? this.curLength;
 
         if (options.minLength !== undefined) {
             this.minLength = options.minLength;
@@ -46,47 +49,44 @@ export class DistanceConstraint extends Constraint {
         const pointB = this.getWorldPointB();
 
         const delta = Vector.subtract(pointA, pointB, Constraint.vecTemp[0]);
-        const dist = Math.max(delta.length(), 0.001);
-
-        const mass = (this.bodyA ? this.bodyA.inverseMass : 0) +
-                     (this.bodyB ? this.bodyB.inverseMass : 0);
-
-        const inertia = (this.bodyA ? this.bodyA.inverseInertia : 0) +
-                        (this.bodyB ? this.bodyB.inverseInertia : 0) +
-                        mass;
+        this.curLength = delta.length();
+        const dist = Math.max(this.curLength, 0.001);
 
         if (this.minLength !== undefined && dist > this.minLength && dist < this.length) return;
         const diff = (this.minLength !== undefined && dist < this.minLength) ? (dist - this.minLength) : (dist - this.length);
 
-        const impulse = delta.scale(this.stiffness * diff / dist, Constraint.vecTemp[1]);
-
+        const normal = delta.divide(dist, this.normal);
         const relativeVelocity = Constraint.vecTemp[2];
-        if (this.damping) {
 
+        if (this.damping) {
             Vector.subtract(
                 this.bodyB ? this.bodyB.velocity : Vector.zero,
                 this.bodyA ? this.bodyA.velocity : Vector.zero,
                 relativeVelocity,
             ).scale(this.damping);
 
-            const normal = delta.divide(dist, Constraint.vecTemp[3]);
-
             const normalVelocity = Vector.dot(relativeVelocity, normal);
             normal.scale(normalVelocity, relativeVelocity);
         }
 
+        const normalCrossA = Vector.cross(this.offsetA, normal);
+        const normalCrossB = Vector.cross(this.offsetB, normal);
+        const share = 0.5 / (
+            (this.bodyA ? (this.bodyA.inverseMass + this.bodyA.inverseInertia * normalCrossA * normalCrossA) : 0) +
+            (this.bodyB ? (this.bodyB.inverseMass + this.bodyB.inverseInertia * normalCrossB * normalCrossB) : 0)
+        );
+
+        const impulse = normal.scale(this.stiffness * diff * share, Constraint.vecTemp[1]);
+
         if (this.bodyA && this.bodyA.type === BodyType.dynamic) {
             this.bodyA.setSleeping(SleepingState.AWAKE);
 
-            const ratio = this.bodyA.inverseMass / mass;
-            const inertiaratio = this.bodyA.inverseInertia / inertia;
-
-            const x = impulse.x * ratio;
-            const y = impulse.y * ratio;
-            const angle = Vector.cross(this.offsetA, impulse) * inertiaratio;
+            const x = impulse.x * this.bodyA.inverseMass;
+            const y = impulse.y * this.bodyA.inverseMass;
+            const angle = Vector.cross(this.offsetA, impulse) * this.bodyA.inverseInertia;
 
             this.bodyA.translate(Vector.temp[0].set(-x, -y));
-            this.bodyA.constraintDir.rotate(-angle);
+            angle && this.bodyA.constraintDir.rotate(-angle);
             this.bodyA.constraintAngle -= angle;
 
             this.bodyA.velocity.x -= x;
@@ -98,7 +98,7 @@ export class DistanceConstraint extends Constraint {
             this.bodyA.constraintAngleImpulse -= angle;
 
             if (this.damping) {
-                const damping = relativeVelocity.scale(ratio, Constraint.vecTemp[4]);
+                const damping = relativeVelocity.scale(this.bodyA.inverseMass, Constraint.vecTemp[3]);
 
                 this.bodyA.velocity.x += damping.x;
                 this.bodyA.velocity.y += damping.y;
@@ -107,15 +107,12 @@ export class DistanceConstraint extends Constraint {
         if (this.bodyB && this.bodyB.type === BodyType.dynamic) {
             this.bodyB.setSleeping(SleepingState.AWAKE);
 
-            const ratio = this.bodyB.inverseMass / mass;
-            const inertiaratio = this.bodyB.inverseInertia / inertia;
-
-            const x = impulse.x * ratio;
-            const y = impulse.y * ratio;
-            const angle = Vector.cross(this.offsetB, impulse) * inertiaratio;
+            const x = impulse.x * this.bodyB.inverseMass;
+            const y = impulse.y * this.bodyB.inverseMass;
+            const angle = Vector.cross(this.offsetB, impulse) * this.bodyB.inverseInertia;
 
             this.bodyB.translate(Vector.temp[0].set(x, y));
-            this.bodyB.constraintDir.rotate(angle);
+            angle && this.bodyB.constraintDir.rotate(angle);
             this.bodyB.constraintAngle += angle;
 
             this.bodyB.velocity.x += x;
@@ -127,7 +124,7 @@ export class DistanceConstraint extends Constraint {
             this.bodyB.constraintAngleImpulse += angle;
 
             if (this.damping) {
-                const damping = relativeVelocity.scale(ratio, Constraint.vecTemp[4]);
+                const damping = relativeVelocity.scale(this.bodyB.inverseMass, Constraint.vecTemp[3]);
 
                 this.bodyB.velocity.x -= damping.x;
                 this.bodyB.velocity.y -= damping.y;

@@ -39,7 +39,7 @@ export class MouseConstraint {
             this.body = body;
             this.shape = shape;
             for (const constraint of this.constraints) {
-                constraint.bodyA = body;
+                constraint.setBodyA(body);
                 Vector.subtract(event.mouse.position, body.position, constraint.pointA).rotate(-body.angle);
                 this.events.trigger('catch-body', [{body, shape}]);
             }
@@ -51,7 +51,7 @@ export class MouseConstraint {
         if (event.mouse.leftButtonPressed) return;
         if (this.body && this.shape) {
             for (const constraint of this.constraints) {
-                constraint.bodyA = undefined;
+                constraint.setBodyA();
             }
             this.events.trigger('throw-body', [{body: this.body, shape: this.shape}]);
             this.body = undefined;

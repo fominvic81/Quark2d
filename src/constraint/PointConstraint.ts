@@ -26,25 +26,18 @@ export class PointConstraint extends Constraint {
         const pointA = this.getWorldPointA();
         const pointB = this.getWorldPointB();
 
-        const mass = (this.bodyA ? this.bodyA.inverseMass : 0) +
-                     (this.bodyB ? this.bodyB.inverseMass : 0);
+        const share = 0.5 / ((this.bodyA ? this.bodyA.inverseMass : 0) +
+                            (this.bodyB ? this.bodyB.inverseMass : 0));
 
-        const inertia = (this.bodyA ? this.bodyA.inverseInertia : 0) +
-                        (this.bodyB ? this.bodyB.inverseInertia : 0) +
-                        mass;
-
-        const impulse = Vector.subtract(pointA, pointB, Constraint.vecTemp[0]).scale(this.stiffness, Constraint.vecTemp[1]);
+        const impulse = Vector.subtract(pointA, pointB, Constraint.vecTemp[0]).scale(this.stiffness * share, Constraint.vecTemp[1]);
 
         if (this.bodyA && this.bodyA.type === BodyType.dynamic) {
 
-            const radio = this.bodyA.inverseMass / mass;
-            const inertiaRatio = this.bodyA.inverseInertia / inertia;
-
             this.bodyA.setSleeping(SleepingState.AWAKE);
 
-            const x = impulse.x * radio;
-            const y = impulse.y * radio;
-            const angle = Vector.cross(this.offsetA, impulse) * inertiaRatio;
+            const x = impulse.x * this.bodyA.inverseMass;
+            const y = impulse.y * this.bodyA.inverseMass;
+            const angle = Vector.cross(this.offsetA, impulse) * this.bodyA.inverseInertia;
 
             this.bodyA.translate(Vector.temp[0].set(-x, -y));
             this.bodyA.constraintDir.rotate(-angle);
@@ -60,14 +53,11 @@ export class PointConstraint extends Constraint {
         }
         if (this.bodyB && this.bodyB.type === BodyType.dynamic) {
 
-            const radio = this.bodyB.inverseMass / mass;
-            const inertiaRatio = this.bodyB.inverseInertia / inertia;
-
             this.bodyB.setSleeping(SleepingState.AWAKE);
 
-            const x = impulse.x * radio;
-            const y = impulse.y * radio;
-            const angle = Vector.cross(this.offsetB, impulse) * inertiaRatio;
+            const x = impulse.x * this.bodyB.inverseMass;
+            const y = impulse.y * this.bodyB.inverseMass;
+            const angle = Vector.cross(this.offsetB, impulse) * this.bodyB.inverseInertia;
 
             this.bodyB.translate(Vector.temp[0].set(x, y));
             this.bodyB.constraintDir.rotate(angle);
