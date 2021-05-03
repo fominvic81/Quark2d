@@ -4,7 +4,7 @@ import { Common } from '../../common/Common';
 import { Contact } from '../pair/Contact';
 import { Engine } from '../../engine/Engine';
 import { Pair } from '../pair/Pair';
-import { Body, BodyType } from '../../body/Body';
+import { BodyType } from '../../body/Body';
 
 interface SolverOptions {
     positionIterations?: number;
@@ -27,13 +27,6 @@ export class Solver {
     static DEPTH_DAMPING: number = 0.7;
     static POSITION_IMPULSE_DAMPING: number = 0.4;
     static CONSTRAINT_IMPULSE_DAMPING: number = 0.4;
-
-    private static vecTemp = [
-        new Vector(), new Vector(),
-        new Vector(), new Vector(),
-        new Vector(), new Vector(),
-        new Vector(), new Vector(),
-    ];
 
     constructor (engine: Engine, options: SolverOptions = {}) {
         this.engine = engine;
@@ -83,8 +76,8 @@ export class Solver {
         }
 
         for (const pair of this.engine.manager.activePairs) {
-            ++(<Body>pair.shapeA.body).pairsCount;
-            ++(<Body>pair.shapeB.body).pairsCount;
+            ++pair.shapeA.body!.pairsCount;
+            ++pair.shapeB.body!.pairsCount;
         }
     }
 
@@ -97,15 +90,20 @@ export class Solver {
         let positionImpulse: number;
 
         for (const pair of pairs) {
-            pair.separation = Vector.dot(
-                pair.normal,
-                Vector.subtract(pair.penetration, Vector.subtract((<Body>pair.shapeB.body).positionImpulse, (<Body>pair.shapeA.body).positionImpulse, Solver.vecTemp[0]), Solver.vecTemp[1]),
-            );
+            // pair.separation = Vector.dot(
+            //     pair.normal,
+            //     Vector.subtract(pair.penetration, Vector.subtract(pair.shapeB.body!.positionImpulse, pair.shapeA.body!.positionImpulse, temp), temp),
+            // );
+            //   ||        ||
+            //   \/        \/
+            pair.separation = 
+                pair.normal.x * (pair.penetration.x - pair.shapeB.body!.positionImpulse.x + pair.shapeA.body!.positionImpulse.x) + 
+                pair.normal.y * (pair.penetration.y - pair.shapeB.body!.positionImpulse.y + pair.shapeA.body!.positionImpulse.y);
         }
 
         for (const pair of pairs) {
-            const bodyA = <Body>pair.shapeA.body;
-            const bodyB = <Body>pair.shapeB.body;
+            const bodyA = pair.shapeA.body!;
+            const bodyB = pair.shapeB.body!;
 
             positionImpulse = pair.separation - Solver.SLOP;
 
@@ -150,21 +148,25 @@ export class Solver {
     warmStart () {
         const contacts = this.engine.manager.contactsToSolve;
 
-        const impulse: Vector = Solver.vecTemp[0];
-        const temp: Vector = Solver.vecTemp[1];
+        let impulseX: number,
+            impulseY: number;
 
         for (const contact of contacts) {
-            const bodyA = <Body>contact.pair.shapeA.body;
-            const bodyB = <Body>contact.pair.shapeB.body;
+            const bodyA = contact.pair.shapeA.body!;
+            const bodyB = contact.pair.shapeB.body!;
 
-            contact.pair.normal.scale(contact.normalImpulse, impulse);
-            impulse.add(contact.pair.tangent.scale(contact.tangentImpulse, temp));
+            impulseX = contact.pair.normal.x * contact.normalImpulse - contact.pair.normal.y * contact.tangentImpulse;
+            impulseY = contact.pair.normal.y * contact.normalImpulse + contact.pair.normal.x * contact.tangentImpulse;
 
             if (bodyA.type === BodyType.dynamic && bodyA.sleepState !== SleepingState.SLEEPING) {
-                bodyA.applyImpulse(impulse.neg(temp), contact.offsetA);
+                bodyA.velocity.x -= impulseX * bodyA.inverseMass;
+                bodyA.velocity.y -= impulseY * bodyA.inverseMass;
+                bodyA.angularVelocity -= (contact.offsetA.x * impulseY - contact.offsetA.y * impulseX) * bodyA.inverseInertia;
             }
             if (bodyB.type === BodyType.dynamic && bodyB.sleepState !== SleepingState.SLEEPING) {
-                bodyB.applyImpulse(impulse, contact.offsetB);
+                bodyB.velocity.x += impulseX * bodyB.inverseMass;
+                bodyB.velocity.y += impulseY * bodyB.inverseMass;
+                bodyB.angularVelocity += (contact.offsetB.x * impulseY - contact.offsetB.y * impulseX) * bodyB.inverseInertia;
             }
         }
     }
@@ -173,13 +175,6 @@ export class Solver {
      * Solves velocity
      */
     solveVelocity () {
-        const contactVelocityA: Vector = Solver.vecTemp[0];
-        const contactVelocityB: Vector = Solver.vecTemp[1];
-        const relativeVelocity: Vector = Solver.vecTemp[2];
-        const impulse: Vector = Solver.vecTemp[3];
-        const velocityA: Vector = Solver.vecTemp[4];
-        const velocityB: Vector = Solver.vecTemp[5];
-        const temp: Vector = Solver.vecTemp[6];
 
         let contact: Contact,
             normalVelocity: number,
@@ -187,20 +182,31 @@ export class Solver {
             tangentVelocity: number,
             tangentImpulse: number,
             angularVelocityA: number,
-            angularVelocityB: number;
+            angularVelocityB: number,
+            rvX: number,
+            rvY: number,
+            impulseX: number,
+            impulseY: number,
+            normalX: number,
+            normalY: number,
+            velocityXA: number,
+            velocityYA: number,
+            velocityXB: number,
+            velocityYB: number;
 
         for (const pair of this.engine.manager.pairsToSolve) {
-            const bodyA = <Body>pair.shapeA.body;
-            const bodyB = <Body>pair.shapeB.body;
+            const bodyA = pair.shapeA.body!;
+            const bodyB = pair.shapeB.body!;
+
+            normalX = pair.normal.x;
+            normalY = pair.normal.y;
             for (let i = 0; i < pair.contactsCount; ++i) {
                 contact = pair.contacts[i];
 
-                Vector.add(bodyA.velocity, contact.offsetA.rotate90(contactVelocityA).scale(bodyA.angularVelocity), contactVelocityA);
-                Vector.add(bodyB.velocity, contact.offsetB.rotate90(contactVelocityB).scale(bodyB.angularVelocity), contactVelocityB);
+                rvX = (bodyA.velocity.x - contact.offsetA.y * bodyA.angularVelocity) - (bodyB.velocity.x - contact.offsetB.y * bodyB.angularVelocity);
+                rvY = (bodyA.velocity.y + contact.offsetA.x * bodyA.angularVelocity) - (bodyB.velocity.y + contact.offsetB.x * bodyB.angularVelocity);
 
-                Vector.subtract(contactVelocityA, contactVelocityB, relativeVelocity);
-
-                tangentVelocity = Vector.dot(pair.tangent, relativeVelocity) + pair.surfaceVelocity;
+                tangentVelocity = normalX * rvY - normalY * rvX + pair.surfaceVelocity;
                 tangentImpulse = tangentVelocity * contact.tangentShare;
 
                 const maxFriction = pair.friction * contact.normalImpulse;
@@ -209,42 +215,53 @@ export class Solver {
                 tangentImpulse = newImpulse - contact.tangentImpulse;
                 contact.tangentImpulse = newImpulse;
 
-                pair.tangent.scale(tangentImpulse, impulse);
+                impulseX = -tangentImpulse * normalY;
+                impulseY = tangentImpulse * normalX;
+
 
                 if (bodyA.type === BodyType.dynamic && bodyA.sleepState !== SleepingState.SLEEPING) {
-                    bodyA.applyImpulse(impulse.neg(temp), contact.offsetA);
+                    bodyA.velocity.x -= impulseX * bodyA.inverseMass;
+                    bodyA.velocity.y -= impulseY * bodyA.inverseMass;
+                    bodyA.angularVelocity -= (contact.offsetA.x * impulseY - contact.offsetA.y * impulseX) * bodyA.inverseInertia;
                 }
                 if (bodyB.type === BodyType.dynamic && bodyB.sleepState !== SleepingState.SLEEPING) {
-                    bodyB.applyImpulse(impulse, contact.offsetB);
+                    bodyB.velocity.x += impulseX * bodyB.inverseMass;
+                    bodyB.velocity.y += impulseY * bodyB.inverseMass;
+                    bodyB.angularVelocity += (contact.offsetB.x * impulseY - contact.offsetB.y * impulseX) * bodyB.inverseInertia;
                 }
             }
 
-            bodyA.velocity.clone(velocityA);
+            velocityXA = bodyA.velocity.x;
+            velocityYA = bodyA.velocity.y;
             angularVelocityA = bodyA.angularVelocity;
-            bodyB.velocity.clone(velocityB);
+            velocityXB = bodyB.velocity.x;
+            velocityYB = bodyB.velocity.y;
             angularVelocityB = bodyB.angularVelocity;
             for (let i = 0; i < pair.contactsCount; ++i) {
                 contact = pair.contacts[i];
 
-                Vector.add(velocityA, contact.offsetA.rotate90(contactVelocityA).scale(angularVelocityA), contactVelocityA);
-                Vector.add(velocityB, contact.offsetB.rotate90(contactVelocityB).scale(angularVelocityB), contactVelocityB);
+                rvX = (velocityXA - contact.offsetA.y * angularVelocityA) - (velocityXB - contact.offsetB.y * angularVelocityB);
+                rvY = (velocityYA + contact.offsetA.x * angularVelocityA) - (velocityYB + contact.offsetB.x * angularVelocityB);
 
-                Vector.subtract(contactVelocityA, contactVelocityB, relativeVelocity);
-
-                normalVelocity = Vector.dot(relativeVelocity, pair.normal);
+                normalVelocity = rvX * normalX + rvY * normalY;
                 normalImpulse = normalVelocity * (1 + pair.restitution) * contact.normalShare;
 
                 const newImpulse = Math.max(contact.normalImpulse + normalImpulse, 0);
                 normalImpulse = newImpulse - contact.normalImpulse;
                 contact.normalImpulse = newImpulse;
 
-                pair.normal.scale(normalImpulse, impulse);
+                impulseX = normalX * normalImpulse;
+                impulseY = normalY * normalImpulse;
 
                 if (bodyA.type === BodyType.dynamic && bodyA.sleepState !== SleepingState.SLEEPING) {
-                    bodyA.applyImpulse(impulse.neg(temp), contact.offsetA);
+                    bodyA.velocity.x -= impulseX * bodyA.inverseMass;
+                    bodyA.velocity.y -= impulseY * bodyA.inverseMass;
+                    bodyA.angularVelocity -= (contact.offsetA.x * impulseY - contact.offsetA.y * impulseX) * bodyA.inverseInertia;
                 }
                 if (bodyB.type === BodyType.dynamic && bodyB.sleepState !== SleepingState.SLEEPING) {
-                    bodyB.applyImpulse(impulse, contact.offsetB);
+                    bodyB.velocity.x += impulseX * bodyB.inverseMass;
+                    bodyB.velocity.y += impulseY * bodyB.inverseMass;
+                    bodyB.angularVelocity += (contact.offsetB.x * impulseY - contact.offsetB.y * impulseX) * bodyB.inverseInertia;
                 }
             }
         }
