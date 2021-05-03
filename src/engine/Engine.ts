@@ -165,6 +165,4 @@ export class Engine {
     }
 
     category: number = 1;
-    group: number = 1;
-    nonCollidingGroup: number = -1;
 };
