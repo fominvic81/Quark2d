@@ -12,7 +12,6 @@ export interface BodyOptions {
     position?: Vector,
     angle?: number,
     mass?: number,
-    density?: number,
     type?: BodyType,
     velocityDamping?: number,
     fixedRotation?: boolean,
@@ -66,7 +65,6 @@ export class Body<UserData = any> {
     constraintAngle: number = 0;
     type: BodyType = BodyType.dynamic;
     velocityDamping: number = 0;
-    density: number = 100;
     mass: number = 0;
     inverseMass: number = 0;
     inertia: number = 0;
@@ -103,12 +101,6 @@ export class Body<UserData = any> {
                     break;
                 case 'angle':
                     this.setAngle(option[1]);
-                    break;
-                case 'mass':
-                    this.setMass(option[1]);
-                    break;
-                case 'density':
-                    this.setDensity(option[1]);
                     break;
                 case 'type':
                     this.setType(option[1]);
@@ -191,12 +183,12 @@ export class Body<UserData = any> {
         this.shapes.add(shape);
 
         this.updateArea();
+        this.updateMass();
 
         if (updateCenterOfMass) {
             this.updateCenterOfMass();
         }
 
-        this.updateMass();
         this.updateInertia();
 
         this.events.trigger('add-shape', [{shape, body: this}]);
@@ -212,12 +204,12 @@ export class Body<UserData = any> {
         shape.body = undefined;
 
         this.updateArea();
+        this.updateMass();
 
         if (updateCenterOfMass) {
             this.updateCenterOfMass();
         }
 
-        this.updateMass();
         this.updateInertia();
 
         this.events.trigger('add-shape', [{shape, body: this}]);
@@ -228,38 +220,31 @@ export class Body<UserData = any> {
      * Updates the area of the body.
      */
     updateArea () {
-        
         this.area = 0;
-        
+
         for (const shape of this.shapes) {
             this.area += shape.area;
         }
-        
     }
 
     /**
      * Updates the inertia of the body.
      */
     updateInertia () {
-        let inertia = 0;
+        this.inertia = 0;
     
         if (this.type === BodyType.dynamic) {
-            const inverseArea = 1/this.area;
-            for(const shape of this.shapes) {
+            for (const shape of this.shapes) {
                 shape.updateInertia();
-
-                const areaFraction = shape.area * inverseArea;
                 const distSquared = Vector.distSquared(this.position, shape.position);
-                const shapeInertia = (shape.inertia + distSquared) * areaFraction;
     
-                inertia += shapeInertia;
+                this.inertia += shape.inertia + distSquared * shape.mass;
             }
         } else {
             this.inertia = 0;
             this.inverseInertia = 0;
         }
 
-        this.inertia = this.mass * inertia;
         this.inverseInertia = this.inertia === 0 ? 0 : 1 / this.inertia;
     }
 
@@ -269,7 +254,11 @@ export class Body<UserData = any> {
     updateMass () {
 
         if (this.type === BodyType.dynamic) {
-            this.mass = this.area * this.density;
+            this.mass = 0;
+            for (const shape of this.shapes) {
+                this.mass += shape.mass;
+            }
+
             this.inverseMass = this.mass === 0 ? 0 : (1 / this.mass);
         } else {
             this.mass = 0;
@@ -287,10 +276,10 @@ export class Body<UserData = any> {
     
         for (const shape of this.shapes) {
             Vector.subtract(this.position, shape.position, offset);
-            sum.add(offset.scale(shape.area, Vector.temp[2]));
+            sum.add(offset.scale(shape.mass, Vector.temp[2]));
         }
     
-        const cm = sum.scale(1 / this.area, Vector.temp[1]);
+        const cm = sum.divide(this.mass, Vector.temp[1]);
 
         this.position.subtract(cm);
         for (const shape of this.shapes) {
@@ -419,26 +408,6 @@ export class Body<UserData = any> {
                     (<Edge>shape).normal.neg((<Edge>shape).ngNormal);
             }
         }
-    }
-
-    /**
-     * Sets the mass of the body to the given. Updates the density and inertia.
-     * @param mass
-     */
-    setMass (mass: number) {
-        this.density = this.area === 0 ? 0 : mass / this.area;
-        this.updateMass();
-        this.updateInertia();
-    }
-
-    /**
-     * Sets the density of the body to the given. Updates the mass and inertia.
-     * @param mass
-     */
-    setDensity (density: number) {
-        this.density = density;
-        this.updateMass();
-        this.updateInertia();
     }
 
     /**

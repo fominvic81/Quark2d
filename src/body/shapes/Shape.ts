@@ -9,6 +9,8 @@ import { Intersection } from '../../collision/ray/Intersection';
 import { Vertex } from '../../math/Vertex';
 
 export interface ShapeOptions {
+    density?: number;
+    mass?: number;
     radius?: number;
     filter?: {
         category?: number,
@@ -38,8 +40,11 @@ export abstract class Shape<UserData = any> {
     body: undefined | Body;
     position: Vector = new Vector();
     aabb: AABB = new AABB();
-    inertia: number = 0;
     area: number = 0;
+    density: number = 100;
+    mass: number = 0;
+    inertia: number = 0;
+    areaInertia: number = 0;
     radius: number;
     filter: Filter = new Filter();
     restitution: number;
@@ -53,7 +58,7 @@ export abstract class Shape<UserData = any> {
         this.radius = options.radius ?? Solver.SLOP * 2;
         if (options.filter) {
             this.filter.category = options.filter.category ?? this.filter.category;
-            this.filter.mask = options.filter.mask ?? this.filter.category;
+            this.filter.mask = options.filter.mask ?? this.filter.mask;
             this.filter.group = options.filter.group ?? this.filter.group;
         }
         this.restitution = options.restitution ?? 0.1;
@@ -85,6 +90,16 @@ export abstract class Shape<UserData = any> {
      * Updates the inertia of the shape.
      */
     abstract updateInertia (): number;
+
+    setMass (mass: number) {
+        this.setDensity(mass/this.area);
+    }
+
+    setDensity (density: number) {
+        this.density = density;
+        this.mass = this.density * this.area;
+        this.inertia = this.mass * this.areaInertia;
+    }
 
     /**
      * Updates the aabb of the shape.

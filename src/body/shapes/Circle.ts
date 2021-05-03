@@ -16,6 +16,10 @@ export class Circle<UserData = any> extends Shape {
         this.radius = (options.radius ?? 0.5) + Solver.SLOP * 2;
 
         this.updateArea();
+        
+        if (options.mass) this.setMass(options.mass);
+        if (!options.mass || options.density) this.setDensity(options.density ?? 100);
+
         this.inertia = this.updateInertia();
     }
 
@@ -46,7 +50,8 @@ export class Circle<UserData = any> extends Shape {
      * @returns The inertia
      */
     updateInertia () {
-        this.inertia = Math.pow(this.radius, 2) / 2;
+        this.areaInertia = Math.pow(this.radius, 2) / 2;
+        this.inertia = this.areaInertia * this.mass;
         return this.inertia;
     }
 

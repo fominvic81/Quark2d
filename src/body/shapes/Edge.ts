@@ -35,6 +35,10 @@ export class Edge<UserData = any> extends Shape {
         this.set(options.start || this.start, options.end || this.end);
 
         this.updateArea();
+
+        if (options.mass) this.setMass(options.mass);
+        if (!options.mass || options.density) this.setDensity(100);
+
         this.updateInertia();
     }
 
@@ -109,8 +113,6 @@ export class Edge<UserData = any> extends Shape {
      * @returns The inertia
      */
     updateInertia () {
-        this.inertia = 0;
-
         // https://www.efunda.com/math/areas/CircleHalf.cfm
 
         const width = this.length;
@@ -125,8 +127,8 @@ export class Edge<UserData = any> extends Shape {
 
         const distSquared = Math.pow(this.length * 0.5 + (4 * this.radius) / (Common.PI3), 2);
 
-        this.inertia = (rectInertia + circleInertia + circleArea * distSquared) / this.area;
-
+        this.areaInertia = (rectInertia + circleInertia + circleArea * distSquared) / this.area;
+        this.inertia = this.areaInertia * this.mass;
         return this.inertia;
     }
 

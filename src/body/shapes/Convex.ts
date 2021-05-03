@@ -33,6 +33,10 @@ export class Convex<UserData = any> extends Shape {
 
         this.updateArea();
         this.updateCenterOfMass();
+
+        if (options.mass) this.setMass(options.mass);
+        if (!options.mass || options.density) this.setDensity(options.density ?? 100);
+
         this.updateInertia();
     }
 
@@ -107,7 +111,7 @@ export class Convex<UserData = any> extends Shape {
      * @returns The inertia
      */
     updateInertia () {
-        this.inertia = Vertices.inertia(this.deltaVertices);
+        this.areaInertia = Vertices.inertia(this.deltaVertices);
 
         const radiusSquared = Math.pow(this.radius, 2);
         const inverseArea = 1/this.area;
@@ -127,7 +131,7 @@ export class Convex<UserData = any> extends Shape {
             const inertia = (Math.pow(length, 2) + radiusSquared) / 12;
             const distSquared = point.lengthSquared();
 
-            this.inertia += (inertia + distSquared) * areaFraction;
+            this.areaInertia += (inertia + distSquared) * areaFraction;
         }
 
         for (const v of this.vertices) {
@@ -144,9 +148,10 @@ export class Convex<UserData = any> extends Shape {
             const inertia = radiusSquared / 2;
             const distSquared = vertex.lengthSquared();
 
-            this.inertia += (inertia + distSquared) * areaFraction;
+            this.areaInertia += (inertia + distSquared) * areaFraction;
         }
 
+        this.inertia = this.areaInertia * this.mass;
         return this.inertia;
     }
 
