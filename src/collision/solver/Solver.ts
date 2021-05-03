@@ -269,12 +269,8 @@ export class Solver {
 
     preSolveConstraints () {
 
-        for (const body of this.engine.world.bodies.values()) {
-            body.dir.clone(body.constraintDir);
-            body.constraintAngle = body.angle;
-        }
-
         for (const body of this.engine.world.activeBodies.values()) {
+            if (!body.constraints.size) continue;
 
             body.constraintImpulse.x *= Solver.CONSTRAINT_IMPULSE_DAMPING;
             body.constraintImpulse.y *= Solver.CONSTRAINT_IMPULSE_DAMPING;
@@ -304,6 +300,7 @@ export class Solver {
     postSolveConstraints () {
 
         for (const body of this.engine.world.activeBodies.values()) {
+            if (!body.constraints.size) continue;
             body.setAngle(body.constraintAngle);
         }
     }

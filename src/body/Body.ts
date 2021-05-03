@@ -349,6 +349,10 @@ export class Body<UserData = any> {
         this.dir.x = dx * cos - dy * sin;
         this.dir.y = dx * sin + dy * cos;
 
+        this.constraintDir.x = this.dir.x;
+        this.constraintDir.y = this.dir.y;
+        this.constraintAngle = this.angle;
+
         for (const shape of this.shapes) {
 
             dx = shape.position.x - this.position.x;
