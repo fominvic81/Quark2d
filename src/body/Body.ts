@@ -507,16 +507,16 @@ export class Body<UserData = any> {
     }
 
     /**
-     * Applies the given impusle to a body from the given offset(including resulting angularVelocity).
+     * Applies the given impulse to a body from the given offset(including resulting angularVelocity).
      * @param force
      * @param offset
      */
-    applyImpulse (impusle: Vector, offset?: Vector) {
-        const velocity = impusle.scale(this.inverseMass, Body.vecTemp[0]);
+    applyImpulse (impulse: Vector, offset?: Vector) {
+        const velocity = impulse.scale(this.inverseMass, Body.vecTemp[0]);
         this.velocity.add(velocity);
 
         if (offset) {
-            const angularVelocity = Vector.cross(offset, impusle) * this.inverseInertia;
+            const angularVelocity = Vector.cross(offset, impulse) * this.inverseInertia;
             this.angularVelocity += angularVelocity;
         }
     }
