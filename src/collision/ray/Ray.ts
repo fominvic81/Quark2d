@@ -14,7 +14,6 @@ interface RayOptions {
 
 /**
  * The 'Ray' is a class used for raycasting.
- * @example https://codepen.io/fominvic81/pen/yLgJmLq?editors=0010
  */
 
 export class Ray {
