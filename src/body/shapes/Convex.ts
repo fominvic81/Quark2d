@@ -256,4 +256,13 @@ export class Convex extends Shape {
     getNormal (index: number, output: Vector) {
         return this.normals[index].clone(output);
     }
+
+    /**
+     * Returns the farthest vertex in the given direction and its index.
+     * @param vector
+     */
+    support (vector: Vector) {
+        const index = this.project(vector);
+        return this.vertices[index];
+    }
 }

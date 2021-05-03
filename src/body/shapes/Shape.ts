@@ -6,6 +6,7 @@ import { Solver } from '../../collision/solver/Solver';
 import { Region } from '../../collision/phase/Broadphase';
 import { Body } from '../Body';
 import { Intersection } from '../../collision/ray/Intersection';
+import { Vertex } from '../../math/Vertex';
 
 export interface ShapeOptions {
     radius?: number;
@@ -108,4 +109,9 @@ export abstract class Shape {
      */
     abstract getNormal (index: number, output: Vector): Vector;
 
+    /**
+     * Returns the farthest vertex in the given direction and its index.
+     * @param vector
+     */
+    abstract support (vector: Vector): Vertex;
 }

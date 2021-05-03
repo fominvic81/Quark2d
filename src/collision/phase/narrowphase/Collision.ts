@@ -5,35 +5,33 @@ import { Vector } from '../../../math/Vector';
 import { Pair } from '../../pair/Pair';
 import { GJK, SupportPoint } from './Distance';
 
-const convexSupportEdge = (convex: Convex, index: number, normal: Vector): Vector[] => {
+const convexSupportEdge = (convex: Convex, index: number, normal: Vector): [Vector, Vector] => {
     const vertices = convex.vertices;
-    const vertex1 = Vector.temp[5];
-    const vertex2 = Vector.temp[6];
-
-    vertices[index].clone(vertex1);
+    const vertex1 = vertices[index];
+    let vertex2: Vector;
 
     const dist1 = Vector.dot(normal, vertices[index - 1 >= 0 ? index - 1 : vertices.length - 1]);
     const dist2 = Vector.dot(normal, vertices[(index + 1) % vertices.length]);
 
     if (dist1 > dist2) {
-        vertices[(index + vertices.length - 1) % vertices.length].clone(vertex2);
+        vertex2 = vertices[(index + vertices.length - 1) % vertices.length];
     } else {
-        vertices[(index + 1) % vertices.length].clone(vertex2);
+        vertex2 = vertices[(index + 1) % vertices.length];
     }
 
     return [vertex1, vertex2];
 }
 
-const edgeSupportEdge = (edge: Edge, index: number): Vector[] => {
+const edgeSupportEdge = (edge: Edge, index: number): [Vector, Vector] => {
     return index ? [edge.end, edge.start] : [edge.start, edge.end];
 }
 
-const supportEdge = (shape: Shape, index: number, normal: Vector): Vector[] => {
+const supportEdge = (shape: Shape, index: number, normal: Vector): [Vector, Vector] => {
     switch (shape.type) {
         case ShapeType.CONVEX: return convexSupportEdge(<Convex>shape, index, normal);
         case ShapeType.EDGE: return edgeSupportEdge(<Edge>shape, index);
     }
-    return [];
+    throw new Error();
 }
 
 export const clip = (output: Vector[], incFace: Vector[], normal: Vector, offset: number): number => {
@@ -54,41 +52,42 @@ export const clip = (output: Vector[], incFace: Vector[], normal: Vector, offset
     return count;
 }
 
+const contactsTemp = [
+    new Vector(),
+    new Vector(),
+];
+
 export const contacts = (pair: Pair, refFace: Vector[], incFace: Vector[], normal: Vector, tangent: Vector, radius: number) => {
     const offset1 = Vector.dot(tangent, refFace[0]);
     const offset2 = -Vector.dot(tangent, refFace[1]);
 
-    const contacts2 = [
-        Vector.temp[4],
-        Vector.temp[3],
-    ];
-
-    const contacts1 = [
+    const contacts = [
         pair.contacts[0].vertex,
         pair.contacts[1].vertex,
     ];
 
-    let count = clip(contacts2, incFace, tangent.neg(Vector.temp[2]), offset1);
+    let count = clip(contactsTemp, incFace, tangent.neg(Vector.temp[2]), offset1);
     if (count < 2) {
         pair.contactsCount = count;
-        contacts2[0].clone(contacts1[0]);
+        contactsTemp[0].clone(contacts[0]);
         return;
     }
 
-    count = clip(contacts1, contacts2, tangent, offset2);
+    count = clip(contacts, contactsTemp, tangent, offset2);
 
     pair.contactsCount = count;
     if (count < 2) {
         return;
     }
 
-    const separation = Vector.dot(contacts1[1], normal) - Vector.dot(refFace[0], normal);
+    const separation = Vector.dot(contacts[1], normal) - Vector.dot(refFace[0], normal);
 
     if (separation > radius) {
         --pair.contactsCount;
     }
 }
 
+const temp = new Vector();
 export const collide = (pair: Pair): boolean => {
 
     const shapeA = pair.shapeA;
@@ -102,8 +101,8 @@ export const collide = (pair: Pair): boolean => {
     const radius = shapeA.radius + shapeB.radius;
 
     if (points.length === 1) {
-        const vertex1 = shapeA.getPoint(points[0].indexA);
-        const vertex2 = shapeB.getPoint(points[0].indexB);
+        const vertex1 = points[0].pointA;
+        const vertex2 = points[0].pointB;
 
         Vector.subtract(vertex2, vertex1, normal);
 
@@ -119,39 +118,39 @@ export const collide = (pair: Pair): boolean => {
         pair.depth = radius - length;
 
         pair.contactsCount = 1;
-        Vector.add(vertex1, normal.scale(shapeA.radius, Vector.temp[0]), pair.contacts[0].vertex);
+        Vector.add(vertex1, normal.scale(shapeA.radius, temp), pair.contacts[0].vertex);
     } else {
         let incFace: Vector[];
         let refFace: Vector[];
         let incRadius: number;
         let flipped: boolean = false;
 
-        if (points[0].indexA === points[1].indexA) {
+        if (points[0].pointA === points[1].pointA) {
             shapeB.getNormal(points[1].indexB, normal);
             pair.depth = -Vector.dot(normal, points[0].point) + radius;
             incRadius = shapeA.radius;
             
 
-            incFace = supportEdge(shapeA, points[0].indexA, normal.neg(Vector.temp[0]));
-            refFace = [shapeB.getPoint(points[0].indexB), shapeB.getPoint(points[1].indexB)];
+            incFace = supportEdge(shapeA, points[0].indexA, normal.neg(temp));
+            refFace = [points[0].pointB, points[1].pointB];
         } else {
             shapeA.getNormal(points[1].indexA, normal);
             pair.depth = Vector.dot(normal, points[0].point) + radius;
             incRadius = shapeB.radius;
             
-            incFace = supportEdge(shapeB, points[0].indexB, normal.neg(Vector.temp[0]));
-            refFace = [shapeA.getPoint(points[0].indexA), shapeA.getPoint(points[1].indexA)];
+            incFace = supportEdge(shapeB, points[0].indexB, normal.neg(temp));
+            refFace = [points[0].pointA, points[1].pointA];
             
             flipped = true;
         }
 
         if (pair.depth < 0) return false;
 
-        const tangent = normal.rotate270(Vector.temp[0]);
+        const tangent = normal.rotate270(temp);
         contacts(pair, refFace, incFace, normal, tangent, radius);
 
         for (let i = 0; i < pair.contactsCount; ++i) {
-            pair.contacts[i].vertex.subtract(normal.scale(incRadius, Vector.temp[0]));
+            pair.contacts[i].vertex.subtract(normal.scale(incRadius, temp));
         }
         if (!flipped) normal.neg();
 

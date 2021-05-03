@@ -2,11 +2,13 @@ import { Shape, ShapeOptions, ShapeType } from './Shape';
 import { Vector } from '../../math/Vector';
 import { Solver } from '../../collision/solver/Solver';
 import { Intersection } from '../../collision/ray/Intersection';
+import { Vertex } from '../../math/Vertex';
 
 export interface CircleOptions extends ShapeOptions {}
 
 export class Circle extends Shape {
     type: number = ShapeType.CIRCLE;
+    position: Vertex = new Vertex(0, 0, 0);
 
     constructor (options: CircleOptions = {}) {
         super(options);
@@ -129,5 +131,13 @@ export class Circle extends Shape {
      */
     getNormal (index: number, output: Vector) {
         return output.set(1, 0);
+    }
+
+    /**
+     * Returns the farthest vertex in the given direction and its index.
+     * @param vector
+     */
+     support (vector: Vector) {
+        return this.position;
     }
 }

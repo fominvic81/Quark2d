@@ -1,37 +1,40 @@
-import { Convex } from '../../../body/shapes/Convex';
-import { Edge } from '../../../body/shapes/Edge';
 import { Shape, ShapeType } from '../../../body/shapes/Shape';
 import { Vector } from '../../../math/Vector';
+import { Vertex } from '../../../math/Vertex';
 
 const MAX_GJK_ITERATIONS: number = 30;
 const MAX_EPA_ITERATIONS: number = 40;
 const INIT_DIR: Vector = new Vector(1, 0);
 
 export class SupportPoint {
+    pointA: Vertex = new Vertex(0, 0, 0);
+    pointB: Vertex = new Vertex(0, 0, 0);
     indexA: number = 0;
     indexB: number = 0;
     index: number = 0;
     point: Vector = new Vector();
 
     compute (shapeA: Shape, shapeB: Shape, dir: Vector) {
-        const supportA = supportPoint(shapeA, dir);
-        const supportB = supportPoint(shapeB, dir.neg(Vector.temp[0]));
+        const supportA = shapeA.support(dir);
+        const supportB = shapeB.support(dir.neg(Vector.temp[0]));
 
-        const pointA = <Vector>supportA[0];
-        const pointB = <Vector>supportB[0];
+        this.pointA = supportA;
+        this.pointB = supportB;
 
-        this.indexA = supportA[1];
-        this.indexB = supportB[1];
+        this.indexA = supportA.index;
+        this.indexB = supportB.index;
         this.index = (this.indexA & 0xffff) << 16 | (this.indexB & 0xffff);
 
-        this.point = new Vector(pointA.x - pointB.x, pointA.y - pointB.y);
+        this.point = new Vector(this.pointA.x - this.pointB.x, this.pointA.y - this.pointB.y);
     }
 
-    clone (p: SupportPoint) {
-        p.indexA = this.indexA;
-        p.indexB = this.indexB;
-        p.index = this.index;
-        this.point.clone(p.point);
+    clone (output: SupportPoint) {
+        output.pointA = this.pointA;
+        output.pointB = this.pointB;
+        output.indexA = this.indexA;
+        output.indexB = this.indexB;
+        output.index = this.index;
+        this.point.clone(output.point);
     }
 }
 
@@ -40,28 +43,6 @@ const EPA_Temp: SupportPoint[] = [];
 
 for (let i = 0; i <= MAX_EPA_ITERATIONS; ++i) {
     EPA_Temp.push(new SupportPoint());
-}
-
-const supportPoint = (shape: Shape, dir: Vector): [Vector, number] => {
-    switch (shape.type) {
-        case ShapeType.CIRCLE:
-            return [shape.position, 0];
-        case ShapeType.CONVEX:
-            return convexSupportPoint(<Convex>shape, dir);
-        case ShapeType.EDGE:
-            return edgeSupportPoint(<Edge>shape, dir);
-    }
-    throw new Error();
-}
-
-const convexSupportPoint = (convex: Convex, dir: Vector): [Vector, number] => {
-    const index = convex.project(dir);
-    return [convex.vertices[index], index];
-}
-
-const edgeSupportPoint = (edge: Edge, dir: Vector): [Vector, number] => {
-    const index = edge.project(dir);
-    return [index ? edge.end : edge.start, index];
 }
 
 export const GJK = (shapeA: Shape, shapeB: Shape, useEpa: boolean, output: SupportPoint[]): boolean => {
@@ -136,8 +117,8 @@ export const EPA = (points: SupportPoint[], shapeA: Shape, shapeB: Shape, output
         ++iterations;
 
         let minDist = Infinity;
-        let minI;
-        let minJ;
+        let minI: number;
+        let minJ: number;
 
         for (let j = 0, i = points.length - 1; j < points.length; i = j, ++j) {
             const dist = Vector.distSquaredToZero(points[i].point, points[j].point);
@@ -149,8 +130,8 @@ export const EPA = (points: SupportPoint[], shapeA: Shape, shapeB: Shape, output
             }
         }
 
-        const p1 = points[<number>minI];
-        const p2 = points[<number>minJ];
+        const p1 = points[minI!];
+        const p2 = points[minJ!];
 
         if (iterations > MAX_EPA_ITERATIONS) {
             console.warn('Too many EPA iterations');
@@ -168,7 +149,7 @@ export const EPA = (points: SupportPoint[], shapeA: Shape, shapeB: Shape, output
             const points2 = [p];
 
             for (let i = 0; i < points.length; ++i) {
-                let index = (<number>minI + 1 + i) % points.length;
+                let index = (minI! + 1 + i) % points.length;
 
                 const n0 = points2[points2.length - 1].point;
                 const n1 = points[index].point;
@@ -190,8 +171,8 @@ export const distance = (shapeA: Shape, shapeB: Shape) => {
     if (!GJK(shapeA, shapeB, true, points)) return;
 
     if (points.length === 1) {
-        const vertex1 = shapeA.getPoint(points[0].indexA);
-        const vertex2 = shapeB.getPoint(points[0].indexB);
+        const vertex1 = points[0].pointA;
+        const vertex2 = points[0].pointB;
 
         const normal = new Vector();
 
@@ -202,19 +183,19 @@ export const distance = (shapeA: Shape, shapeB: Shape) => {
 
         return {a: [vertex1], b: [vertex2], distance: length, normal};
     } else {
-        if (points[0].indexA === points[1].indexA) {
+        if (points[0].pointA === points[1].pointA) {
             const normal = shapeB.getNormal(points[1].indexB, new Vector());
             return {
-                a: [shapeA.getPoint(points[0].indexA)],
-                b: [shapeB.getPoint(points[0].indexB), shapeB.getPoint(points[1].indexB)],
+                a: [points[0].pointA],
+                b: [points[0].pointB, points[1].pointB],
                 distance: Vector.dot(normal, points[0].point),
                 normal,
             };
         } else {
             const normal = shapeA.getNormal(points[1].indexA, new Vector());
             return {
-                a: [shapeA.getPoint(points[0].indexA), shapeA.getPoint(points[1].indexA)],
-                b: [shapeB.getPoint(points[0].indexB)],
+                a: [points[0].pointA, points[1].pointA],
+                b: [points[0].pointB],
                 distance: -Vector.dot(normal, points[0].point),
                 normal,
             };

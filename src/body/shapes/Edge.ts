@@ -1,6 +1,7 @@
 import { Intersection } from '../../collision/ray/Intersection';
 import { Common } from '../../common/Common';
 import { Vector } from '../../math/Vector';
+import { Vertex } from '../../math/Vertex';
 import { Shape, ShapeOptions, ShapeType } from './Shape';
 
 export interface EdgeOptions extends ShapeOptions {
@@ -14,8 +15,8 @@ export interface EdgeOptions extends ShapeOptions {
 
 export class Edge extends Shape {
     type: number = ShapeType.EDGE;
-    start: Vector = new Vector(-0.5, 0);
-    end: Vector = new Vector(0.5, 0);
+    start: Vertex;
+    end: Vertex;
     length: number = 1;
     delta: Vector = new Vector();
     normal: Vector = new Vector();
@@ -24,8 +25,8 @@ export class Edge extends Shape {
     constructor (options: EdgeOptions = {}) {
         super(options);
 
-        this.start = new Vector(-0.5, 0);
-        this.end = new Vector(0.5, 0);
+        this.start = new Vertex(-0.5, 0, 0);
+        this.end = new Vertex(0.5, 0, 1);
         this.length = 1;
         this.delta = new Vector();
         this.normal = new Vector();
@@ -204,5 +205,14 @@ export class Edge extends Shape {
      */
     getNormal (index: number, output: Vector) {
         return (index ? this.normal : this.ngNormal).clone(output);
+    }
+
+    /**
+     * Returns the farthest vertex in the given direction and its index.
+     * @param vector
+     */
+    support (vector: Vector) {
+        const index = this.project(vector);
+        return index ? this.end : this.start;
     }
 }
