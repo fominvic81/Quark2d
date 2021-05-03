@@ -110,12 +110,12 @@ export class Broadphase {
     }
 
     createPair (shapeA_: Shape, shapeB_: Shape) {
-        const comp: boolean = (<Body>shapeA_.body).id > (<Body>shapeB_.body).id;
+        const comp: boolean = shapeA_.body!.id > shapeB_.body!.id;
         const shapeA: Shape = comp ? shapeA_ : shapeB_;
         const shapeB: Shape = !comp ? shapeA_ : shapeB_;
 
-        const bodyA: Body = <Body>shapeA.body;
-        const bodyB: Body = <Body>shapeB.body;
+        const bodyA: Body = shapeA.body!;
+        const bodyB: Body = shapeB.body!;
 
         if ((bodyA === bodyB) || (bodyA.type !== BodyType.dynamic && bodyB.type !== BodyType.dynamic)) return;
 

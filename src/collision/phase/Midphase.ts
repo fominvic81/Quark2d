@@ -24,7 +24,7 @@ export class Midphase {
                 pair.isActive = false;
                 continue;
             }
-            pair.isSleeping = ((<Body>pair.shapeA.body).sleepState === SleepingState.SLEEPING || (<Body>pair.shapeA.body).type !== BodyType.dynamic) && ((<Body>pair.shapeB.body).sleepState === SleepingState.SLEEPING || (<Body>pair.shapeB.body).type !== BodyType.dynamic);
+            pair.isSleeping = (pair.shapeA.body!.sleepState === SleepingState.SLEEPING || pair.shapeA.body!.type !== BodyType.dynamic) && (pair.shapeB.body!.sleepState === SleepingState.SLEEPING || (pair.shapeB.body!).type !== BodyType.dynamic);
             if (!pair.isSleeping) {
                 pair.isActive = false;
                 if (!Filter.canCollide(pair.shapeA.filter, pair.shapeB.filter)) continue;

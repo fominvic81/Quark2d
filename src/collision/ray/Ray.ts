@@ -233,13 +233,13 @@ export class Ray {
         const cell = engine.manager.broadphase.grid.get(position);
         if (cell) {
             for (const shape of cell.values()) {
-                const body = shape.body;
-                if (!composite.hasBody((<Body>body).id)) continue;
+                const body = shape.body!;
+                if (!composite.hasBody(body.id)) continue;
 
-                const id = Common.combineId((<Body>body).id, shape.id);
+                const id = Common.combineId(body.id, shape.id);
                 let intersection = intersections.get(id);
                 if (!intersection) {
-                    intersection = new Intersection(<Body>body, shape);
+                    intersection = new Intersection(body, shape);
                     intersections.set(id, intersection);
                 }
                 intersection.isActive = true;

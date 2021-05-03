@@ -313,7 +313,7 @@ export class Render {
         for (const body of bodies) {
             for (const shape of body.shapes) {
                 const pos = shape.position;
-                const angle = (<Body>shape.body).angle;
+                const angle = shape.body!.angle;
 
                 switch (shape.type) {
                     case ShapeType.CIRCLE:

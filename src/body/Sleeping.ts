@@ -101,8 +101,8 @@ export class Sleeping {
                 const pairs = this.engine.manager.activePairs;
 
                 for (const pair of pairs) {
-                    const bodyA = <Body>pair.shapeA.body;
-                    const bodyB = <Body>pair.shapeB.body;
+                    const bodyA = pair.shapeA.body!;
+                    const bodyB = pair.shapeB.body!;
         
                     if (bodyA.sleepState !== SleepingState.SLEEPING && bodyB.sleepState !== SleepingState.SLEEPING) continue;
         

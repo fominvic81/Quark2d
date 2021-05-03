@@ -34,7 +34,7 @@ export class MouseConstraint {
         const shapes = this.engine.pointTest(this.mouse.position);
 
         for (const shape of shapes) {
-            const body = <Body>shape.body;
+            const body = shape.body!;
             if (body.type !== BodyType.dynamic) continue;
             this.body = body;
             this.shape = shape;
