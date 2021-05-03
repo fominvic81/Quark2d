@@ -1,5 +1,5 @@
 import { Engine } from '../engine/Engine';
-import { Body, BodyType } from './Body';
+import { BodyType } from './Body';
 
 export enum SleepingState {
     AWAKE,

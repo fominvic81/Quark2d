@@ -5,7 +5,6 @@ import { Common } from '../../common/Common';
 import { Intersection } from './Intersection';
 import { Composite } from '../../common/Composite';
 import { Engine } from '../../engine/Engine';
-import { Body } from '../../body/Body';
 
 interface RayOptions {
     from?: Vector;

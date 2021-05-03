@@ -1,4 +1,4 @@
-import { Body, BodyType } from '../../body/Body';
+import { BodyType } from '../../body/Body';
 import { Filter } from '../../body/Filter';
 import { SleepingState } from '../../body/Sleeping';
 import { Engine } from '../../engine/Engine';
