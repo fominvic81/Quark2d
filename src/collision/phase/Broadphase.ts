@@ -171,6 +171,9 @@ export class Broadphase {
                 pair.broadphaseCellsCount -= 1;
 
                 if (pair.broadphaseCellsCount <= 0) {
+                    if (pair.isActive) {
+                        this.manager.endedPairs.push(pair);
+                    }
                     this.activePairs.delete(pair);
                 }
             }
