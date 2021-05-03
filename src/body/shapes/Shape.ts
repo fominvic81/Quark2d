@@ -99,6 +99,8 @@ export abstract class Shape<UserData = any> {
         this.density = density;
         this.mass = this.density * this.area;
         this.inertia = this.mass * this.areaInertia;
+        this.body?.updateMass()
+        this.body?.updateInertia()
     }
 
     /**
