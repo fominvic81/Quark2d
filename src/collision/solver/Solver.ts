@@ -87,7 +87,10 @@ export class Solver {
     solvePosition () {
         const pairs: Pair[] = this.engine.manager.pairsToSolve;
 
-        let positionImpulse: number;
+        const depthDamping = Solver.DEPTH_DAMPING;
+
+        let positionImpulse: number,
+            impulse: number;
 
         for (const pair of pairs) {
             // pair.separation = Vector.dot(
@@ -105,22 +108,22 @@ export class Solver {
             const bodyA = pair.shapeA.body!;
             const bodyB = pair.shapeB.body!;
 
-            positionImpulse = pair.separation - Solver.SLOP;
+            positionImpulse = (pair.separation - Solver.SLOP) * depthDamping;
 
             if (bodyA.type !== BodyType.dynamic || bodyB.type !== BodyType.dynamic) {
                 positionImpulse *= 2;
             }
 
             if (bodyA.type === BodyType.dynamic && bodyA.sleepState !== SleepingState.SLEEPING) { 
-                const share = Solver.DEPTH_DAMPING / bodyA.pairsCount;
-                bodyA.positionImpulse.x -= pair.normal.x * positionImpulse * share;
-                bodyA.positionImpulse.y -= pair.normal.y * positionImpulse * share;
+                impulse = pair.ratioA * positionImpulse / bodyA.pairsCount;
+                bodyA.positionImpulse.x -= pair.normal.x * impulse;
+                bodyA.positionImpulse.y -= pair.normal.y * impulse;
             }
 
             if (bodyB.type === BodyType.dynamic && bodyB.sleepState !== SleepingState.SLEEPING) {
-                const share = Solver.DEPTH_DAMPING / bodyB.pairsCount;
-                bodyB.positionImpulse.x += pair.normal.x * positionImpulse * share;
-                bodyB.positionImpulse.y += pair.normal.y * positionImpulse * share;
+                impulse = pair.ratioB * positionImpulse / bodyB.pairsCount;
+                bodyB.positionImpulse.x += pair.normal.x * impulse;
+                bodyB.positionImpulse.y += pair.normal.y * impulse;
             }
         }
     }

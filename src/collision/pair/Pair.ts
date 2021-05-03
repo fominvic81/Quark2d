@@ -21,6 +21,8 @@ export class Pair {
     broadphaseCellsCount: number = 0;
     isSleeping: boolean = false;
     isSensor: boolean = false;
+    ratioA: number = 0;
+    ratioB: number = 0;
 
     constructor (shapeA: Shape, shapeB: Shape) {
         this.shapeA = shapeA;
@@ -33,6 +35,9 @@ export class Pair {
         this.friction = Math.min(this.shapeA.friction, this.shapeB.friction);
         this.restitution = Math.max(this.shapeA.restitution, this.shapeB.restitution);
         this.surfaceVelocity = this.shapeA.surfaceVelocity + this.shapeB.surfaceVelocity;
+        const share = 1 / (this.shapeA.body!.inverseMass + this.shapeB.body!.inverseMass);
+        this.ratioA = share * this.shapeA.body!.inverseMass;
+        this.ratioB = share * this.shapeB.body!.inverseMass;
 
         for (let i = 0; i < this.contactsCount; ++i) {
             const contact = this.contacts[i];
