@@ -84,9 +84,11 @@ export class Body<UserData = any> {
         new Vector(),
     ];
 
-    constructor (options: BodyOptions = {}) {
+    constructor (options: BodyOptions = {}, userData?: UserData) {
         this.set(options);
-        
+
+        this.userData = userData;
+
         this.updateArea();
         this.updateMass();
         this.updateInertia();

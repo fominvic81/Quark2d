@@ -13,7 +13,7 @@ export interface EdgeOptions extends ShapeOptions {
  * The 'Edge' is line segment. The 'Edge' is described by the two points(start and end).
  */
 
-export class Edge extends Shape {
+export class Edge<UserData = any> extends Shape {
     type: number = ShapeType.EDGE;
     start: Vertex;
     end: Vertex;
@@ -22,8 +22,8 @@ export class Edge extends Shape {
     normal: Vector = new Vector();
     ngNormal: Vector = new Vector();
 
-    constructor (options: EdgeOptions = {}) {
-        super(options);
+    constructor (options: EdgeOptions = {}, userData?: UserData) {
+        super(options, userData);
 
         this.start = new Vertex(-0.5, 0, 0);
         this.end = new Vertex(0.5, 0, 1);

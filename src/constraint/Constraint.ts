@@ -18,7 +18,7 @@ export interface ConstraintOptions {
  * Constraints are used to constrain bodies to each other or to fixed world position.
  */
 
-export abstract class Constraint {
+export abstract class Constraint<UserData = any> {
     id: number = Common.nextId();
     name: string = 'constraint';
     type: ConstraintType = 0;
@@ -30,6 +30,7 @@ export abstract class Constraint {
     worldPointB: Vector;
     offsetA: Vector;
     offsetB: Vector;
+    userData?: UserData;
 
     protected static vecTemp = [
         new Vector(), new Vector(),
@@ -38,7 +39,7 @@ export abstract class Constraint {
         new Vector(),
     ];
 
-    constructor (options: ConstraintOptions = {}) {
+    constructor (options: ConstraintOptions = {}, userData?: UserData) {
 
         this.setBodyA(options.bodyA);
         this.setBodyB(options.bodyB);
@@ -52,6 +53,7 @@ export abstract class Constraint {
         this.worldPointB = this.bodyB ? new Vector() : this.pointB.clone();
         this.offsetA = new Vector();
         this.offsetB = new Vector();
+        this.userData = userData;
     }
 
     /**

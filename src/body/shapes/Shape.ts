@@ -31,7 +31,7 @@ export enum ShapeType {
  * The shapes describe geometry of the body, you can add many shapes to the body.
  */
 
-export abstract class Shape {
+export abstract class Shape<UserData = any> {
     id: number = Common.nextId();
     name: string = 'shape';
     type: number = 0;
@@ -47,8 +47,9 @@ export abstract class Shape {
     surfaceVelocity: number;
     isSensor: boolean;
     region: Region = new Region();
+    userData?: UserData;
 
-    constructor (options: ShapeOptions = {}) {
+    constructor (options: ShapeOptions = {}, userData?: UserData) {
         this.radius = options.radius ?? Solver.SLOP * 2;
         if (options.filter) {
             this.filter.category = options.filter.category ?? this.filter.category;
@@ -59,6 +60,8 @@ export abstract class Shape {
         this.friction = options.friction ?? 0.4;
         this.surfaceVelocity = options.surfaceVelocity ?? 0;
         this.isSensor = options.isSensor ?? false;
+
+        this.userData = userData;
     }
 
     /**

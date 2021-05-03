@@ -15,7 +15,7 @@ interface DistanceConstraintOptions extends ConstraintOptions {
  * The 'DistanceConstraint' can be soft(use options.stiffness[0...1] and options.damping[0...1]).
  */
 
-export class DistanceConstraint extends Constraint {
+export class DistanceConstraint<UserData = any> extends Constraint {
     type: number = ConstraintType.DISTANCE_CONSTRAINT;
     stiffness: number;
     damping: number;
@@ -24,8 +24,8 @@ export class DistanceConstraint extends Constraint {
     curLength: number;
     normal: Vector = new Vector();
 
-    constructor (options: DistanceConstraintOptions = {}) {
-        super(options);
+    constructor (options: DistanceConstraintOptions = {}, userData?: UserData) {
+        super(options, userData);
         this.stiffness = options.stiffness ?? 0.1;
         this.damping = options.damping ?? 0;
 

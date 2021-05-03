@@ -12,7 +12,7 @@ export interface ConvexOptions extends ShapeOptions {
  * The 'Convex' is convex polygon. The 'Convex' is described by the set of points.
  */
 
-export class Convex extends Shape {
+export class Convex<UserData = any> extends Shape {
     type: number = ShapeType.CONVEX;
     vertices: Vertex[];
     deltaVertices: Vertex[];
@@ -21,8 +21,8 @@ export class Convex extends Shape {
 
     private static DEFAULT_VERTICES = [new Vector(-1, -1), new Vector(1, -1), new Vector(1, 1), new Vector(-1, 1)];
 
-    constructor (options: ConvexOptions = {}) {
-        super(options);
+    constructor (options: ConvexOptions = {}, userData?: UserData) {
+        super(options, userData);
 
         const vertices = options.vertices ?? Convex.DEFAULT_VERTICES;
 

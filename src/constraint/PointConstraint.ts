@@ -12,11 +12,11 @@ interface PointConstraintOptions extends ConstraintOptions {
  * The 'PointConstraint' anchors two points on two bodies.
  */
 
-export class PointConstraint extends Constraint {
+export class PointConstraint<UserData = any> extends Constraint {
     stiffness: number;
 
-    constructor (options: PointConstraintOptions = {}) {
-        super(options);
+    constructor (options: PointConstraintOptions = {}, userData?: UserData) {
+        super(options, userData);
 
         this.stiffness = options.stiffness ?? 0.1;
     }

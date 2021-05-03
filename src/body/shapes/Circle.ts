@@ -6,12 +6,12 @@ import { Vertex } from '../../math/Vertex';
 
 export interface CircleOptions extends ShapeOptions {}
 
-export class Circle extends Shape {
+export class Circle<UserData = any> extends Shape {
     type: number = ShapeType.CIRCLE;
     position: Vertex = new Vertex(0, 0, 0);
 
-    constructor (options: CircleOptions = {}) {
-        super(options);
+    constructor (options: CircleOptions = {}, userData?: UserData) {
+        super(options, userData);
 
         this.radius = (options.radius ?? 0.5) + Solver.SLOP * 2;
 
