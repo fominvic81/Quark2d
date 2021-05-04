@@ -374,19 +374,19 @@ export class Render {
 
     positionImpulses (bodies: Body[]) {
         for (const body of bodies) {
-            Draw.line(this.ctx, body.position, Vector.add(body.position, body.positionImpulse, Vector.temp[0]), 'rgb(80, 80, 200)', this.options.lineWidth / 10);
+            Draw.line(this.ctx, body.center, Vector.add(body.center, body.positionImpulse, Vector.temp[0]), 'rgb(80, 80, 200)', this.options.lineWidth / 10);
         }
     }
 
     velocity (bodies: Body[]) {
         for (const body of bodies) {
-            Draw.line(this.ctx, body.position, Vector.add(body.position, body.velocity.scale(5, Vector.temp[0]), Vector.temp[0]), 'rgb(80, 200, 80)', this.options.lineWidth / 10);
+            Draw.line(this.ctx, body.center, Vector.add(body.center, body.velocity.scale(5, Vector.temp[0]), Vector.temp[0]), 'rgb(80, 200, 80)', this.options.lineWidth / 10);
         }
     }
 
     angularVelocity (bodies: Body[]) {
         for (const body of bodies) {
-            Draw.circle(this.ctx, body.position, Math.abs(body.angularVelocity) * 5, 'rgb(80, 200, 80)', false, this.options.lineWidth / 20);
+            Draw.circle(this.ctx, body.center, Math.abs(body.angularVelocity) * 5, 'rgb(80, 200, 80)', false, this.options.lineWidth / 20);
         }
     }
 
@@ -421,7 +421,8 @@ export class Render {
 
     positions (bodies: Body[]) {
         for (const body of bodies) {
-            Draw.circle(this.ctx, body.position, this.options.lineWidth / 4 , 'rgb(40, 160, 40)');
+            Draw.circle(this.ctx, body.center, this.options.lineWidth / 2 , 'rgb(40, 160, 40)');
+            Draw.circle(this.ctx, body.position, this.options.lineWidth / 5 , 'rgb(200, 200, 200)');
             for (const shape of body.shapes) {
                 Draw.circle(this.ctx, shape.position, this.options.lineWidth / 8 , 'rgb(160, 40, 40)');
             }

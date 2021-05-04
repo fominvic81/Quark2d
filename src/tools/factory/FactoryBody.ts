@@ -108,11 +108,9 @@ export class FactoryBody {
         const shapes = Factory.Shape.fromVertices(vertices, shapeOptions);
     
         for (const shape of shapes) {
-            body.addShape(shape, false);
+            body.addShape(shape);
         }
-    
-        body.updateCenterOfMass();
-    
+
         return body;
     }
 

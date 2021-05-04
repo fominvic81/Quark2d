@@ -42,10 +42,10 @@ export class Pair {
         for (let i = 0; i < this.contactsCount; ++i) {
             const contact = this.contacts[i];
 
-            contact.offsetA.x = contact.vertex.x - this.shapeA.body!.position.x;
-            contact.offsetA.y = contact.vertex.y - this.shapeA.body!.position.y;
-            contact.offsetB.x = contact.vertex.x - this.shapeB.body!.position.x;
-            contact.offsetB.y = contact.vertex.y - this.shapeB.body!.position.y;
+            contact.offsetA.x = contact.vertex.x - this.shapeA.body!.center.x;
+            contact.offsetA.y = contact.vertex.y - this.shapeA.body!.center.y;
+            contact.offsetB.x = contact.vertex.x - this.shapeB.body!.center.x;
+            contact.offsetB.y = contact.vertex.y - this.shapeB.body!.center.y;
 
             const tangentCrossA = contact.offsetA.x * this.normal.x + contact.offsetA.y * this.normal.y;
             const tangentCrossB = contact.offsetB.x * this.normal.x + contact.offsetB.y * this.normal.y;

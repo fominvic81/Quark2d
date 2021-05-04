@@ -55,6 +55,7 @@ export class Body<UserData = any> {
     anglePrev: number = 0;
     angularVelocity: number = 0;
     torque: number = 0;
+    center: Vector = new Vector();
     position: Vector = new Vector();
     positionPrev: Vector = new Vector();
     acceleration: Vector = new Vector();
@@ -166,17 +167,13 @@ export class Body<UserData = any> {
      * @param offset
      * @param angle
      */
-    addShape (shape: Shape, updateCenterOfMass: boolean = false, offset: Vector = new Vector(), angle: number = 0) {
+    addShape (shape: Shape, offset: Vector = new Vector(), angle: number = 0) {
 
         shape.rotate(this.angle + angle);
         shape.translate(this.position);
         shape.translate(offset);
 
         shape.updateAABB();
-
-        if (shape.type === ShapeType.CONVEX) {
-            Vertices.translate((<Convex>shape).deltaVertices, offset);
-        }
 
         shape.body = this;
 
@@ -185,9 +182,7 @@ export class Body<UserData = any> {
         this.updateArea();
         this.updateMass();
 
-        if (updateCenterOfMass) {
-            this.updateCenterOfMass();
-        }
+        this.updateCenterOfMass();
 
         this.updateInertia();
 
@@ -199,16 +194,14 @@ export class Body<UserData = any> {
      * Removes shape from body(after removing shape from body you must call engine.removeShape()).
      * @param shape
      */
-    removeShape (shape: Shape, updateCenterOfMass: boolean = true) {
+    removeShape (shape: Shape) {
         this.shapes.delete(shape);
         shape.body = undefined;
 
         this.updateArea();
         this.updateMass();
 
-        if (updateCenterOfMass) {
-            this.updateCenterOfMass();
-        }
+        this.updateCenterOfMass();
 
         this.updateInertia();
 
@@ -236,7 +229,7 @@ export class Body<UserData = any> {
         if (this.type === BodyType.dynamic) {
             for (const shape of this.shapes) {
                 shape.updateInertia();
-                const distSquared = Vector.distSquared(this.position, shape.position);
+                const distSquared = Vector.distSquared(this.center, shape.position);
     
                 this.inertia += shape.inertia + distSquared * shape.mass;
             }
@@ -273,18 +266,23 @@ export class Body<UserData = any> {
         const sum = Vector.temp[0];
         const offset = Vector.temp[1];
         sum.set(0, 0);
-    
+        let mass = 0;
+        
         for (const shape of this.shapes) {
-            Vector.subtract(this.position, shape.position, offset);
+            Vector.subtract(this.center, shape.position, offset);
             sum.add(offset.scale(shape.mass, Vector.temp[2]));
+            mass += shape.mass;
         }
-    
-        const cm = sum.divide(this.mass, Vector.temp[1]);
 
-        this.position.subtract(cm);
+        const cm = sum.divide(mass, Vector.temp[1]);
+
+        Vector.subtract(this.center, cm, this.center);
         for (const shape of this.shapes) {
             if (shape.type === ShapeType.CONVEX) {
-                Vertices.translate((<Convex>shape).deltaVertices, cm);
+                const convex = <Convex>shape;
+                for (const vertex of convex.vertices) {
+                    Vector.subtract(vertex, this.center, convex.deltaVertices[vertex.index]);
+                }
             }
         }
         this.updateInertia();
@@ -304,6 +302,7 @@ export class Body<UserData = any> {
      */
     translate (vector: Vector) {
         this.position.add(vector);
+        this.center.add(vector);
 
         for (const shape of this.shapes) {
             shape.translate(vector);
@@ -346,11 +345,11 @@ export class Body<UserData = any> {
 
         for (const shape of this.shapes) {
 
-            dx = shape.position.x - this.position.x;
-            dy = shape.position.y - this.position.y;
+            dx = shape.position.x - this.center.x;
+            dy = shape.position.y - this.center.y;
 
-            shape.position.x = dx * cos - dy * sin + this.position.x;
-            shape.position.y = dx * sin + dy * cos + this.position.y;
+            shape.position.x = dx * cos - dy * sin + this.center.x;
+            shape.position.y = dx * sin + dy * cos + this.center.y;
 
             switch (shape.type) {
                 case ShapeType.CONVEX:
@@ -358,15 +357,15 @@ export class Body<UserData = any> {
 
                     for (const vertex of vertices) {
                         delta = (<Convex>shape).deltaVertices[vertex.index];
-    
+
                         dx = delta.x;
                         dy = delta.y;
             
                         delta.x = dx * cos - dy * sin;
                         delta.y = dx * sin + dy * cos;
     
-                        vertex.x = delta.x + this.position.x;
-                        vertex.y = delta.y + this.position.y;
+                        vertex.x = delta.x + this.center.x;
+                        vertex.y = delta.y + this.center.y;
                     }
     
                     normals = (<Convex>shape).normals;
@@ -381,23 +380,23 @@ export class Body<UserData = any> {
                     break;
                 case ShapeType.EDGE:
 
-                    dx = shape.position.x - this.position.x;
-                    dy = shape.position.y - this.position.y;
+                    dx = shape.position.x - this.center.x;
+                    dy = shape.position.y - this.center.y;
 
-                    shape.position.x = dx * cos - dy * sin + this.position.x;
-                    shape.position.y = dx * sin + dy * cos + this.position.y;
+                    shape.position.x = dx * cos - dy * sin + this.center.x;
+                    shape.position.y = dx * sin + dy * cos + this.center.y;
 
-                    dx = (<Edge>shape).start.x - this.position.x;
-                    dy = (<Edge>shape).start.y - this.position.y;
+                    dx = (<Edge>shape).start.x - this.center.x;
+                    dy = (<Edge>shape).start.y - this.center.y;
 
-                    (<Edge>shape).start.x = dx * cos - dy * sin + this.position.x;
-                    (<Edge>shape).start.y = dx * sin + dy * cos + this.position.y;
+                    (<Edge>shape).start.x = dx * cos - dy * sin + this.center.x;
+                    (<Edge>shape).start.y = dx * sin + dy * cos + this.center.y;
 
-                    dx = (<Edge>shape).end.x - this.position.x;
-                    dy = (<Edge>shape).end.y - this.position.y;
+                    dx = (<Edge>shape).end.x - this.center.x;
+                    dy = (<Edge>shape).end.y - this.center.y;
 
-                    (<Edge>shape).end.x = dx * cos - dy * sin + this.position.x;
-                    (<Edge>shape).end.y = dx * sin + dy * cos + this.position.y;
+                    (<Edge>shape).end.x = dx * cos - dy * sin + this.center.x;
+                    (<Edge>shape).end.y = dx * sin + dy * cos + this.center.y;
 
                     dx = (<Edge>shape).normal.x;
                     dy = (<Edge>shape).normal.y;
