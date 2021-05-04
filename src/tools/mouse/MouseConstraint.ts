@@ -42,7 +42,7 @@ export class MouseConstraint {
                 constraint.pointB.x = event.mouse.position.x;
                 constraint.pointB.y = event.mouse.position.y;
                 constraint.setBodyA(body);
-                Vector.subtract(event.mouse.position, body.position, constraint.pointA).rotate(-body.angle);
+                Vector.subtract(event.mouse.position, body.center, constraint.pointA).rotate(-body.angle);
                 this.events.trigger('catch-body', [{body, shape}]);
             }
             break;

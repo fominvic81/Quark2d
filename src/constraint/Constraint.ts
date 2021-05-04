@@ -100,7 +100,7 @@ export abstract class Constraint<UserData = any> {
         if (this.bodyA) {
             this.offsetA.x = this.pointA.x * this.bodyA.constraintDir.x - this.pointA.y * this.bodyA.constraintDir.y;
             this.offsetA.y = this.pointA.x * this.bodyA.constraintDir.y + this.pointA.y * this.bodyA.constraintDir.x;
-            Vector.add(this.bodyA.position, this.offsetA, this.worldPointA);
+            Vector.add(this.bodyA.center, this.offsetA, this.worldPointA);
         } else {
             this.pointA.clone(this.worldPointA);
         }
@@ -115,7 +115,7 @@ export abstract class Constraint<UserData = any> {
         if (this.bodyB) {
             this.offsetB.x = this.pointB.x * this.bodyB.constraintDir.x - this.pointB.y * this.bodyB.constraintDir.y;
             this.offsetB.y = this.pointB.x * this.bodyB.constraintDir.y + this.pointB.y * this.bodyB.constraintDir.x;
-            Vector.add(this.bodyB.position, this.offsetB, this.worldPointB);
+            Vector.add(this.bodyB.center, this.offsetB, this.worldPointB);
         } else {
             this.pointB.clone(this.worldPointB);
         }
