@@ -11,6 +11,7 @@ interface SolverOptions {
     positionIterations?: number;
     velocityIterations?: number;
     constraintIterations?: number;
+    warmStarting?: boolean;
 }
 
 /**
@@ -20,9 +21,10 @@ interface SolverOptions {
 export class Solver {
     engine: Engine;
     options: {
-        positionIterations: number,
-        velocityIterations: number,
-        constraintIterations: number,
+        positionIterations: number;
+        velocityIterations: number;
+        constraintIterations: number;
+        warmStarting: boolean;
     }
 
     constructor (engine: Engine, options: SolverOptions = {}) {
@@ -31,6 +33,7 @@ export class Solver {
             positionIterations: options.positionIterations ?? 5,
             velocityIterations: options.velocityIterations ?? 5,
             constraintIterations: options.constraintIterations ?? 3,
+            warmStarting: options.warmStarting ?? true,
         }
     }
 
@@ -40,6 +43,16 @@ export class Solver {
     update () {
         for (const pair of this.engine.manager.pairsToSolve) {
             pair.update();
+        }
+        if (!this.options.warmStarting) {
+            let contact: Contact;
+            for (const pair of this.engine.manager.pairsToSolve) {
+                for (let i = 0; i < pair.contactsCount; ++i) {
+                    contact = pair.contacts[i];
+                    contact.tangentImpulse = 0;
+                    contact.normalImpulse = 0;
+                }
+            }
         }
 
         this.preSolve();
@@ -58,7 +71,7 @@ export class Solver {
         this.postSolveConstraints();
 
         // solve velocity
-        this.warmStart();
+        if (this.options.warmStarting) this.warmStart();
         for (let i = 0; i < this.options.velocityIterations; ++i) {
             this.solveVelocity();
         }

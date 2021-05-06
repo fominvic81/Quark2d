@@ -44,11 +44,12 @@ export class Pair {
         this.ratioB = share * bodyB.inverseMass;
 
         // relative velocity
-        let rvX, rvY,
-            normalVelocity;
+        let rvX: number, rvY: number,
+            normalVelocity: number,
+            contact: Contact;
 
         for (let i = 0; i < this.contactsCount; ++i) {
-            const contact = this.contacts[i];
+            contact = this.contacts[i];
 
             contact.offsetA.x = contact.vertex.x - bodyA.center.x;
             contact.offsetA.y = contact.vertex.y - bodyA.center.y;
