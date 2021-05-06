@@ -247,7 +247,7 @@ export class Solver {
                 rvY = (velocityYA + contact.offsetA.x * angularVelocityA) - (velocityYB + contact.offsetB.x * angularVelocityB);
 
                 normalVelocity = rvX * normalX + rvY * normalY;
-                normalImpulse = normalVelocity * (1 + pair.restitution) * contact.normalShare;
+                normalImpulse = (normalVelocity + contact.bias) * contact.normalShare;
 
                 const newImpulse = Math.max(contact.normalImpulse + normalImpulse, 0);
                 normalImpulse = newImpulse - contact.normalImpulse;

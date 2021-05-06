@@ -9,6 +9,7 @@ export class Contact {
     offsetB: Vector = new Vector();
     tangentShare: number = 0;
     normalShare: number = 0;
+    bias: number = 0;
     pair: Pair;
 
     constructor (pair: Pair) {

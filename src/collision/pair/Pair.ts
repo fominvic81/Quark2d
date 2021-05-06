@@ -31,40 +31,53 @@ export class Pair {
     }
 
     update () {
+        const bodyA = this.shapeA.body!;
+        const bodyB = this.shapeB.body!;
+
         this.normal.scale(this.depth, this.penetration);
         this.friction = Math.min(this.shapeA.friction, this.shapeB.friction);
         this.restitution = Math.max(this.shapeA.restitution, this.shapeB.restitution);
         this.surfaceVelocity = this.shapeA.surfaceVelocity + this.shapeB.surfaceVelocity;
-        const share = 1 / (this.shapeA.body!.inverseMass + this.shapeB.body!.inverseMass);
-        this.ratioA = share * this.shapeA.body!.inverseMass;
-        this.ratioB = share * this.shapeB.body!.inverseMass;
+        const share = 1 / (bodyA.inverseMass + bodyB.inverseMass);
+        this.ratioA = share * bodyA.inverseMass;
+        this.ratioB = share * bodyB.inverseMass;
+
+        // relative velocity
+        let rvX, rvY,
+            normalVelocity;
 
         for (let i = 0; i < this.contactsCount; ++i) {
             const contact = this.contacts[i];
 
-            contact.offsetA.x = contact.vertex.x - this.shapeA.body!.center.x;
-            contact.offsetA.y = contact.vertex.y - this.shapeA.body!.center.y;
-            contact.offsetB.x = contact.vertex.x - this.shapeB.body!.center.x;
-            contact.offsetB.y = contact.vertex.y - this.shapeB.body!.center.y;
+            contact.offsetA.x = contact.vertex.x - bodyA.center.x;
+            contact.offsetA.y = contact.vertex.y - bodyA.center.y;
+            contact.offsetB.x = contact.vertex.x - bodyB.center.x;
+            contact.offsetB.y = contact.vertex.y - bodyB.center.y;
 
             const tangentCrossA = contact.offsetA.x * this.normal.x + contact.offsetA.y * this.normal.y;
             const tangentCrossB = contact.offsetB.x * this.normal.x + contact.offsetB.y * this.normal.y;
             contact.tangentShare = 1 / (this.contactsCount * (
-                this.shapeA.body!.inverseMass +
-                this.shapeB.body!.inverseMass +
-                this.shapeA.body!.inverseInertia * tangentCrossA * tangentCrossA +
-                this.shapeB.body!.inverseInertia * tangentCrossB * tangentCrossB
+                bodyA.inverseMass +
+                bodyB.inverseMass +
+                bodyA.inverseInertia * tangentCrossA * tangentCrossA +
+                bodyB.inverseInertia * tangentCrossB * tangentCrossB
             ));
 
             const normalCrossA = contact.offsetA.x * this.normal.y - contact.offsetA.y * this.normal.x;
             const normalCrossB = contact.offsetB.x * this.normal.y - contact.offsetB.y * this.normal.x;
             contact.normalShare = 1 / (this.contactsCount * (
-                this.shapeA.body!.inverseMass +
-                this.shapeB.body!.inverseMass +
-                this.shapeA.body!.inverseInertia * normalCrossA * normalCrossA +
-                this.shapeB.body!.inverseInertia * normalCrossB * normalCrossB
+                bodyA.inverseMass +
+                bodyB.inverseMass +
+                bodyA.inverseInertia * normalCrossA * normalCrossA +
+                bodyB.inverseInertia * normalCrossB * normalCrossB
             ));
             
+            rvX = (bodyA.velocity.x - contact.offsetA.y * bodyA.angularVelocity) - (bodyB.velocity.x - contact.offsetB.y * bodyB.angularVelocity);
+            rvY = (bodyA.velocity.y + contact.offsetA.x * bodyA.angularVelocity) - (bodyB.velocity.y + contact.offsetB.x * bodyB.angularVelocity);
+
+            normalVelocity = this.normal.x * rvX + this.normal.y * rvY;
+
+            if (normalVelocity > 0.03) contact.bias = normalVelocity * this.restitution; else contact.bias = 0;
         }
     }
 }
