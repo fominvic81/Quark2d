@@ -1,6 +1,7 @@
 import { Shape } from '../../body/shapes/Shape';
 import { Common } from '../../common/Common';
 import { Vector } from '../../math/Vector';
+import { Settings } from '../../Settings';
 import { Contact } from './Contact';
 
 export class Pair {
@@ -77,7 +78,7 @@ export class Pair {
 
             normalVelocity = this.normal.x * rvX + this.normal.y * rvY;
 
-            if (normalVelocity > 0.03) contact.bias = normalVelocity * this.restitution; else contact.bias = 0;
+            if (normalVelocity > Settings.restitutionThreshold) contact.bias = normalVelocity * this.restitution; else contact.bias = 0;
         }
     }
 }

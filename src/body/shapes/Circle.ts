@@ -1,8 +1,8 @@
 import { Shape, ShapeOptions, ShapeType } from './Shape';
 import { Vector } from '../../math/Vector';
-import { Solver } from '../../collision/solver/Solver';
 import { Intersection } from '../../collision/ray/Intersection';
 import { Vertex } from '../../math/Vertex';
+import { Settings } from '../../Settings';
 
 export interface CircleOptions extends ShapeOptions {}
 
@@ -13,7 +13,7 @@ export class Circle<UserData = any> extends Shape {
     constructor (options: CircleOptions = {}, userData?: UserData) {
         super(options, userData);
 
-        this.radius = (options.radius ?? 0.5) + Solver.SLOP * 2;
+        this.radius = (options.radius ?? 0.5) + Settings.defaultRadius;
 
         this.updateArea();
         

@@ -58,3 +58,5 @@ export { Render } from './tools/render/Render';
 export { Draw } from './tools/render/Draw';
 
 export { Runner, RunnerType } from './tools/runner/Runner';
+
+export { Settings } from './Settings';

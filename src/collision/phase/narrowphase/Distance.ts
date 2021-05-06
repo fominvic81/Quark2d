@@ -1,9 +1,8 @@
 import { Shape, ShapeType } from '../../../body/shapes/Shape';
 import { Vector } from '../../../math/Vector';
 import { Vertex } from '../../../math/Vertex';
+import { Settings } from '../../../Settings';
 
-const MAX_GJK_ITERATIONS: number = 30;
-const MAX_EPA_ITERATIONS: number = 40;
 const INIT_DIR: Vector = new Vector(1, 0);
 
 export class SupportPoint {
@@ -41,11 +40,13 @@ export class SupportPoint {
 const GJK_Temp: SupportPoint[] = [new SupportPoint(), new SupportPoint(), new SupportPoint()];
 const EPA_Temp: SupportPoint[] = [];
 
-for (let i = 0; i <= MAX_EPA_ITERATIONS; ++i) {
+for (let i = 0; i <= Settings.maxEPAIterations; ++i) {
     EPA_Temp.push(new SupportPoint());
 }
 
 export const GJK = (shapeA: Shape, shapeB: Shape, useEpa: boolean, output: SupportPoint[]): boolean => {
+
+    const maxIterations = Settings.maxGJKIterations;
 
     const dir = Vector.temp[1];
 
@@ -102,7 +103,7 @@ export const GJK = (shapeA: Shape, shapeB: Shape, useEpa: boolean, output: Suppo
         }
 
         ++iterations;
-        if (iterations > MAX_GJK_ITERATIONS) {
+        if (iterations > maxIterations) {
             console.warn('Too many GJK iterations');
             return false;
         }
@@ -110,6 +111,8 @@ export const GJK = (shapeA: Shape, shapeB: Shape, useEpa: boolean, output: Suppo
 }
 
 export const EPA = (points: SupportPoint[], shapeA: Shape, shapeB: Shape, output: SupportPoint[]): void => {
+
+    const maxIterations = Settings.maxEPAIterations;
 
     let iterations = 0;
 
@@ -133,7 +136,7 @@ export const EPA = (points: SupportPoint[], shapeA: Shape, shapeB: Shape, output
         const p1 = points[minI!];
         const p2 = points[minJ!];
 
-        if (iterations > MAX_EPA_ITERATIONS) {
+        if (iterations > maxIterations) {
             console.warn('Too many EPA iterations');
             output.push(p1, p2);
             return;

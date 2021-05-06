@@ -7,6 +7,7 @@ import { Vertices } from '../math/Vertices';
 import { Convex } from './shapes/Convex';
 import { Edge } from './shapes/Edge';
 import { Constraint } from '../constraint/Constraint';
+import { Settings } from '../Settings';
 
 export interface BodyOptions {
     position?: Vector,
@@ -447,7 +448,7 @@ export class Body<UserData = any> {
         this.sleepState = value;
 
         if (this.sleepState === SleepingState.SLEEPING) {
-            this.sleepyTimer = Sleeping.SLEEPY_TIME_LIMIT;
+            this.sleepyTimer = Settings.sleepyTime;
 
             this.positionImpulse.set(0, 0);
             this.velocity.set(0, 0);

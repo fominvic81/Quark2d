@@ -2,11 +2,11 @@ import { Vector } from '../../math/Vector';
 import { AABB } from '../../math/AABB';
 import { Common } from '../../common/Common';
 import { Filter } from '../Filter';
-import { Solver } from '../../collision/solver/Solver';
 import { Region } from '../../collision/phase/Broadphase';
 import { Body } from '../Body';
 import { Intersection } from '../../collision/ray/Intersection';
 import { Vertex } from '../../math/Vertex';
+import { Settings } from '../../Settings';
 
 export interface ShapeOptions {
     density?: number;
@@ -55,7 +55,7 @@ export abstract class Shape<UserData = any> {
     userData?: UserData;
 
     constructor (options: ShapeOptions = {}, userData?: UserData) {
-        this.radius = options.radius ?? Solver.SLOP * 2;
+        this.radius = options.radius ?? Settings.defaultRadius;
         if (options.filter) {
             this.filter.category = options.filter.category ?? this.filter.category;
             this.filter.mask = options.filter.mask ?? this.filter.mask;

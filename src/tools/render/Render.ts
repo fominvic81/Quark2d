@@ -12,6 +12,7 @@ import { Body } from '../../body/Body';
 import { Convex } from '../../body/shapes/Convex';
 import { Edge } from '../../body/shapes/Edge';
 import { DistanceConstraint } from '../../constraint/DistanceConstraint';
+import { Settings } from '../../Settings';
 
 interface RenderOptions {
     backgroundColor?: string;
@@ -229,7 +230,7 @@ export class Render {
                 const pos = shape.position;
                 switch (shape.type) {
                     case ShapeType.CIRCLE:
-                        Draw.circle(this.ctx, pos, Math.max(shape.radius - Solver.SLOP / 2, 0.00001), color, false, this.options.lineWidth / 20);
+                        Draw.circle(this.ctx, pos, Math.max(shape.radius - Settings.defaultRadius, Settings.defaultRadius), color, false, this.options.lineWidth / 20);
                         break;
                     case ShapeType.CONVEX:
                         if (this.options.showRadius) {
@@ -523,7 +524,7 @@ export class Render {
 
         const radius = convex.radius;
         const vertices = convex.vertices;
-        if (radius <= Solver.SLOP * 2) {
+        if (radius <= Settings.defaultRadius) {
             Draw.polygon(this.ctx, vertices, color, fill, lineWidth);
             return;
         }
@@ -567,7 +568,7 @@ export class Render {
     edge (edge: Edge, color: string, lineWidth: number = 1) {
         const radius = edge.radius;
 
-        if (radius <= Solver.SLOP * 2) {
+        if (radius <= Settings.defaultRadius) {
             Draw.line(this.ctx, edge.start, edge.end, color, lineWidth);
             return;
         }

@@ -5,6 +5,7 @@ import { Contact } from '../pair/Contact';
 import { Engine } from '../../engine/Engine';
 import { Pair } from '../pair/Pair';
 import { BodyType } from '../../body/Body';
+import { Settings } from '../../Settings';
 
 interface SolverOptions {
     positionIterations?: number;
@@ -23,10 +24,6 @@ export class Solver {
         velocityIterations: number,
         constraintIterations: number,
     }
-    static SLOP: number = 0.005;
-    static DEPTH_DAMPING: number = 0.7;
-    static POSITION_IMPULSE_DAMPING: number = 0.4;
-    static CONSTRAINT_IMPULSE_DAMPING: number = 0.4;
 
     constructor (engine: Engine, options: SolverOptions = {}) {
         this.engine = engine;
@@ -87,7 +84,8 @@ export class Solver {
     solvePosition () {
         const pairs: Pair[] = this.engine.manager.pairsToSolve;
 
-        const depthDamping = Solver.DEPTH_DAMPING;
+        const depthDamping = Settings.depthDamping;
+        const slop = Settings.slop;
 
         let positionImpulse: number,
             impulse: number;
@@ -108,7 +106,7 @@ export class Solver {
             const bodyA = pair.shapeA.body!;
             const bodyB = pair.shapeB.body!;
 
-            positionImpulse = (pair.separation - Solver.SLOP) * depthDamping;
+            positionImpulse = (pair.separation - slop) * depthDamping;
 
             if (bodyA.type !== BodyType.dynamic || bodyB.type !== BodyType.dynamic) {
                 positionImpulse *= 2;
@@ -133,6 +131,8 @@ export class Solver {
      */
     postSolvePosition () {
 
+        const positionImpulseDamping = Settings.positionImpulseDamping;
+
         for (const body of this.engine.world.activeBodies.values()) {
 
             body.translate(body.positionImpulse);
@@ -140,7 +140,7 @@ export class Solver {
             if (Vector.dot(body.positionImpulse, body.velocity) > 0) {
                 body.positionImpulse.set(0, 0);
             } else {
-                body.positionImpulse.scale(Solver.POSITION_IMPULSE_DAMPING);
+                body.positionImpulse.scale(positionImpulseDamping);
             }
         }
     }
@@ -272,12 +272,13 @@ export class Solver {
 
     preSolveConstraints () {
 
+        const constraintImpulseDamping = Settings.constraintImpulseDamping;
         for (const body of this.engine.world.activeBodies.values()) {
             if (!body.constraints.size) continue;
 
-            body.constraintImpulse.x *= Solver.CONSTRAINT_IMPULSE_DAMPING;
-            body.constraintImpulse.y *= Solver.CONSTRAINT_IMPULSE_DAMPING;
-            body.constraintAngleImpulse *= Solver.CONSTRAINT_IMPULSE_DAMPING;
+            body.constraintImpulse.x *= constraintImpulseDamping;
+            body.constraintImpulse.y *= constraintImpulseDamping;
+            body.constraintAngleImpulse *= constraintImpulseDamping;
 
             body.translate(body.constraintImpulse);
             body.constraintAngle += body.constraintAngleImpulse;
