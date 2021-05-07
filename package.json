@@ -22,7 +22,7 @@
   ],
   "scripts": {
     "serve": "tsc-watch",
-    "docs": "NODE_ENV=development typedoc"
+    "docs": "typedoc"
   },
   "devDependencies": {
     "ts-loader": "8.0.14",
