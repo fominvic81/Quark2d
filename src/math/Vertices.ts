@@ -150,19 +150,19 @@ export class Vertices {
      * @param vertices
      * @returns The centroid of the given set of vertices
      */
-    static center (vertices: Vector[]): Vector {
-        const center: Vector = new Vector();
+    static center (vertices: Vector[], output: Vector = new Vector(), area?: number): Vector {
+        output.set(0, 0);
 
         for (let i = 0; i < vertices.length; ++i) {
             const j = (i + 1) % vertices.length;
             const cross: number = Vector.cross(vertices[i], vertices[j]);
             const temp: Vector = Vector.add(vertices[i], vertices[j], Vector.temp[0]).scale(cross);
-            center.add(temp);
+            output.add(temp);
         }
 
-        center.divide(6 * Vertices.area(vertices));
+        output.divide(6 * (area ?? Vertices.area(vertices)));
 
-        return center;
+        return output;
     }
 
     /**

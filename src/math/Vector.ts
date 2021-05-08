@@ -402,6 +402,19 @@ export class Vector {
         return (b.y - a.y) * (a.x + b.x) > (b.x - a.x) * (a.y + b.y);
     }
 
+    /**
+     * Returns mid of two vectors.
+     * @param vectorA
+     * @param vectorB
+     * @param output
+     * @returns Mid of two vectors
+     */
+    static mid (vectorA: Vector, vectorB: Vector, output: Vector): Vector {
+        output.x = (vectorA.x + vectorB.x) * 0.5;
+        output.y = (vectorA.y + vectorB.y) * 0.5;
+        return output;
+    }
+
     /** 
      * Zero-vector
      */

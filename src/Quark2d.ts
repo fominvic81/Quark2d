@@ -60,3 +60,5 @@ export { Draw } from './tools/render/Draw';
 export { Runner, RunnerType } from './tools/runner/Runner';
 
 export { Settings } from './Settings';
+
+export { Buoyancy, BuoyancyUserData } from './other/buoyancy/Buoyancy';

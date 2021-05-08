@@ -516,4 +516,10 @@ export class Body<UserData = any> {
             this.updateInertia();
         }
     }
+
+    getPointVelocity (point: Vector, output: Vector) {
+        output.x = (this.velocity.x - (point.y - this.center.y) * this.angularVelocity);
+        output.y = (this.velocity.y + (point.x - this.center.x) * this.angularVelocity);
+        return output;
+    }
 }
