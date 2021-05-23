@@ -35,7 +35,7 @@ export class Engine {
     timestamp?: {delta: number, tps?: number};
 
     constructor (options: EngineOptions = {}) {
-        this.world = options.world || new World();
+        this.world = options.world || new World(this);
         this.gravity = options.gravity === undefined ? new Vector(0, 9.8) : options.gravity.clone();
         this.manager = new Manager(this, options);
         this.solver = options.solver || new Solver(this);
@@ -113,7 +113,7 @@ export class Engine {
     }
 
     /**
-     * Removes body from broadphase. Must be called after removing body from world.
+     * Called after removing body from world. You must not call it.
      * @param body
      */
     removeBody (...bodies: Body[]) {

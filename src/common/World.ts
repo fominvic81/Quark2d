@@ -1,5 +1,6 @@
 import { Body, BodyType } from '../body/Body';
 import { SleepingState } from '../body/Sleeping';
+import { Engine } from '../engine/Engine';
 import { Composite } from './Composite';
 
 /**
@@ -12,6 +13,13 @@ export class World extends Composite {
     kinematicBodies: Map<number, Body> = new Map();
     activeBodies: Map<number, Body> = new Map();
     private eventIds: Map<number, number[]> = new Map();
+    engine: Engine;
+
+    constructor (engine: Engine) {
+        super();
+
+        this.engine = engine;
+    }
 
     /**
      * Adds given objects to the world.
@@ -87,6 +95,7 @@ export class World extends Composite {
      */
     removeBody (...bodies: Body[]) {
         super.removeBody(...bodies);
+        this.engine.removeBody(...bodies);
 
         for (const body of bodies) {
             if (body.type === BodyType.dynamic) {
