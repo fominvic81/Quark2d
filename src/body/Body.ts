@@ -8,6 +8,7 @@ import { Convex } from './shapes/Convex';
 import { Edge } from './shapes/Edge';
 import { Constraint } from '../constraint/Constraint';
 import { Settings } from '../Settings';
+import { Engine } from '../engine/Engine';
 
 export interface BodyOptions {
     position?: Vector,
@@ -78,6 +79,7 @@ export class Body<UserData = any> {
     speedSquared: number = 0;
     angSpeedSquared: number = 0;
     constraints: Set<Constraint> = new Set();
+    engine?: Engine;
     userData?: UserData;
 
     private static vecTemp: Vector[] = [
@@ -192,7 +194,7 @@ export class Body<UserData = any> {
     }
 
     /**
-     * Removes shape from body(after removing shape from body you must call engine.removeShape()).
+     * Removes shape from body.
      * @param shape
      */
     removeShape (shape: Shape) {
@@ -206,7 +208,9 @@ export class Body<UserData = any> {
 
         this.updateInertia();
 
-        this.events.trigger('add-shape', [{shape, body: this}]);
+        this.events.trigger('remove-shape', [{shape, body: this}]);
+
+        this.engine?.removeShape(shape);
         return shape;
     }
 

@@ -103,7 +103,7 @@ export class Engine {
     }
 
     /**
-     * Removes shape from broadphase. Must be called after removing shape from body.
+     * Called after removing shape from world. You must not call it.
      * @param shape
      */
     removeShape (...shapes: Shape[]) {

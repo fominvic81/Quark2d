@@ -29,6 +29,7 @@ export class World extends Composite {
         super.addBody(...bodies);
 
         for (const body of bodies) {
+            body.engine = this.engine;
 
             if (body.type === BodyType.dynamic) {
                 if (body.sleepState === SleepingState.SLEEPING) {
@@ -98,6 +99,8 @@ export class World extends Composite {
         this.engine.removeBody(...bodies);
 
         for (const body of bodies) {
+            body.engine = undefined;
+
             if (body.type === BodyType.dynamic) {
                 if (body.sleepState === SleepingState.SLEEPING) {
                     this.sleepingBodies.delete(body.id);
