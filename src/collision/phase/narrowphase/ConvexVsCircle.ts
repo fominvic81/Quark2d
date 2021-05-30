@@ -102,5 +102,4 @@ export const ConvexVsCircle = (pair: Pair) => {
     offset.add(closestPoint).clone(pair.contacts[0].vertex);
     
     pair.isActive = true;
-    return;
 }

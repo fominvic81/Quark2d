@@ -88,14 +88,14 @@ export const contacts = (pair: Pair, refFace: Vector[], incFace: Vector[], norma
 }
 
 const temp = new Vector();
-export const collide = (pair: Pair): boolean => {
+export const collide = (pair: Pair) => {
 
     const shapeA = pair.shapeA;
     const shapeB = pair.shapeB;
 
     const points: SupportPoint[] = [];
 
-    if (!GJK(shapeA, shapeB, true, points)) return false;
+    if (!GJK(shapeA, shapeB, true, points)) return;
 
     const normal = pair.normal;
     const radius = shapeA.radius + shapeB.radius;
@@ -109,7 +109,7 @@ export const collide = (pair: Pair): boolean => {
         const lengthSquared = normal.lengthSquared();
 
         if (lengthSquared > radius * radius || lengthSquared === 0) {
-            return false;
+            return;
         }
 
         const length = Math.sqrt(lengthSquared);
@@ -144,7 +144,7 @@ export const collide = (pair: Pair): boolean => {
             flipped = true;
         }
 
-        if (pair.depth < 0) return false;
+        if (pair.depth < 0) return;
 
         const tangent = normal.rotate270(temp);
         contacts(pair, refFace, incFace, normal, tangent, radius);
@@ -156,5 +156,4 @@ export const collide = (pair: Pair): boolean => {
 
     }
     pair.isActive = true;
-    return true;
 }
