@@ -29,6 +29,9 @@ export class Pair {
         this.shapeA = shapeA;
         this.shapeB = shapeB;
         this.id = Common.combineId(this.shapeA.id, this.shapeB.id);
+
+        this.friction = Math.sqrt(this.shapeA.friction * this.shapeB.friction);
+        this.restitution = Math.max(this.shapeA.restitution, this.shapeB.restitution);
     }
 
     update () {
@@ -36,8 +39,6 @@ export class Pair {
         const bodyB = this.shapeB.body!;
 
         this.normal.scale(this.depth, this.penetration);
-        this.friction = Math.min(this.shapeA.friction, this.shapeB.friction);
-        this.restitution = Math.max(this.shapeA.restitution, this.shapeB.restitution);
         this.surfaceVelocity = this.shapeA.surfaceVelocity + this.shapeB.surfaceVelocity;
         const share = 1 / (bodyA.inverseMass + bodyB.inverseMass);
         this.ratioA = share * bodyA.inverseMass;
