@@ -144,17 +144,10 @@ export class Solver {
      */
     postSolvePosition () {
 
-        const positionImpulseDamping = Settings.positionImpulseDamping;
-
         for (const body of this.engine.world.activeBodies.values()) {
-
             body.translate(body.positionImpulse);
 
-            if (Vector.dot(body.positionImpulse, body.velocity) > 0) {
-                body.positionImpulse.set(0, 0);
-            } else {
-                body.positionImpulse.scale(positionImpulseDamping);
-            }
+            body.positionImpulse.set(0, 0);
         }
     }
 

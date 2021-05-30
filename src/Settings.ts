@@ -1,12 +1,10 @@
 
-const depthDamping = 0.7;
 const slop = 0.005;
 
 export const Settings = {
     restitutionThreshold: 0.03,
 
-    depthDamping,
-    positionImpulseDamping: 1-depthDamping,
+    depthDamping: 0.7,
     constraintImpulseDamping: 0.4,
 
     slop,
