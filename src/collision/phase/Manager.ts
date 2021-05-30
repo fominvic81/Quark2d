@@ -49,12 +49,4 @@ export class Manager {
         this.midphase.update(this.broadphase.activePairs);
         this.narrowphase.update(this.midphase.activePairs);
     }
-
-    removeShape (shape: Shape) {
-        this.broadphase.removeShape(shape);
-    }
-
-    removeBody (body: Body) {
-        this.broadphase.removeBody(body);
-    }
 }

@@ -189,6 +189,8 @@ export class Body<UserData = any> {
 
         this.updateInertia();
 
+        this.engine?.manager.broadphase.addShape(shape);
+
         this.events.trigger('add-shape', [{shape, body: this}]);
         return shape;
     }
@@ -210,7 +212,7 @@ export class Body<UserData = any> {
 
         this.events.trigger('remove-shape', [{shape, body: this}]);
 
-        this.engine?.removeShape(shape);
+        this.engine?.manager.broadphase.removeShape(shape);
         return shape;
     }
 

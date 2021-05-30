@@ -38,60 +38,67 @@ export class Broadphase {
     }
 
     update () {
-        const bodies = this.engine.world.bodies.values();
-
-        let x, y, tx, ty;
-        for (const body of bodies) {
+        for (const body of this.engine.world.activeBodies.values()) {
             for (const shape of body.shapes) {
-
-                const region = this.createRegion(shape.aabb, Region.temp[0]);
-                const oldRegion = shape.region;
-
-                if (oldRegion.id === region.id) continue;
-
-                const position = Vector.temp[2];
-                if (oldRegion.id) {
-                    tx = region.maxX;
-                    ty = region.maxY;
-                    for (x = region.minX; x <= tx; ++x) {
-                        for (y = region.minY; y <= ty; ++y) {
-                            position.set(x, y);
-
-                            const insideOldRegion = shape.region.contains(position);
-
-                            if (!insideOldRegion) {
-                                this.addShapeToCell(position, shape);
-                            }
-                        }
-                    }
-                    tx = oldRegion.maxX;
-                    ty = oldRegion.maxY;
-                    for (x = oldRegion.minX; x <= tx; ++x) {
-                        for (y = oldRegion.minY; y <= ty; ++y) {
-                            position.set(x, y);
-            
-                            const insideNewRegion = region.contains(position);
-            
-                            if (!insideNewRegion) {
-                                this.removeShapeFromCell(position, shape);
-                            }
-                        }
-                    }
-                } else {
-                    tx = region.maxX;
-                    ty = region.maxY;
-                    for (x = region.minX; x <= tx; ++x) {
-                        for (y = region.minY; y <= ty; ++y) {
-                            position.set(x, y);
-                            this.addShapeToCell(position, shape);
-                        }
-                    }
-                }
-
-                region.clone(shape.region);
-                shape.region.id = region.id;
+                this.updateShape(shape);
             }
         }
+        for (const body of this.engine.world.kinematicBodies.values()) {
+            for (const shape of body.shapes) {
+                this.updateShape(shape);
+            }
+        }
+    }
+
+    updateShape (shape: Shape) {
+        let x, y, tx, ty;
+
+        const region = this.createRegion(shape.aabb, Region.temp[0]);
+        const oldRegion = shape.region;
+
+        if (oldRegion.id === region.id) return;
+
+        const position = Vector.temp[2];
+        if (oldRegion.id) {
+            tx = region.maxX;
+            ty = region.maxY;
+            for (x = region.minX; x <= tx; ++x) {
+                for (y = region.minY; y <= ty; ++y) {
+                    position.set(x, y);
+
+                    const insideOldRegion = shape.region.contains(position);
+
+                    if (!insideOldRegion) {
+                        this.addShapeToCell(position, shape);
+                    }
+                }
+            }
+            tx = oldRegion.maxX;
+            ty = oldRegion.maxY;
+            for (x = oldRegion.minX; x <= tx; ++x) {
+                for (y = oldRegion.minY; y <= ty; ++y) {
+                    position.set(x, y);
+    
+                    const insideNewRegion = region.contains(position);
+    
+                    if (!insideNewRegion) {
+                        this.removeShapeFromCell(position, shape);
+                    }
+                }
+            }
+        } else {
+            tx = region.maxX;
+            ty = region.maxY;
+            for (x = region.minX; x <= tx; ++x) {
+                for (y = region.minY; y <= ty; ++y) {
+                    position.set(x, y);
+                    this.addShapeToCell(position, shape);
+                }
+            }
+        }
+
+        region.clone(shape.region);
+        shape.region.id = region.id;
     }
 
     createRegion (aabb: AABB, output: Region) {
@@ -184,8 +191,16 @@ export class Broadphase {
         }
     }
 
+    addShape (shape: Shape) {
+        this.updateShape(shape);
+    }
+
+    addBody (body: Body) {
+        for (const shape of body.shapes) this.updateShape(shape);
+    }
+
     removeShape (shape: Shape) {
-        if (!shape || !shape.region) return;
+        if (!shape.region) return;
 
         for (let x = shape.region.minX; x <= shape.region.maxX; ++x) {
             for (let y = shape.region.minY; y <= shape.region.maxY; ++y) {
@@ -196,9 +211,7 @@ export class Broadphase {
     }
 
     removeBody (body: Body) {
-        for (const shape of body.shapes) {
-            this.removeShape(shape);
-        }
+        for (const shape of body.shapes) this.removeShape(shape);
     }
 
     *pointTest (point: Vector) {

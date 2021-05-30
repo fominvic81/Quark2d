@@ -103,26 +103,6 @@ export class Engine {
     }
 
     /**
-     * Called after removing shape from world. You must not call it.
-     * @param shape
-     */
-    removeShape (...shapes: Shape[]) {
-        for (const shape of shapes) {
-            this.manager.removeShape(shape);
-        }
-    }
-
-    /**
-     * Called after removing body from world. You must not call it.
-     * @param body
-     */
-    removeBody (...bodies: Body[]) {
-        for (const body of bodies) {
-            this.manager.removeBody(body);
-        }
-    }
-
-    /**
      * Applies gravity force to all bodies.
      */
     applyGravity () {
