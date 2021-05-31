@@ -20,7 +20,6 @@ export class Edge<UserData = any> extends Shape {
     length: number = 1;
     delta: Vector = new Vector();
     normal: Vector = new Vector();
-    ngNormal: Vector = new Vector();
 
     constructor (options: EdgeOptions = {}, userData?: UserData) {
         super(options, userData);
@@ -28,9 +27,6 @@ export class Edge<UserData = any> extends Shape {
         this.start = new Vertex(-0.5, 0, 0);
         this.end = new Vertex(0.5, 0, 1);
         this.length = 1;
-        this.delta = new Vector();
-        this.normal = new Vector();
-        this.ngNormal = new Vector();
 
         this.set(options.start || this.start, options.end || this.end);
 
@@ -58,8 +54,6 @@ export class Edge<UserData = any> extends Shape {
         this.normal.rotate90();
 
         Vector.interpolate(this.start, this.end, 0.5, this.position);
-
-        this.normal.neg(this.ngNormal);
     }
 
     /**
@@ -96,7 +90,6 @@ export class Edge<UserData = any> extends Shape {
         Vector.subtract(this.position, delta, this.end);
 
         this.normal.rotate(angle);
-        this.normal.neg(this.ngNormal);
     }
 
     /**
@@ -206,7 +199,7 @@ export class Edge<UserData = any> extends Shape {
      * @returns The normal of the shape with the given index
      */
     getNormal (index: number, output: Vector) {
-        return (index ? this.normal : this.ngNormal).clone(output);
+        return index ? this.normal.clone(output) : this.normal.neg(output);
     }
 
     /**

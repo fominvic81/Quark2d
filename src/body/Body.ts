@@ -410,8 +410,6 @@ export class Body<UserData = any> {
         
                     (<Edge>shape).normal.x = dx * cos - dy * sin;
                     (<Edge>shape).normal.y = dx * sin + dy * cos;
-
-                    (<Edge>shape).normal.neg((<Edge>shape).ngNormal);
             }
         }
     }
