@@ -1,62 +1,176 @@
-export { Engine } from './engine/Engine';
+import { Engine } from './engine/Engine';
 
-export { Body, BodyType } from './body/Body';
-export { Shape, ShapeType } from './body/shapes/Shape';
-export { Circle } from './body/shapes/Circle';
-export { Convex } from './body/shapes/Convex';
-export { Edge } from './body/shapes/Edge';
-export { Filter } from './body/Filter';
-export { Sleeping, SleepingState, SleepingType } from './body/Sleeping';
+import { Body, BodyType } from './body/Body';
+import { Shape, ShapeType } from './body/shapes/Shape';
+import { Circle } from './body/shapes/Circle';
+import { Convex } from './body/shapes/Convex';
+import { Edge } from './body/shapes/Edge';
+import { Filter } from './body/Filter';
+import { Sleeping, SleepingState, SleepingType } from './body/Sleeping';
 
-export { AABB } from './math/AABB';
-export { Vector } from './math/Vector';
-export { Vertex } from './math/Vertex';
-export { Vertices } from './math/Vertices';
+import { AABB } from './math/AABB';
+import { Vector } from './math/Vector';
+import { Vertex } from './math/Vertex';
+import { Vertices } from './math/Vertices';
 
-export { Common } from './common/Common';
-export { Grid } from './common/Grid';
-export { Events } from './common/Events';
-export { Composite } from './common/Composite';
-export { World } from './common/World';
+import { Common } from './common/Common';
+import { Grid } from './common/Grid';
+import { Events } from './common/Events';
+import { Composite } from './common/Composite';
+import { World } from './common/World';
 
-export { CircleVsCircle } from './collision/phase/narrowphase/CircleVsCircle';
-export { ConvexVsCircle } from './collision/phase/narrowphase/ConvexVsCircle';
-export { EdgeVsCircle } from './collision/phase/narrowphase/EdgeVsCircle';
-export { collide } from './collision/phase/narrowphase/Collision';
-export { Colliders } from './collision/phase/narrowphase/Colliders';
-export { GJK } from './collision/phase/narrowphase/Distance';
-export { EPA } from './collision/phase/narrowphase/Distance';
-export { distance } from './collision/phase/narrowphase/Distance';
+import { CircleVsCircle } from './collision/phase/narrowphase/CircleVsCircle';
+import { ConvexVsCircle } from './collision/phase/narrowphase/ConvexVsCircle';
+import { EdgeVsCircle } from './collision/phase/narrowphase/EdgeVsCircle';
+import { collide } from './collision/phase/narrowphase/Collision';
+import { Colliders } from './collision/phase/narrowphase/Colliders';
+import { GJK } from './collision/phase/narrowphase/Distance';
+import { EPA } from './collision/phase/narrowphase/Distance';
+import { distance } from './collision/phase/narrowphase/Distance';
 
-export { Manager } from './collision/phase/Manager';
-export { Broadphase } from './collision/phase/Broadphase';
-export { Midphase } from './collision/phase/Midphase';
-export { Narrowphase } from './collision/phase/narrowphase/Narrowphase';
+import { Manager } from './collision/phase/Manager';
+import { Broadphase } from './collision/phase/Broadphase';
+import { Midphase } from './collision/phase/Midphase';
+import { Narrowphase } from './collision/phase/narrowphase/Narrowphase';
 
-export { Contact } from './collision/pair/Contact';
-export { Pair } from './collision/pair/Pair';
+import { Contact } from './collision/pair/Contact';
+import { Pair } from './collision/pair/Pair';
 
-export { Solver } from './collision/solver/Solver';
+import { Solver } from './collision/solver/Solver';
 
-export { Ray } from './collision/ray/Ray';
-export { RaycastResult } from './collision/ray/RaycastResult';
-export { Intersection } from './collision/ray/Intersection';
+import { Ray } from './collision/ray/Ray';
+import { RaycastResult } from './collision/ray/RaycastResult';
+import { Intersection } from './collision/ray/Intersection';
 
-export { Constraint, ConstraintType } from './constraint/Constraint';
-export { DistanceConstraint } from './constraint/DistanceConstraint';
-export { PointConstraint } from './constraint/PointConstraint';
+import { Constraint, ConstraintType } from './constraint/Constraint';
+import { DistanceConstraint } from './constraint/DistanceConstraint';
+import { PointConstraint } from './constraint/PointConstraint';
 
-export { Factory } from './tools/factory/Factory';
-export { FactoryBody } from './tools/factory/FactoryBody';
-export { FactoryShape } from './tools/factory/FactoryShape';
-export { FactoryComposite } from './tools/factory/FactoryComposite';
+import { Factory } from './tools/factory/Factory';
+import { FactoryBody } from './tools/factory/FactoryBody';
+import { FactoryShape } from './tools/factory/FactoryShape';
+import { FactoryComposite } from './tools/factory/FactoryComposite';
 
-export { Mouse } from './tools/mouse/Mouse';
-export { MouseConstraint } from './tools/mouse/MouseConstraint';
+import { Mouse } from './tools/mouse/Mouse';
+import { MouseConstraint } from './tools/mouse/MouseConstraint';
 
-export { Render } from './tools/render/Render';
-export { Draw } from './tools/render/Draw';
+import { Render } from './tools/render/Render';
+import { Draw } from './tools/render/Draw';
 
-export { Runner, RunnerType } from './tools/runner/Runner';
+import { Runner, RunnerType } from './tools/runner/Runner';
 
-export { Settings } from './Settings';
+import { Settings } from './Settings';
+
+export {
+    Engine,
+    Body,
+    BodyType,
+    Shape,
+    ShapeType,
+    Circle,
+    Convex,
+    Edge, 
+    Filter, 
+    Sleeping,
+    SleepingState,
+    SleepingType,
+    AABB,
+    Vector,
+    Vertex,
+    Vertices,
+    Common,
+    Grid,
+    Events,
+    Composite,
+    World,
+    CircleVsCircle,
+    ConvexVsCircle,
+    EdgeVsCircle,
+    collide,
+    Colliders,
+    GJK,
+    EPA,
+    distance,
+    Manager,
+    Broadphase,
+    Midphase,
+    Narrowphase,
+    Contact,
+    Pair,
+    Solver,
+    Ray,
+    RaycastResult,
+    Intersection,
+    Constraint,
+    ConstraintType,
+    DistanceConstraint,
+    PointConstraint,
+    Factory,
+    FactoryBody,
+    FactoryShape,
+    FactoryComposite,
+    Mouse,
+    MouseConstraint,
+    Render,
+    Draw,
+    Runner,
+    RunnerType,
+    Settings,
+}
+
+export default {
+    Engine,
+    Body,
+    BodyType,
+    Shape,
+    ShapeType,
+    Circle,
+    Convex,
+    Edge, 
+    Filter, 
+    Sleeping,
+    SleepingState,
+    SleepingType,
+    AABB,
+    Vector,
+    Vertex,
+    Vertices,
+    Common,
+    Grid,
+    Events,
+    Composite,
+    World,
+    CircleVsCircle,
+    ConvexVsCircle,
+    EdgeVsCircle,
+    collide,
+    Colliders,
+    GJK,
+    EPA,
+    distance,
+    Manager,
+    Broadphase,
+    Midphase,
+    Narrowphase,
+    Contact,
+    Pair,
+    Solver,
+    Ray,
+    RaycastResult,
+    Intersection,
+    Constraint,
+    ConstraintType,
+    DistanceConstraint,
+    PointConstraint,
+    Factory,
+    FactoryBody,
+    FactoryShape,
+    FactoryComposite,
+    Mouse,
+    MouseConstraint,
+    Render,
+    Draw,
+    Runner,
+    RunnerType,
+    Settings,
+}
