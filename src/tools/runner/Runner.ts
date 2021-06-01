@@ -23,7 +23,7 @@ interface RunnerOptions {
  * The 'Runner' is a class that provides a loop.
  */
 
-export class Runner {
+export class Runner extends Events {
     options: {
         type: RunnerType;
         fixedTps: number;
@@ -45,7 +45,6 @@ export class Runner {
     time: number = performance.now() / 1000;
     worldTime: number = 0;
 
-    readonly events: Events = new Events();
     private event = {
         time: 0,
         delta: 0,
@@ -68,6 +67,8 @@ export class Runner {
     static MIN_C = 1 - (Runner.DELTA_C + Runner.AVERAGE_C);
 
     constructor (options: RunnerOptions = {}) {
+        super();
+
         this.options = {
             type: options.type ?? RunnerType.fixed,
             fixedTps: 60,
@@ -116,9 +117,9 @@ export class Runner {
                     this.event.delta = this.options.fixedDelta;
                     this.event.tps = Math.min(this.options.fixedTps, this.tps);
 
-                    this.events.trigger('before-update', [this.event]);
-                    this.events.trigger('update', [this.event]);
-                    this.events.trigger('after-update', [this.event]);
+                    this.trigger('before-update', [this.event]);
+                    this.trigger('update', [this.event]);
+                    this.trigger('after-update', [this.event]);
                 }
                 break
             case RunnerType.dynamic:
@@ -163,9 +164,9 @@ export class Runner {
                     this.event.delta = delta;
                     this.event.tps = this.tps;
 
-                    this.events.trigger('before-update', [this.event]);
-                    this.events.trigger('update', [this.event]);
-                    this.events.trigger('after-update', [this.event]);
+                    this.trigger('before-update', [this.event]);
+                    this.trigger('update', [this.event]);
+                    this.trigger('after-update', [this.event]);
                 }
                 this.deltas.push(delta);
                 if (this.deltas.length > this.deltasSize) {
@@ -196,9 +197,9 @@ export class Runner {
         this.event.delta = delta;
         this.event.tps = 1 / delta;
 
-        this.events.trigger('before-update', [this.event]);
-        this.events.trigger('update', [this.event]);
-        this.events.trigger('after-update', [this.event]);
+        this.trigger('before-update', [this.event]);
+        this.trigger('update', [this.event]);
+        this.trigger('after-update', [this.event]);
     }
 
     /**
@@ -230,8 +231,8 @@ export class Runner {
         this.renderEvent.time = this.renderTime;
         this.renderEvent.delta = this.renderDelta;
 
-        this.events.trigger('before-render', [this.renderEvent]);
-        this.events.trigger('render', [this.renderEvent]);
-        this.events.trigger('after-render', [this.renderEvent]);
+        this.trigger('before-render', [this.renderEvent]);
+        this.trigger('render', [this.renderEvent]);
+        this.trigger('after-render', [this.renderEvent]);
     }
 }

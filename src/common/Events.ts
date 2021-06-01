@@ -1,7 +1,7 @@
 import { Common } from './Common';
 
 /**
- * The 'Events' is the class for manipulating events.
+ * The 'Events' is the class for creating event listeners.
  * 
  * @example:
  * 
@@ -17,14 +17,11 @@ import { Common } from './Common';
  * 
  *     events.trigger('test', [1, 2, {srt: 'string'}]); // console: 1 2 {srt: "string"}
  * 
- *     events.off(eventId);
- * 
- *     events.trigger('test', [3, 4, {str: 'another string'}]); // console:    (nothing)
- * 
  */
 
 export class Events {
     private events: Map<string, Map<number, {(...args: any[]): void}>> = new Map();
+    private onceEvents: Map<string, Set<{(...args: any[]): void}>> = new Map();
     private namesByIds: Map<number, Array<string | number>> = new Map();
 
     /**
@@ -50,6 +47,20 @@ export class Events {
     }
 
     /**
+     * Subscribes the callback function to the given event name for one time.
+     * @param name
+     * @param callback
+     */
+    once (name: string, callback: {(...args: any[]): void}) {
+        let a = this.onceEvents.get(name);
+        if (!a) {
+            a = new Set();
+            this.onceEvents.set(name, a);
+        }
+        a.add(callback);
+    }
+
+    /**
      * Unsubscribes the callback function from the given event name.
      * @param id
      * @returns True if the event was successfully unsubscribed, otherwise false
@@ -70,11 +81,15 @@ export class Events {
      * @param args
      */
     trigger (name: string, args: any[] = []) {
-        const event = this.events.get(name);
-        if (!event) return;
-        for (const callback of event.values()) {
+        const callbacks = this.events.get(name);
+        if (callbacks) for (const callback of callbacks.values()) {
             callback(...args);
         }
+        const onces = this.onceEvents.get(name);
+        if (onces) for (const callback of onces.values()) {
+            callback(...args);
+        }
+        this.onceEvents.delete(name);
     }
 
     /**

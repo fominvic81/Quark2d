@@ -45,9 +45,8 @@ interface RenderOptions {
  * The Render is a class, that provides methods of rendering world, based on HTML5 canvas.
  */
 
-export class Render {
+export class Render extends Events {
     engine: Engine;
-    events: Events = new Events();
     options: {
         scale: Vector;
         translate: Vector;
@@ -83,6 +82,7 @@ export class Render {
     mouse: Mouse;
 
     constructor (engine: Engine, options: RenderOptions = {}) {
+        super();
 
         this.engine = engine;
 
@@ -126,8 +126,8 @@ export class Render {
 
         this.mouse = new Mouse(this);
 
-        this.mouse.events.on('mouse-move', (event) => {this.mouseMove(event)});
-        this.mouse.events.on('wheel', (event) => {this.mouseWheel(event)});
+        this.mouse.on('mouse-move', (event) => {this.mouseMove(event)});
+        this.mouse.on('wheel', (event) => {this.mouseWheel(event)});
     }
 
     /**
@@ -137,7 +137,7 @@ export class Render {
     step (timestamp: {delta: number}) {
 
         this.statusTimer += timestamp.delta;
-        this.events.trigger('before-step', [{render: this, timestamp}]);
+        this.trigger('before-step', [{render: this, timestamp}]);
 
         this.ctx.setTransform(1, 0, 0, 1, 0, 0);
 
@@ -210,7 +210,7 @@ export class Render {
             this.vertexIds(bodies);
         }
         
-        this.events.trigger('after-step', [{render: this, timestamp}]);
+        this.trigger('after-step', [{render: this, timestamp}]);
         
     }
 

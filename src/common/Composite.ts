@@ -7,12 +7,11 @@ import { Constraint } from '../constraint/Constraint';
  * The 'Composite' is a container for bodies and constraints. You can add or remove the bodies and constraints from the composite.
  */
 
-export class Composite {
+export class Composite extends Events {
     id: number = Common.nextId();
     name: string = 'composite';
     bodies: Map<number, Body> = new Map();
     constraints: Map<number, Constraint> = new Map();
-    events: Events = new Events();
 
     /**
      * Adds given objects to the composite.
@@ -38,7 +37,7 @@ export class Composite {
      */
     addBody (...bodies: Body[]) {
         for (const body of bodies) {
-            this.events.trigger('add-body', [{body}]);
+            this.trigger('add-body', [{body}]);
             this.bodies.set(body.id, body);
         }
     }
@@ -50,7 +49,7 @@ export class Composite {
     removeBody (...bodies: Body[]) {
         for (const body of bodies) {
             if (this.bodies.has(body.id)) {
-                this.events.trigger('remove-body', [{body}]);
+                this.trigger('remove-body', [{body}]);
                 this.bodies.delete(body.id);
             }
         }
@@ -87,7 +86,7 @@ export class Composite {
      */
     addConstraint (...constraints: Constraint[]) {
         for (const constraint of constraints) {
-            this.events.trigger('add-constraint', [{constraint}]);
+            this.trigger('add-constraint', [{constraint}]);
             this.constraints.set(constraint.id, constraint);
         }
     }
@@ -99,7 +98,7 @@ export class Composite {
     removeConstraint (...constraints: Constraint[]) {
         for (const constraint of constraints) {
             if (this.constraints.has(constraint.id)) {
-                this.events.trigger('remove-constraint', [{constraint}]);
+                this.trigger('remove-constraint', [{constraint}]);
                 this.constraints.delete(constraint.id);
             }
         }

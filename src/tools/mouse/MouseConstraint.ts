@@ -7,15 +7,15 @@ import { Constraint } from '../../constraint/Constraint';
 import { Body, BodyType } from '../../body/Body';
 import { Shape } from '../../body/shapes/Shape';
 
-export class MouseConstraint {
+export class MouseConstraint extends Events {
     engine: Engine;
     mouse: Mouse;
     constraints: Constraint[];
-    events = new Events();
     body?: Body;
     shape?: Shape;
     
     constructor (engine: Engine, mouse: Mouse, constraints: Constraint[] = [new DistanceConstraint({stiffness: 0.2, length: 0})]) {
+        super();
 
         this.engine = engine;
         this.mouse = mouse;
@@ -23,9 +23,9 @@ export class MouseConstraint {
 
         engine.world.addConstraint(...this.constraints);
 
-        this.mouse.events.on('mouse-down', (event: QMouseEvent) => {this.mouseDown(event)});
-        this.mouse.events.on('mouse-up', (event: QMouseEvent) => {this.mouseUp(event)});
-        this.mouse.events.on('mouse-move', (event: QMouseEvent) => {this.mouseMove(event)});
+        this.mouse.on('mouse-down', (event: QMouseEvent) => {this.mouseDown(event)});
+        this.mouse.on('mouse-up', (event: QMouseEvent) => {this.mouseUp(event)});
+        this.mouse.on('mouse-move', (event: QMouseEvent) => {this.mouseMove(event)});
 
     }
 
@@ -43,7 +43,7 @@ export class MouseConstraint {
                 constraint.pointB.y = event.mouse.position.y;
                 constraint.setBodyA(body);
                 Vector.subtract(event.mouse.position, body.center, constraint.pointA).rotate(-body.angle);
-                this.events.trigger('catch-body', [{body, shape}]);
+                this.trigger('catch-body', [{body, shape}]);
             }
             break;
         }
@@ -55,7 +55,7 @@ export class MouseConstraint {
             for (const constraint of this.constraints) {
                 constraint.setBodyA();
             }
-            this.events.trigger('throw-body', [{body: this.body, shape: this.shape}]);
+            this.trigger('throw-body', [{body: this.body, shape: this.shape}]);
             this.body = undefined;
             this.shape = undefined;
         }

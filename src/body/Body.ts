@@ -43,11 +43,10 @@ export enum BodyType {
  * Kinematic bodies do not collide with other kinematic and static bodies.
  */
 
-export class Body<UserData = any> {
+export class Body<UserData = any> extends Events {
     id: number = Common.nextId();
     name: string = 'body';
     shapes: Set<Shape> = new Set();
-    events: Events = new Events();
     positionImpulse: Vector = new Vector();
     constraintImpulse: Vector = new Vector();
     constraintAngleImpulse: number = 0;
@@ -87,6 +86,7 @@ export class Body<UserData = any> {
     ];
 
     constructor (options: BodyOptions = {}, userData?: UserData) {
+        super();
         this.set(options);
 
         this.userData = userData;
@@ -191,7 +191,7 @@ export class Body<UserData = any> {
 
         this.engine?.manager.broadphase.addShape(shape);
 
-        this.events.trigger('add-shape', [{shape, body: this}]);
+        this.trigger('add-shape', [{shape, body: this}]);
         return shape;
     }
 
@@ -210,7 +210,7 @@ export class Body<UserData = any> {
 
         this.updateInertia();
 
-        this.events.trigger('remove-shape', [{shape, body: this}]);
+        this.trigger('remove-shape', [{shape, body: this}]);
 
         this.engine?.manager.broadphase.removeShape(shape);
         return shape;
@@ -433,11 +433,11 @@ export class Body<UserData = any> {
 
         if (type === BodyType.dynamic) {
             this.setSleeping(SleepingState.AWAKE);
-            this.events.trigger('become-dynamic', [{previousType}]);
+            this.trigger('become-dynamic', [{previousType}]);
         } else if (type === BodyType.static) {
-            this.events.trigger('become-static', [{previousType}]);
+            this.trigger('become-static', [{previousType}]);
         } else if (type === BodyType.kinematic) {
-            this.events.trigger('become-kinematic', [{previousType}]);
+            this.trigger('become-kinematic', [{previousType}]);
         }
         this.updateMass();
         this.updateInertia();
@@ -462,12 +462,12 @@ export class Body<UserData = any> {
             this.motion = 0;
 
             if (this.sleepState !== prevState) {
-                this.events.trigger('sleep-start');
+                this.trigger('sleep-start');
             }
         } else if (this.sleepState === SleepingState.AWAKE) {
             this.sleepyTimer = 0;
             if (this.sleepState !== prevState) {
-                this.events.trigger('sleep-end');
+                this.trigger('sleep-end');
             }
         }
 

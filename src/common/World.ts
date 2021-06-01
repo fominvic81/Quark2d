@@ -44,15 +44,15 @@ export class World extends Composite {
                 this.kinematicBodies.set(body.id, body);
             }
 
-            const sleepStartId = body.events.on('sleep-start', () => {
+            const sleepStartId = body.on('sleep-start', () => {
                 this.activeBodies.delete(body.id);
                 this.sleepingBodies.set(body.id, body);
             });
-            const sleepEndId = body.events.on('sleep-end', () => {
+            const sleepEndId = body.on('sleep-end', () => {
                 this.sleepingBodies.delete(body.id);
                 this.activeBodies.set(body.id, body);
             });
-            const becomeDynamicId = body.events.on('become-dynamic', (event) => {
+            const becomeDynamicId = body.on('become-dynamic', (event) => {
                 if (event.previousType === BodyType.static) {
                     this.staticBodies.delete(body.id);
                 } else if (event.previousType === BodyType.kinematic) {
@@ -61,7 +61,7 @@ export class World extends Composite {
 
                 this.activeBodies.set(body.id, body);
             });
-            const becomeStaticId = body.events.on('become-static', (event) => {
+            const becomeStaticId = body.on('become-static', (event) => {
                 if (event.previousType === BodyType.dynamic) {
                     if (body.sleepState === SleepingState.SLEEPING) {
                         this.sleepingBodies.delete(body.id);
@@ -74,7 +74,7 @@ export class World extends Composite {
 
                 this.staticBodies.set(body.id, body);
             });
-            const becomeKinematicId = body.events.on('become-kinematic', (event) => {
+            const becomeKinematicId = body.on('become-kinematic', (event) => {
                 if (event.previousType === BodyType.dynamic) {
                     if (body.sleepState === SleepingState.SLEEPING) {
                         this.sleepingBodies.delete(body.id);
@@ -115,7 +115,7 @@ export class World extends Composite {
             }
 
             for (const eventId of <number[]>this.eventIds.get(body.id)) {
-                body.events.off(eventId);
+                body.off(eventId);
             }
         }
     }
