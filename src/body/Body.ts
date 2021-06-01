@@ -1,9 +1,8 @@
 import { Vector } from '../math/Vector';
 import { Common } from '../common/Common';
 import { Events } from '../common/Events';
-import { Sleeping, SleepingState } from './Sleeping';
+import { SleepingState } from './Sleeping';
 import { Shape, ShapeType } from './shapes/Shape';
-import { Vertices } from '../math/Vertices';
 import { Convex } from './shapes/Convex';
 import { Edge } from './shapes/Edge';
 import { Constraint } from '../constraint/Constraint';

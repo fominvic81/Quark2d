@@ -7,8 +7,6 @@ import { Manager } from '../collision/phase/Manager';
 import { Broadphase } from '../collision/phase/Broadphase';
 import { Midphase } from '../collision/phase/Midphase';
 import { Narrowphase } from '../collision/phase/narrowphase/Narrowphase';
-import { Shape } from '../body/shapes/Shape';
-import { Body } from '../body/Body';
 import { AABB } from '../math/AABB';
 
 interface EngineOptions {

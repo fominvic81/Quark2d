@@ -5,7 +5,6 @@ import { Events } from '../../common/Events';
 import { Mouse, QMouseEvent } from '../mouse/Mouse';
 import { SleepingState } from '../../body/Sleeping';
 import { AABB } from '../../math/AABB';
-import { Solver } from '../../collision/solver/Solver';
 import { Constraint, ConstraintType } from '../../constraint/Constraint';
 import { Engine } from '../../engine/Engine';
 import { Body } from '../../body/Body';

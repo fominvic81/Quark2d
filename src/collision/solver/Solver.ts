@@ -1,4 +1,3 @@
-import { Vector } from '../../math/Vector';
 import { SleepingState } from '../../body/Sleeping';
 import { Common } from '../../common/Common';
 import { Contact } from '../pair/Contact';

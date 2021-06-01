@@ -1,4 +1,4 @@
-import { Shape, ShapeType } from '../../../body/shapes/Shape';
+import { Shape } from '../../../body/shapes/Shape';
 import { Vector } from '../../../math/Vector';
 import { Vertex } from '../../../math/Vertex';
 import { Settings } from '../../../Settings';

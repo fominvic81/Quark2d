@@ -1,5 +1,3 @@
-import { Body } from '../../body/Body';
-import { Shape } from '../../body/shapes/Shape';
 import { Engine } from '../../engine/Engine';
 import { Contact } from '../pair/Contact';
 import { Pair } from '../pair/Pair';
