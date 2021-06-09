@@ -40,4 +40,8 @@ export class Midphase {
             }
         }
     }
+
+    getPairsCount () {
+        return this.activePairs.length;
+    }
 }

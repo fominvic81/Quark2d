@@ -29,7 +29,10 @@ import { EPA } from './collision/phase/narrowphase/Distance';
 import { distance } from './collision/phase/narrowphase/Distance';
 
 import { Manager } from './collision/phase/Manager';
-import { Broadphase } from './collision/phase/Broadphase';
+import { Broadphase } from './collision/phase/broadphase/Broadphase';
+import { GridBroadphase } from './collision/phase/broadphase/Grid';
+import { AABBTree } from './collision/phase/broadphase/AABBTree/AABBTree';
+import { AABBTreeNode } from './collision/phase/broadphase/AABBTree/Node';
 import { Midphase } from './collision/phase/Midphase';
 import { Narrowphase } from './collision/phase/narrowphase/Narrowphase';
 
@@ -93,6 +96,9 @@ export {
     distance,
     Manager,
     Broadphase,
+    GridBroadphase,
+    AABBTree,
+    AABBTreeNode as Node,
     Midphase,
     Narrowphase,
     Contact,
@@ -150,6 +156,9 @@ export default {
     distance,
     Manager,
     Broadphase,
+    GridBroadphase,
+    AABBTree,
+    AABBTreeNode: Node,
     Midphase,
     Narrowphase,
     Contact,

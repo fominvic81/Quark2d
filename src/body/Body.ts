@@ -8,6 +8,7 @@ import { Edge } from './shapes/Edge';
 import { Constraint } from '../constraint/Constraint';
 import { Settings } from '../Settings';
 import { Engine } from '../engine/Engine';
+import { GridBroadphase } from '../collision/phase/broadphase/Grid';
 
 export interface BodyOptions {
     position?: Vector,

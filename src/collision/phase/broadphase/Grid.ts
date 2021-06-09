@@ -1,12 +1,12 @@
-import { Pair } from '../pair/Pair';
-import { Common } from '../../common/Common';
-import { Grid } from '../../common/Grid';
-import { Vector } from '../../math/Vector';
-import { AABB } from '../../math/AABB';
-import { Shape } from '../../body/shapes/Shape';
-import { Body, BodyType } from '../../body/Body';
-import { Engine } from '../../engine/Engine';
-import { Manager } from './Manager';
+import { Pair } from '../../pair/Pair';
+import { Common } from '../../../common/Common';
+import { Grid } from '../../../common/Grid';
+import { Vector } from '../../../math/Vector';
+import { AABB } from '../../../math/AABB';
+import { Shape } from '../../../body/shapes/Shape';
+import { Body, BodyType } from '../../../body/Body';
+import { Broadphase, BroadphaseOptions, BroadphaseType } from './Broadphase';
+import { Manager } from '../Manager';
 
 type Cell = Map<number, Shape>;
 
@@ -24,17 +24,20 @@ export class Region extends AABB {
     }
 }
 
-export class Broadphase {
-    manager: Manager;
-    engine: Engine;
+export interface GridBroadphaseOptions extends BroadphaseOptions {
+    gridSize?: number;
+}
 
+export class GridBroadphase extends Broadphase {
+    type = BroadphaseType.Grid;
     grid: Grid<Cell> = new Grid();
-    gridSize: number = 1;
+    gridSize: number;
     activePairs: Set<Pair> = new Set();
 
-    constructor (manager: Manager) {
-        this.manager = manager;
-        this.engine = manager.engine;
+    constructor (manager: Manager, options: GridBroadphaseOptions = {}) {
+        super(manager, options);
+
+        this.gridSize = options.gridSize ?? 1;
     }
 
     update () {
@@ -238,5 +241,9 @@ export class Broadphase {
                 }
             }
         }
+    }
+
+    getPairsCount () {
+        return this.activePairs.size;
     }
 }

@@ -132,4 +132,50 @@ export class AABB {
     getHeight (): number {
         return this.maxY - this.minY;
     }
+
+    /**
+     * Returns perimeter of AABB.
+     * @returns Perimeter of AABB
+     */
+    perimeter (): number {
+        return 2 * (this.maxX - this.minX + this.maxY - this.minY);
+    }
+
+    /**
+     * Returns the center of aabb.
+     * @param output
+     * @returns The center of aabb
+     */
+    center (output: Vector) {
+        return output.set(
+            (this.minX + this.maxX) / 2,
+            (this.minY + this.maxY) / 2,
+        );
+    }
+
+    /**
+     * Returns true if aabbA is completely inside aabbB.
+     * @param aabbA
+     * @param aabbB
+     */
+    static isInside (aabbA: AABB, aabbB: AABB) {
+        // return !(aabbA.minX < aabbB.minX || aabbA.minY < aabbB.minY || aabbA.maxX < aabbB.maxX || aabbA.maxY < aabbB.maxY);
+        return aabbA.minX >= aabbB.minX && aabbA.minY >= aabbB.minY  && aabbA.maxX <= aabbB.maxX && aabbA.maxY <= aabbB.maxY;
+    }
+
+    /**
+     * Returns union of two aabbs.
+     * @param aabbA
+     * @param aabbB
+     * @param output
+     * @returns Union of two aabbs
+     */
+     static union (aabbA: AABB, aabbB: AABB, output: AABB): AABB {
+        return output.setNum(
+            Math.min(aabbA.minX, aabbB.minX),
+            Math.min(aabbA.minY, aabbB.minY),
+            Math.max(aabbA.maxX, aabbB.maxX),
+            Math.max(aabbA.maxY, aabbB.maxY),
+        );
+    }
 };

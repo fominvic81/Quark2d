@@ -4,7 +4,7 @@ import { Events } from '../common/Events';
 import { Sleeping } from '../body/Sleeping';
 import { World } from '../common/World';
 import { Manager } from '../collision/phase/Manager';
-import { Broadphase } from '../collision/phase/Broadphase';
+import { Broadphase } from '../collision/phase/broadphase/Broadphase';
 import { Midphase } from '../collision/phase/Midphase';
 import { Narrowphase } from '../collision/phase/narrowphase/Narrowphase';
 import { AABB } from '../math/AABB';

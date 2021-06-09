@@ -1,7 +1,8 @@
 import { Engine } from '../../engine/Engine';
 import { Contact } from '../pair/Contact';
 import { Pair } from '../pair/Pair';
-import { Broadphase } from './Broadphase';
+import { Broadphase } from './broadphase/Broadphase';
+import { GridBroadphase } from './broadphase/Grid';
 import { Midphase } from './Midphase';
 import { Narrowphase } from './narrowphase/Narrowphase';
 
@@ -30,7 +31,7 @@ export class Manager {
     constructor (engine: Engine, options: ManagerOptions = {}) {
         this.engine = engine;
 
-        this.broadphase = options.broadphase || new Broadphase(this);
+        this.broadphase = options.broadphase || new GridBroadphase(this);
         this.midphase = options.midphase || new Midphase(this);
         this.narrowphase = options.narrowphase || new Narrowphase(this);
     }
@@ -46,5 +47,9 @@ export class Manager {
         this.broadphase.update();
         this.midphase.update(this.broadphase.activePairs);
         this.narrowphase.update(this.midphase.activePairs);
+    }
+
+    getPairsCount () {
+        return this.activePairs.length;
     }
 }

@@ -2,7 +2,8 @@ import { Vector } from '../../math/Vector';
 import { AABB } from '../../math/AABB';
 import { Common } from '../../common/Common';
 import { Filter } from '../Filter';
-import { Region } from '../../collision/phase/Broadphase';
+import { Region } from '../../collision/phase/broadphase/Grid';
+import { AABBTreeNode } from '../../collision/phase/broadphase/AABBTree/Node';
 import { Body } from '../Body';
 import { Intersection } from '../../collision/ray/Intersection';
 import { Vertex } from '../../math/Vertex';
@@ -52,6 +53,7 @@ export abstract class Shape<UserData = any> {
     surfaceVelocity: number;
     isSensor: boolean;
     region: Region = new Region();
+    AABBTreeNode?: AABBTreeNode;
     userData?: UserData;
 
     constructor (options: ShapeOptions = {}, userData?: UserData) {

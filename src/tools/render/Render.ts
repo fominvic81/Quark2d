@@ -12,6 +12,7 @@ import { Convex } from '../../body/shapes/Convex';
 import { Edge } from '../../body/shapes/Edge';
 import { DistanceConstraint } from '../../constraint/DistanceConstraint';
 import { Settings } from '../../Settings';
+import { GridBroadphase } from '../../collision/phase/broadphase/Grid';
 
 interface RenderOptions {
     backgroundColor?: string;
@@ -200,7 +201,7 @@ export class Render extends Events {
             this.angularVelocity(bodies);
         }
         if (this.options.showBroadphaseGrid) {
-            this.grid();
+            this.broadphase();
         }
         if (this.options.showPositions) {
             this.positions(bodies);
@@ -390,29 +391,31 @@ export class Render extends Events {
         }
     }
 
-    grid () {
+    broadphase () {
         const broadphase = this.engine.manager.broadphase;
-        const grid = broadphase.grid;
-        const position = Vector.temp[0];
-        const offset = Vector.temp[1].set(0.5, 0.5);
+        if (broadphase instanceof GridBroadphase) {
+            const grid = broadphase.grid;
+            const position = Vector.temp[0];
+            const offset = Vector.temp[1].set(0.5, 0.5);
 
-        const minX = Math.round(this.options.aabb.minX / broadphase.gridSize - 0.5);
-        const minY = Math.round(this.options.aabb.minY / broadphase.gridSize - 0.5);
-        const maxX = Math.round(this.options.aabb.maxX / broadphase.gridSize + 0.5);
-        const maxY = Math.round(this.options.aabb.maxY / broadphase.gridSize + 0.5);
+            const minX = Math.round(this.options.aabb.minX / broadphase.gridSize - 0.5);
+            const minY = Math.round(this.options.aabb.minY / broadphase.gridSize - 0.5);
+            const maxX = Math.round(this.options.aabb.maxX / broadphase.gridSize + 0.5);
+            const maxY = Math.round(this.options.aabb.maxY / broadphase.gridSize + 0.5);
 
-        if (maxX - minX > 50 || maxY - minY > 50) {
-            for (const position of grid.keys()) {
-                position.add(offset);
-                Draw.rect(this.ctx, position.scale(broadphase.gridSize), broadphase.gridSize, broadphase.gridSize, 0, 'rgb(80, 200, 80)', false, this.options.lineWidth / 50);
-            }
-        } else {
-            for (let i = minX; i < maxX; ++i) {
-                for (let j = minY; j < maxY; ++j) {
-                    position.set(i, j);
-                    if (grid.get(position)) {
-                        position.add(offset);
-                        Draw.rect(this.ctx, position.scale(broadphase.gridSize), broadphase.gridSize, broadphase.gridSize, 0, 'rgb(80, 200, 80)', false, this.options.lineWidth / 50);
+            if (maxX - minX > 50 || maxY - minY > 50) {
+                for (const position of grid.keys()) {
+                    position.add(offset);
+                    Draw.rect(this.ctx, position.scale(broadphase.gridSize), broadphase.gridSize, broadphase.gridSize, 0, 'rgb(80, 200, 80)', false, this.options.lineWidth / 50);
+                }
+            } else {
+                for (let i = minX; i < maxX; ++i) {
+                    for (let j = minY; j < maxY; ++j) {
+                        position.set(i, j);
+                        if (grid.get(position)) {
+                            position.add(offset);
+                            Draw.rect(this.ctx, position.scale(broadphase.gridSize), broadphase.gridSize, broadphase.gridSize, 0, 'rgb(80, 200, 80)', false, this.options.lineWidth / 50);
+                        }
                     }
                 }
             }
@@ -460,9 +463,9 @@ export class Render extends Events {
 
             this.statusText += `constraints: ${allConstraints.length}   `
 
-            this.statusText += `broadphasePairs: ${this.engine.manager.broadphase.activePairs.size}   `;
-            this.statusText += `midphasePairs: ${this.engine.manager.midphase.activePairs.length}   `;
-            this.statusText += `narrowphasePairs: ${this.engine.manager.activePairs.length}   `;
+            this.statusText += `broadphasePairs: ${this.engine.manager.broadphase.getPairsCount()}   `;
+            this.statusText += `midphasePairs: ${this.engine.manager.midphase.getPairsCount()}   `;
+            this.statusText += `narrowphasePairs: ${this.engine.manager.getPairsCount()}   `;
 
             this.statusText += `positionIterations: ${this.engine.solver.options.positionIterations}   `;
             this.statusText += `velocityIterations: ${this.engine.solver.options.velocityIterations}   `;
