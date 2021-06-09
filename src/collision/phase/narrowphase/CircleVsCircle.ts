@@ -19,6 +19,17 @@ export const CircleVsCircle = (pair: Pair) => {
 
     pair.contactsCount = 1;
 
+    if (distSquared === 0) {
+        pair.depth = radius;
+        pair.normal.set(0, 1);
+
+        circleA.position.clone(pair.contacts[0].vertex);
+
+        pair.isActive = true;
+        return;
+    }
+
+
     const dist: number = normal.length();
 
     pair.depth = radius - dist;
