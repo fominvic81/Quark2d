@@ -1,15 +1,15 @@
 import { Engine } from '../../engine/Engine';
 import { Contact } from '../pair/Contact';
 import { Pair } from '../pair/Pair';
-import { Broadphase } from './broadphase/Broadphase';
-import { GridBroadphase } from './broadphase/Grid';
+import { AABBTree, AABBTreeOptions } from './broadphase/AABBTree/AABBTree';
+import { Broadphase, BroadphaseOptions } from './broadphase/Broadphase';
+import { GridBroadphase, GridBroadphaseOptions } from './broadphase/Grid';
 import { Midphase } from './Midphase';
 import { Narrowphase } from './narrowphase/Narrowphase';
 
 interface ManagerOptions {
-    broadphase?: Broadphase;
-    midphase?: Midphase;
-    narrowphase?: Narrowphase;
+    broadphaseConstructor?: (typeof GridBroadphase) | (typeof AABBTree);
+    broadphaseOptions?: BroadphaseOptions | GridBroadphaseOptions | AABBTreeOptions;
 }
 
 export class Manager {
@@ -31,9 +31,9 @@ export class Manager {
     constructor (engine: Engine, options: ManagerOptions = {}) {
         this.engine = engine;
 
-        this.broadphase = options.broadphase || new GridBroadphase(this);
-        this.midphase = options.midphase || new Midphase(this);
-        this.narrowphase = options.narrowphase || new Narrowphase(this);
+        this.broadphase = new (options.broadphaseConstructor ?? GridBroadphase)(this, options.broadphaseOptions);
+        this.midphase = new Midphase(this);
+        this.narrowphase = new Narrowphase(this);
     }
 
     update () {

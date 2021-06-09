@@ -1,22 +1,21 @@
 import { Vector } from '../math/Vector';
-import { Solver } from '../collision/solver/Solver';
+import { Solver, SolverOptions } from '../collision/solver/Solver';
 import { Events } from '../common/Events';
-import { Sleeping } from '../body/Sleeping';
+import { Sleeping, SleepingOptions } from '../body/Sleeping';
 import { World } from '../common/World';
 import { Manager } from '../collision/phase/Manager';
-import { Broadphase } from '../collision/phase/broadphase/Broadphase';
-import { Midphase } from '../collision/phase/Midphase';
-import { Narrowphase } from '../collision/phase/narrowphase/Narrowphase';
+import { BroadphaseOptions } from '../collision/phase/broadphase/Broadphase';
 import { AABB } from '../math/AABB';
+import { GridBroadphase, GridBroadphaseOptions } from '../collision/phase/broadphase/Grid';
+import { AABBTree, AABBTreeOptions } from '../collision/phase/broadphase/AABBTree/AABBTree';
 
 interface EngineOptions {
     world?: World;
     gravity?: Vector;
-    solver?: Solver;
-    sleeping?: Sleeping;
-    broadphase?: Broadphase;
-    midphase?: Midphase;
-    narrowphase?: Narrowphase;
+    solverOptions?: SolverOptions;
+    sleepingOptions?: SleepingOptions;
+    broadphaseConstructor?: (typeof GridBroadphase) | (typeof AABBTree);
+    broadphaseOptions?: BroadphaseOptions | GridBroadphaseOptions | AABBTreeOptions;
 }
 
 /**
@@ -33,11 +32,11 @@ export class Engine extends Events {
 
     constructor (options: EngineOptions = {}) {
         super();
-        this.world = options.world || new World(this);
+        this.world = options.world ?? new World(this);
         this.gravity = options.gravity === undefined ? new Vector(0, 9.8) : options.gravity.clone();
         this.manager = new Manager(this, options);
-        this.solver = options.solver || new Solver(this);
-        this.sleeping = options.sleeping || new Sleeping(this);
+        this.solver = new Solver(this, options.solverOptions);
+        this.sleeping = new Sleeping(this, options.sleepingOptions);
         this.timestamp = undefined;
     }
 

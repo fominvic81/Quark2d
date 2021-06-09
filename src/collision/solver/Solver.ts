@@ -6,7 +6,7 @@ import { Pair } from '../pair/Pair';
 import { BodyType } from '../../body/Body';
 import { Settings } from '../../Settings';
 
-interface SolverOptions {
+export interface SolverOptions {
     positionIterations?: number;
     velocityIterations?: number;
     constraintIterations?: number;

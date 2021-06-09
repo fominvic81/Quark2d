@@ -14,7 +14,7 @@ export enum SleepingType {
     ISLAND_SLEEPING,
 }
 
-interface SleepingOptions {
+export interface SleepingOptions {
     type?: SleepingType;
 }
 
