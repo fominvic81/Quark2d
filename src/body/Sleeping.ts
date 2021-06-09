@@ -33,7 +33,7 @@ export class Sleeping {
     constructor (engine: Engine, options: SleepingOptions = {}) {
 
         this.engine = engine;
-        this.type = options.type !== undefined ? options.type : SleepingType.BODY_SLEEPING;
+        this.type = options.type !== undefined ? options.type : SleepingType.NO_SLEEPING;
 
     }
 
