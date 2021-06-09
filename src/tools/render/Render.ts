@@ -12,29 +12,15 @@ import { Convex } from '../../body/shapes/Convex';
 import { Edge } from '../../body/shapes/Edge';
 import { DistanceConstraint } from '../../constraint/DistanceConstraint';
 import { Settings } from '../../Settings';
-import { GridBroadphase } from '../../collision/phase/broadphase/Grid';
 
 interface RenderOptions {
     backgroundColor?: string;
-    showBodies?: boolean;
     showConstraints?: boolean;
-    showAngleIndicator?: boolean;
     showSleeping?: boolean;
     showRadius?: boolean;
-    showCollisions?: boolean;
-    showNormals?: boolean;
-    showAABBs?: boolean;
-    showPositionImpulses?: boolean;
-    showVelocity?: boolean;
-    showAngularVelocity?: boolean;
-    showBroadphaseGrid?: boolean;
-    showPositions?: boolean;
-    showConstraintBounds?: boolean;
-    showVertexIds?: boolean;
 
     showStatus?: boolean;
 
-    element?: HTMLElement;
     canvas?: HTMLCanvasElement;
 
     width?: number;
@@ -42,7 +28,7 @@ interface RenderOptions {
 }
 
 /**
- * The Render is a class, that provides methods of rendering world, based on HTML5 canvas.
+ * The Render is a class, that provides methods for rendering the world, based on HTML5 canvas.
  */
 
 export class Render extends Events {
@@ -50,27 +36,17 @@ export class Render extends Events {
     options: {
         scale: Vector;
         translate: Vector;
-        aabb: AABB;
+
         lineWidth: number;
+
         backgroundColor: string;
-        showBodies: boolean;
         showConstraints: boolean;
-        showAngleIndicator: boolean;
         showSleeping: boolean;
         showRadius: boolean;
-        showCollisions: boolean;
-        showNormals: boolean;
-        showAABBs: boolean;
-        showPositionImpulses: boolean;
-        showVelocity: boolean;
-        showAngularVelocity: boolean;
-        showBroadphaseGrid: boolean;
-        showPositions: boolean;
-        showConstraintBounds: boolean;
-        showVertexIds: boolean;
 
         showStatus: boolean;
     };
+    aabb: AABB = new AABB();
     canvas: HTMLCanvasElement;
     ctx: CanvasRenderingContext2D;
 
@@ -81,7 +57,7 @@ export class Render extends Events {
 
     mouse: Mouse;
 
-    constructor (engine: Engine, options: RenderOptions = {}) {
+    constructor (engine: Engine, element: HTMLElement = document.body, options: RenderOptions = {}) {
         super();
 
         this.engine = engine;
@@ -89,24 +65,13 @@ export class Render extends Events {
         this.options = {
             scale: new Vector(20, 20),
             translate: new Vector(),
-            aabb: new AABB(),
+
             lineWidth: 1,
+
             backgroundColor: options.backgroundColor ?? 'rgb(48, 48, 48)',
-            showBodies: options.showBodies ?? true,
             showConstraints: options.showConstraints ?? true,
-            showAngleIndicator: options.showAngleIndicator ?? true,
             showSleeping: options.showSleeping ?? true,
             showRadius: options.showRadius ?? true,
-            showCollisions: options.showCollisions ?? false,
-            showNormals: options.showNormals ?? false,
-            showAABBs: options.showAABBs ?? false,
-            showPositionImpulses: options.showPositionImpulses ?? false,
-            showVelocity: options.showVelocity ?? false,
-            showAngularVelocity: options.showAngularVelocity ?? false,
-            showBroadphaseGrid: options.showBroadphaseGrid ?? false,
-            showPositions: options.showPositions ?? false,
-            showConstraintBounds: options.showConstraintBounds ?? false,
-            showVertexIds: options.showVertexIds ?? false,
 
             showStatus: options.showStatus ?? false,
         }
@@ -117,12 +82,8 @@ export class Render extends Events {
         this.statusTimer = 0;
         this.statusText = '';
 
-        if (options.element) {
-            this.element = options.element;
-            this.element.appendChild(this.canvas);
-        } else {
-            throw new Error('Options.element is undefined');
-        }
+        this.element = element;
+        this.element.appendChild(this.canvas);
 
         this.mouse = new Mouse(this);
 
@@ -134,7 +95,7 @@ export class Render extends Events {
      * Renders world. Step should be called every time the scene changes.
      * @param timestamp
      */
-    step (timestamp: {delta: number}) {
+    update (timestamp: {delta: number}) {
 
         this.statusTimer += timestamp.delta;
         this.trigger('before-step', [{render: this, timestamp}]);
@@ -166,48 +127,16 @@ export class Render extends Events {
 
         for (const body of allBodies) {
             for (const shape of body.shapes) {
-                if (this.options.aabb.overlaps(shape.aabb)) {
+                if (this.aabb.overlaps(shape.aabb)) {
                     bodies.push(body);
                     break;
                 }
             }
         }
 
-        if (this.options.showBodies) {
-            this.bodies(bodies);
-        }
+        this.bodies(bodies);
         if (this.options.showConstraints) {
             this.constraints(allConstraints);
-        }
-        if (this.options.showAngleIndicator) {
-            this.angleIndicator(bodies);
-        }
-        if (this.options.showCollisions) {
-            this.collisions();
-        }
-        if (this.options.showNormals) {
-            this.normals(bodies);
-        }
-        if (this.options.showAABBs) {
-            this.AABBs(bodies);
-        }
-        if (this.options.showPositionImpulses) {
-            this.positionImpulses(bodies);
-        }
-        if (this.options.showVelocity) {
-            this.velocity(bodies);
-        }
-        if (this.options.showAngularVelocity) {
-            this.angularVelocity(bodies);
-        }
-        if (this.options.showBroadphaseGrid) {
-            this.broadphase();
-        }
-        if (this.options.showPositions) {
-            this.positions(bodies);
-        }
-        if (this.options.showVertexIds) {
-            this.vertexIds(bodies);
         }
         
         this.trigger('after-step', [{render: this, timestamp}]);
@@ -215,11 +144,11 @@ export class Render extends Events {
     }
 
     updateAABB () {
-        this.options.aabb.minX = (-this.canvas.width / 2) / this.options.scale.x - this.options.translate.x;
-        this.options.aabb.maxX = (this.canvas.width / 2) / this.options.scale.x - this.options.translate.x;
+        this.aabb.minX = (-this.canvas.width / 2) / this.options.scale.x - this.options.translate.x;
+        this.aabb.maxX = (this.canvas.width / 2) / this.options.scale.x - this.options.translate.x;
 
-        this.options.aabb.minY = (-this.canvas.height / 2) / this.options.scale.y - this.options.translate.y;
-        this.options.aabb.maxY = (this.canvas.height / 2) / this.options.scale.y - this.options.translate.y;
+        this.aabb.minY = (-this.canvas.height / 2) / this.options.scale.y - this.options.translate.y;
+        this.aabb.maxY = (this.canvas.height / 2) / this.options.scale.y - this.options.translate.y;
     }
 
     bodies (bodies: Body[]) {
@@ -239,12 +168,12 @@ export class Render extends Events {
                             Draw.polygon(this.ctx, (<Convex>shape).vertices, color, false, this.options.lineWidth / 20);
                         }
                         break;
-                        case ShapeType.EDGE:
-                            if (this.options.showRadius) {
-                                this.edge(<Edge>shape, color, this.options.lineWidth / 25);
-                            } else {
-                                Draw.line(this.ctx, (<Edge>shape).start, (<Edge>shape).end, color, this.options.lineWidth / 25);
-                            }
+                    case ShapeType.EDGE:
+                        if (this.options.showRadius) {
+                            this.edge(<Edge>shape, color, this.options.lineWidth / 25);
+                        } else {
+                            Draw.line(this.ctx, (<Edge>shape).start, (<Edge>shape).end, color, this.options.lineWidth / 25);
+                        }
                         break;
                 }
             }
@@ -261,16 +190,6 @@ export class Render extends Events {
             switch (constraint.type) {
                 case ConstraintType.DISTANCE_CONSTRAINT:
                     const distanceConstraint = <DistanceConstraint>constraint;
-                    if (this.options.showConstraintBounds) {
-                        if (distanceConstraint.length && distanceConstraint.length > 0.01) {
-                            if (!constraint.bodyA) Draw.circle(this.ctx, start, distanceConstraint.length, 'rgb(100, 200, 100)', false, this.options.lineWidth / 20);
-                            if (!constraint.bodyB) Draw.circle(this.ctx, end, distanceConstraint.length, 'rgb(100, 200, 100)', false, this.options.lineWidth / 20);
-                        }
-                        if (distanceConstraint.minLength && distanceConstraint.minLength > 0.01) {
-                            if (!constraint.bodyA) Draw.circle(this.ctx, start, distanceConstraint.minLength, 'rgb(100, 200, 100)', false, this.options.lineWidth / 20);
-                            if (!constraint.bodyB) Draw.circle(this.ctx, end, distanceConstraint.minLength, 'rgb(100, 200, 100)', false, this.options.lineWidth / 20);
-                        }
-                    }
 
                     if (distanceConstraint.length <= 1 || distanceConstraint.stiffness > 0.8) {
                         Draw.line(this.ctx, start, end, 'rgb(128, 128, 128)', this.options.lineWidth / 20);
@@ -310,145 +229,7 @@ export class Render extends Events {
 
     }
 
-    angleIndicator (bodies: Body[]) {
-        for (const body of bodies) {
-            for (const shape of body.shapes) {
-                const pos = shape.position;
-                const angle = shape.body!.angle;
-
-                switch (shape.type) {
-                    case ShapeType.CIRCLE:
-                        Draw.line(this.ctx, pos, Vector.temp[0].set(
-                            Math.cos(angle) * shape.radius,
-                            Math.sin(angle) * shape.radius,
-                        ).add(pos), 'rgb(200, 200, 200)', this.options.lineWidth / 10);
-                        break;
-                    case ShapeType.CONVEX:
-                        const vertices = (<Convex>shape).vertices;
-                        Draw.line(this.ctx, pos, Vector.temp[0].set(
-                            (vertices[0].x + vertices[1].x) / 2,
-                            (vertices[0].y + vertices[1].y) / 2,
-                        ), 'rgb(200, 200, 200)', this.options.lineWidth / 10);
-                        break;
-                }
-
-            }
-        }
-    }
-
-    collisions () {
-        for (const pair of this.engine.manager.activePairs) {
-            for (let i = 0; i < pair.contactsCount; ++i) {
-                const contact = pair.contacts[i];
-                if (this.options.aabb.contains(contact.vertex)) {
-                    Draw.circle(this.ctx, contact.vertex, this.options.lineWidth / 8, 'rgb(200, 80, 80)');
-                    Draw.line(this.ctx, contact.vertex, contact.pair.normal.scale(0.2, Vector.temp[0]).add(contact.vertex), 'rgb(200, 80, 80)', this.options.lineWidth / 8);
-                }
-            }
-        }
-    }
-
-    normals (bodies: Body[]) {
-        for (const body of bodies) {
-            for (const shape of body.shapes) {
-                if (shape.type === ShapeType.CONVEX) {
-                    const pos = shape.position;
-                    const normals = (<Convex>shape).normals;
-                    for (const normal of normals) {
-                        Draw.line(this.ctx, pos, Vector.add(pos, normal, Vector.temp[0]), 'rgb(200, 100, 100)', this.options.lineWidth / 8);
-                    }
-                }
-            }
-        }
-    }
-
-    AABBs (bodies: Body[]) {
-        for (const body of bodies) {
-            for (const shape of body.shapes) {
-                const shapeAABB = shape.aabb;
-                const shapeWidth = shapeAABB.maxX - shapeAABB.minX;
-                const shapeHeight = shapeAABB.maxY - shapeAABB.minY;
-                Draw.rect(this.ctx, Vector.temp[0].set(shapeAABB.minX + shapeWidth / 2, shapeAABB.minY + shapeHeight / 2), shapeWidth, shapeHeight, 0, 'rgb(96, 96, 96)', false, this.options.lineWidth / 50);
-            }
-        }
-    }
-
-    positionImpulses (bodies: Body[]) {
-        for (const body of bodies) {
-            Draw.line(this.ctx, body.center, Vector.add(body.center, body.positionImpulse, Vector.temp[0]), 'rgb(80, 80, 200)', this.options.lineWidth / 10);
-        }
-    }
-
-    velocity (bodies: Body[]) {
-        for (const body of bodies) {
-            Draw.line(this.ctx, body.center, Vector.add(body.center, body.velocity.scale(5, Vector.temp[0]), Vector.temp[0]), 'rgb(80, 200, 80)', this.options.lineWidth / 10);
-        }
-    }
-
-    angularVelocity (bodies: Body[]) {
-        for (const body of bodies) {
-            Draw.circle(this.ctx, body.center, Math.abs(body.angularVelocity) * 5, 'rgb(80, 200, 80)', false, this.options.lineWidth / 20);
-        }
-    }
-
-    broadphase () {
-        const broadphase = this.engine.manager.broadphase;
-        if (broadphase instanceof GridBroadphase) {
-            const grid = broadphase.grid;
-            const position = Vector.temp[0];
-            const offset = Vector.temp[1].set(0.5, 0.5);
-
-            const minX = Math.round(this.options.aabb.minX / broadphase.gridSize - 0.5);
-            const minY = Math.round(this.options.aabb.minY / broadphase.gridSize - 0.5);
-            const maxX = Math.round(this.options.aabb.maxX / broadphase.gridSize + 0.5);
-            const maxY = Math.round(this.options.aabb.maxY / broadphase.gridSize + 0.5);
-
-            if (maxX - minX > 50 || maxY - minY > 50) {
-                for (const position of grid.keys()) {
-                    position.add(offset);
-                    Draw.rect(this.ctx, position.scale(broadphase.gridSize), broadphase.gridSize, broadphase.gridSize, 0, 'rgb(80, 200, 80)', false, this.options.lineWidth / 50);
-                }
-            } else {
-                for (let i = minX; i < maxX; ++i) {
-                    for (let j = minY; j < maxY; ++j) {
-                        position.set(i, j);
-                        if (grid.get(position)) {
-                            position.add(offset);
-                            Draw.rect(this.ctx, position.scale(broadphase.gridSize), broadphase.gridSize, broadphase.gridSize, 0, 'rgb(80, 200, 80)', false, this.options.lineWidth / 50);
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    positions (bodies: Body[]) {
-        for (const body of bodies) {
-            Draw.circle(this.ctx, body.center, this.options.lineWidth / 2 , 'rgb(40, 160, 40)');
-            Draw.circle(this.ctx, body.position, this.options.lineWidth / 5 , 'rgb(200, 200, 200)');
-            for (const shape of body.shapes) {
-                Draw.circle(this.ctx, shape.position, this.options.lineWidth / 8 , 'rgb(160, 40, 40)');
-            }
-        }
-    }
-
-    vertexIds (bodies: Body[]) {
-        for (const body of bodies) {
-            for (const shape of body.shapes) {
-                if (shape.type === ShapeType.CONVEX) {
-                    const vertices = (<Convex>shape).vertices;
-                    for (const vertex of vertices) {
-                        this.ctx.font = '0.5px Arial';
-                        this.ctx.fillStyle = 'rgb(128, 128, 128)';
-                        this.ctx.fillText(`${vertex.index}`, vertex.x, vertex.y);
-                    }
-                }
-            }
-        }
-    }
-
     status () {
-
         if (this.statusTimer >= 0.1) {
             this.statusTimer -= 0.1;
             this.statusText = '';
@@ -476,11 +257,11 @@ export class Render extends Events {
 
         this.ctx.fillStyle = 'rgb(128, 128, 128)';
         this.ctx.fillText(this.statusText, 20, 20, this.canvas.width - 50);
-
     }
 
     scale (scale: Vector) {
-        this.options.scale.add(scale);
+        this.options.scale.x *= scale.x;
+        this.options.scale.y *= scale.y;
     }
 
     setScale (scale: Vector) {
@@ -502,8 +283,8 @@ export class Render extends Events {
     }
 
     mouseWheel (event: QMouseEvent) {
-        this.options.scale.x -= event.event.deltaY * this.options.scale.x / 2500;
-        this.options.scale.y -= event.event.deltaY * this.options.scale.y / 2500;
+        this.options.scale.x -= event.event.deltaY * this.options.scale.x / 1000;
+        this.options.scale.y -= event.event.deltaY * this.options.scale.y / 1000;
     }
 
     createCanvas (width: number, height: number) {
@@ -522,7 +303,7 @@ export class Render extends Events {
         return canvas;
     }
 
-    convex (convex: Convex, color: string, fill: boolean = true, lineWidth: number = 1) {
+    convex (convex: Convex, color: string, fill: boolean = true, lineWidth: number) {
 
         const radius = convex.radius;
         const vertices = convex.vertices;
@@ -567,7 +348,7 @@ export class Render extends Events {
         }
     }
 
-    edge (edge: Edge, color: string, lineWidth: number = 1) {
+    edge (edge: Edge, color: string, lineWidth: number) {
         const radius = edge.radius;
 
         if (radius <= Settings.defaultRadius) {
@@ -596,12 +377,6 @@ export class Render extends Events {
         const p3 = edge.normal.scale(edge.radius * dir, Vector.temp[2]).add(edge.end);
         const p4 = edge.normal.scale(edge.radius * dir, Vector.temp[3]).add(p1);
         const p5 = edge.normal.scale(edge.radius * dir, Vector.temp[4]).add(p2);
-
-        // Draw.circle(this.ctx, p1, 0.1, 'rgb(200, 200, 200)', true);
-        // Draw.circle(this.ctx, p2, 0.2, 'rgb(200, 200, 200)', true);
-        // Draw.circle(this.ctx, p3, 0.3, 'rgb(200, 200, 200)', true);
-        // Draw.circle(this.ctx, p4, 0.4, 'rgb(200, 200, 200)', true);
-        // Draw.circle(this.ctx, p5, 0.5, 'rgb(200, 200, 200)', true);
 
         this.ctx.moveTo(p1.x, p1.y);
         this.ctx.arcTo(p4.x, p4.y, p3.x, p3.y, radius);
