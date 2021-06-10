@@ -36,9 +36,11 @@ export abstract class Broadphase {
 
     abstract removeBody (body: Body): void;
 
-    abstract pointTest (point: Vector): Generator<Shape<any>>;
+    abstract pointTest (point: Vector): Generator<Shape>;
 
-    abstract aabbTest (aabb: AABB): Generator<Shape<any>>;
+    abstract aabbTest (aabb: AABB): Generator<Shape>;
+
+    abstract raycast (start: Vector, end: Vector): Generator<Shape>
 
     abstract getPairsCount (): number;
 }

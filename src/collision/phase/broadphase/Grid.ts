@@ -243,6 +243,134 @@ export class GridBroadphase extends Broadphase {
         }
     }
 
+    *raycast (start: Vector, end: Vector) {
+        const wasChecked: Set<number> = new Set();
+        const position = Vector.temp[0];
+
+        // TODO: Rewrite it.
+        const gridSize: number = this.gridSize;
+        
+        let fromX = (start.x / gridSize);
+        let fromY = (start.y / gridSize);
+        let toX = (end.x / gridSize);
+        let toY = (end.y / gridSize);
+        let deltaX = toX - fromX;
+        let deltaY = toY - fromY;
+
+        let signX;
+        let signY;
+        let absX;
+        let absY;
+
+        let x: number;
+        let y: number;
+        let x1: number;
+        let y1: number;
+        let x2: number;
+        let y2: number;
+
+        if (deltaX > 0) {
+            signX = 1;
+            absX = deltaX;
+
+            x = Math.floor(fromX);
+
+            x1 = Math.ceil(fromX);
+        } else {
+            signX = -1;
+            absX = -deltaX;
+
+            x = Math.floor(fromX);
+
+            if (deltaY > 0) {
+                fromX -= 1;
+            }
+
+            x1 = Math.floor(fromX);
+        }
+
+        if (deltaY > 0) {
+            signY = 1;
+            absY = deltaY;
+
+            y = Math.floor(fromY);
+
+            y2 = Math.ceil(fromY);
+        } else {
+            signY = -1;
+            absY = -deltaY;
+
+            y = Math.floor(fromY);
+
+            if (deltaX > 0) {
+                fromY -= 1;
+            }
+
+            y2 = Math.floor(fromY);
+        }
+
+        const shapes = this.grid.get(position.set(x, y));
+        if (shapes) {
+            for (const shape of shapes.values()) {
+                if (wasChecked.add(shape.id)) {
+                    yield shape;
+                }
+            }
+        }
+
+        const xy = deltaX / absY;
+        const yx = deltaY / absX;
+
+        y1 = fromY + yx * Math.abs(fromX - x1);
+
+        if (deltaY < 0) {
+            if (deltaX > 0) {
+                y1 += 1;
+            } else {
+                x1 -= 1;
+            }
+        }
+
+        const dy = yx;
+
+        for (let i = 0; i < absX; ++i) {
+            const shapes = this.grid.get(position.set(x1 + i * signX, Math.floor(y1)));
+            if (shapes) {
+                for (const shape of shapes.values()) {
+                    if (wasChecked.add(shape.id)) {
+                        yield shape;
+                    }
+                }
+            }
+            y1 += dy;
+        }
+
+        x2 = fromX + xy * Math.abs(fromY - y2);
+        if (deltaX < 0) {
+            if (deltaY < 0) {
+                y2 -= 1;
+            } else {
+                x2 += 1;
+            }
+        }
+
+        const dx = xy;
+
+        for (let i = 0; i < absY; ++i) {
+            const shapes = this.grid.get(position.set(Math.floor(x2), y2 + i * signY));
+            if (shapes) {
+                for (const shape of shapes.values()) {
+                    if (wasChecked.add(shape.id)) {
+                        yield shape;
+                    }
+                }
+            }
+            
+            x2 += dx;
+        }
+        
+    }
+
     getPairsCount () {
         return this.activePairs.size;
     }

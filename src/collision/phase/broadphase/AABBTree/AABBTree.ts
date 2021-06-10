@@ -266,6 +266,10 @@ export class AABBTree extends Broadphase {
         }
     }
 
+    *raycast (start: Vector, end: Vector) {
+        // TODO
+    }
+
     getPairsCount () {
         return this.activePairs.size;
     }

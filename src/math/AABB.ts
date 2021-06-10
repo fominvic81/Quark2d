@@ -1,5 +1,7 @@
 import { Vector } from './Vector';
 
+const temp = new Vector();
+
 /**
  * The 'AABB' is the class for manipulating AABBs(axis-aligned bounding boxes)
  */
@@ -157,9 +159,9 @@ export class AABB {
      * Returns true if aabbA is completely inside aabbB.
      * @param aabbA
      * @param aabbB
+     * @returns True if aabbA is completely inside aabbB.
      */
     static isInside (aabbA: AABB, aabbB: AABB) {
-        // return !(aabbA.minX < aabbB.minX || aabbA.minY < aabbB.minY || aabbA.maxX < aabbB.maxX || aabbA.maxY < aabbB.maxY);
         return aabbA.minX >= aabbB.minX && aabbA.minY >= aabbB.minY  && aabbA.maxX <= aabbB.maxX && aabbA.maxY <= aabbB.maxY;
     }
 

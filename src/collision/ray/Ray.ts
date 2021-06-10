@@ -68,104 +68,18 @@ export class Ray {
         const intersections = result.intersections;
 
         if (useBroadphase) {
-            if (engine.manager.broadphase instanceof GridBroadphase) {
-                const gridSize: number = engine.manager.broadphase.gridSize;
-                const from: Vector = Ray.vecTemp[0];
-                const to: Vector = Ray.vecTemp[1];
-                
-                from.x = (this.from.x / gridSize);
-                from.y = (this.from.y / gridSize);
-                to.x = (this.to.x / gridSize);
-                to.y = (this.to.y / gridSize);
-                const delta: Vector = Vector.subtract(to, from, Ray.vecTemp[2]);
-                const sign: Vector = Ray.vecTemp[4];
-                const abs: Vector = Ray.vecTemp[5];
+            const intersections = result.intersections;
+            for (const shape of engine.manager.broadphase.raycast(this.from, this.to)) {
+                const body = shape.body!;
+                if (!composite.hasBody(body.id)) continue;
 
-                let x: number;
-                let y: number;
-                let x1: number;
-                let y1: number;
-                let x2: number;
-                let y2: number;
-
-                if (delta.x > 0) {
-                    sign.x = 1;
-                    abs.x = delta.x;
-
-                    x = Math.floor(from.x + 0.0001);
-
-                    x1 = Math.ceil(from.x + 0.0001);
-                } else {
-                    sign.x = -1;
-                    abs.x = -delta.x;
-
-                    x = Math.floor(from.x - 0.0001);
-
-                    if (delta.y > 0) {
-                        from.x -= 1;
-                    }
-
-                    x1 = Math.floor(from.x - 0.0001);
+                const id = Common.combineId(body.id, shape.id);
+                let intersection = intersections.get(id);
+                if (!intersection) {
+                    intersection = new Intersection(body, shape);
+                    intersections.set(id, intersection);
                 }
-
-                if (delta.y > 0) {
-                    sign.y = 1;
-                    abs.y = delta.y;
-
-                    y = Math.floor(from.y + 0.0001);
-
-                    y2 = Math.ceil(from.y + 0.0001);
-                } else {
-                    sign.y = -1;
-                    abs.y = -delta.y;
-
-                    y = Math.floor(from.y - 0.0001);
-
-                    if (delta.x > 0) {
-                        from.y -= 1;
-                    }
-
-                    y2 = Math.floor(from.y - 0.0001);
-                }
-
-                this.addCell(engine, composite, Ray.vecTemp[3].set(x, y), result);
-                
-                
-                const xy = delta.x / abs.y;
-                const yx = delta.y / abs.x;
-
-                y1 = from.y + yx * Math.abs(from.x - x1);
-
-                if (delta.y < 0) {
-                    if (delta.x > 0) {
-                        y1 += 1;
-                    } else {
-                        x1 -= 1;
-                    }
-                }
-
-                const dy = yx;
-
-                for (let i = 0; i < abs.x; ++i) {
-                    this.addCell(engine, composite, Ray.vecTemp[3].set(x1 + i * sign.x, Math.floor(y1)), result);
-                    y1 += dy;
-                }
-
-                x2 = from.x + xy * Math.abs(from.y - y2);
-                if (delta.x < 0) {
-                    if (delta.y < 0) {
-                        y2 -= 1;
-                    } else {
-                        x2 += 1;
-                    }
-                }
-
-                const dx = xy;
-
-                for (let i = 0; i < abs.y; ++i) {
-                    this.addCell(engine, composite, Ray.vecTemp[3].set(Math.floor(x2), y2 + i * sign.y), result);
-                    x2 += dx;
-                }
+                intersection.isActive = true;
             }
         } else {
             for (const body of composite.bodies.values()) {
@@ -226,25 +140,6 @@ export class Ray {
             intersection.reset();
             shape.raycast(intersection, this.from, this.to, this.delta);
             if (intersection.contactsCount > 0) intersection.isActive = true;
-        }
-    }
-
-    private addCell (engine: Engine, composite: Composite, position: Vector, result: RaycastResult) {
-        const intersections = result.intersections;
-        const cell = (<GridBroadphase>engine.manager.broadphase).grid.get(position);
-        if (cell) {
-            for (const shape of cell.values()) {
-                const body = shape.body!;
-                if (!composite.hasBody(body.id)) continue;
-
-                const id = Common.combineId(body.id, shape.id);
-                let intersection = intersections.get(id);
-                if (!intersection) {
-                    intersection = new Intersection(body, shape);
-                    intersections.set(id, intersection);
-                }
-                intersection.isActive = true;
-            }
         }
     }
 }
