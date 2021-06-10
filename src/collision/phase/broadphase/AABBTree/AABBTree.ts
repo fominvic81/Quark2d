@@ -21,6 +21,7 @@ export class AABBTree extends Broadphase {
     root?: AABBTreeNode;
     aabbGrow: number;
     velocityFactor: number;
+    nodesStack: AABBTreeNode[] = [];
 
     constructor (manager: Manager, options: AABBTreeOptions = {}) {
         super(manager, options);
@@ -100,6 +101,12 @@ export class AABBTree extends Broadphase {
         }
     }
 
+    getNewNode () {
+        const newNode = this.nodesStack.pop();
+        if (!newNode) return new AABBTreeNode();
+        return  newNode;
+    }
+
     addShape (shape: Shape) {
 
         if (!this.root) {
@@ -139,7 +146,7 @@ export class AABBTree extends Broadphase {
 
 
         const oldParent = best.parent;
-        const newParent = new AABBTreeNode();
+        const newParent = this.getNewNode();
         newParent.isChildA = best.isChildA;
         newParent.parent = oldParent;
         newParent.isLeaf = false;
@@ -154,7 +161,7 @@ export class AABBTree extends Broadphase {
             this.root = newParent;
         }
 
-        const newLeaf = shape.AABBTreeNode || new AABBTreeNode();
+        const newLeaf = shape.AABBTreeNode || this.getNewNode();
         if (!shape.AABBTreeNode) shape.aabb.clone(newLeaf.aabb);
         newLeaf.parent = newParent;
         newLeaf.isChildA = true;
@@ -182,6 +189,7 @@ export class AABBTree extends Broadphase {
 
         const parent = node.parent;
         if (!parent) {
+            this.nodesStack.push(this.root!);
             this.root = undefined;
             return;
         }
@@ -207,8 +215,10 @@ export class AABBTree extends Broadphase {
             }
         } else {
             this.root = otherChild;
-            otherChild.parent = undefined;
+            this.root.parent = undefined;
         }
+
+        this.nodesStack.push(parent);
 
         if (removePairs) {
             for (const shapeB of this.aabbTest(node.aabb)) {
