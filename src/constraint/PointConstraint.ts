@@ -29,7 +29,7 @@ export class PointConstraint<UserData = any> extends Constraint {
         const share = 0.5 / ((this.bodyA ? this.bodyA.inverseMass : 0) +
                             (this.bodyB ? this.bodyB.inverseMass : 0));
 
-        const impulse = Vector.subtract(pointA, pointB, Constraint.vecTemp[0]).scale(this.stiffness * share, Constraint.vecTemp[1]);
+        const impulse = Vector.subtract(pointA, pointB, Constraint.vecTemp[0]).scaleOut(this.stiffness * share, Constraint.vecTemp[1]);
 
         if (this.bodyA && this.bodyA.type === BodyType.dynamic) {
 

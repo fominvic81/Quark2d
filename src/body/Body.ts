@@ -129,7 +129,7 @@ export class Body<UserData = any> extends Events {
         this.motion = this.speedSquared + this.angSpeedSquared;
 
         // update acceleration
-        this.force.scale(this.inverseMass * delta, this.acceleration);
+        this.force.scaleOut(this.inverseMass * delta, this.acceleration);
 
         // update velocity
         this.velocity.scale((1 - this.velocityDamping)).add(this.acceleration.scale(delta));
@@ -277,11 +277,11 @@ export class Body<UserData = any> extends Events {
         
         for (const shape of this.shapes) {
             Vector.subtract(this.center, shape.position, offset);
-            sum.add(offset.scale(shape.mass, Vector.temp[2]));
+            sum.add(offset.scaleOut(shape.mass, Vector.temp[2]));
             mass += shape.mass;
         }
 
-        const cm = sum.divide(mass, Vector.temp[1]);
+        const cm = sum.divideOut(mass, Vector.temp[1]);
 
         Vector.subtract(this.center, cm, this.center);
         for (const shape of this.shapes) {
@@ -491,7 +491,7 @@ export class Body<UserData = any> extends Events {
      * @param offset
      */
     applyImpulse (impulse: Vector, offset?: Vector) {
-        const velocity = impulse.scale(this.inverseMass, Body.vecTemp[0]);
+        const velocity = impulse.scaleOut(this.inverseMass, Body.vecTemp[0]);
         this.velocity.add(velocity);
 
         if (offset) {

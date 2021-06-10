@@ -55,7 +55,7 @@ export class DistanceConstraint<UserData = any> extends Constraint {
         if (this.minLength !== undefined && dist > this.minLength && dist < this.length) return;
         const diff = (this.minLength !== undefined && dist < this.minLength) ? (dist - this.minLength) : (dist - this.length);
 
-        const normal = delta.divide(dist, this.normal);
+        const normal = delta.divideOut(dist, this.normal);
 
         const normalCrossA = Vector.cross(this.offsetA, normal);
         const normalCrossB = Vector.cross(this.offsetB, normal);
@@ -64,7 +64,7 @@ export class DistanceConstraint<UserData = any> extends Constraint {
             (this.bodyB ? (this.bodyB.inverseMass + this.bodyB.inverseInertia * normalCrossB * normalCrossB) : 0)
         );
 
-        const impulse = normal.scale(this.stiffness * diff * share, Constraint.vecTemp[1]);
+        const impulse = normal.scaleOut(this.stiffness * diff * share, Constraint.vecTemp[1]);
         
         const mass = 1 / ((this.bodyA ? this.bodyA.inverseMass : 0) + (this.bodyB ? this.bodyB.inverseMass : 0));
         const dampingImpulse = Constraint.vecTemp[2];
@@ -77,7 +77,7 @@ export class DistanceConstraint<UserData = any> extends Constraint {
             );
 
             const normalVelocity = Vector.dot(dampingImpulse, normal);
-            normal.scale(normalVelocity * mass * this.damping, dampingImpulse);
+            normal.scaleOut(normalVelocity * mass * this.damping, dampingImpulse);
         }
 
         if (this.bodyA && this.bodyA.type === BodyType.dynamic) {
@@ -100,7 +100,7 @@ export class DistanceConstraint<UserData = any> extends Constraint {
             this.bodyA.constraintAngleImpulse -= angle;
 
             if (this.damping) {
-                const damping = dampingImpulse.scale(this.bodyA.inverseMass, Constraint.vecTemp[3]);
+                const damping = dampingImpulse.scaleOut(this.bodyA.inverseMass, Constraint.vecTemp[3]);
 
                 this.bodyA.velocity.x += damping.x;
                 this.bodyA.velocity.y += damping.y;
@@ -126,7 +126,7 @@ export class DistanceConstraint<UserData = any> extends Constraint {
             this.bodyB.constraintAngleImpulse += angle;
 
             if (this.damping) {
-                const damping = dampingImpulse.scale(this.bodyB.inverseMass, Constraint.vecTemp[3]);
+                const damping = dampingImpulse.scaleOut(this.bodyB.inverseMass, Constraint.vecTemp[3]);
 
                 this.bodyB.velocity.x -= damping.x;
                 this.bodyB.velocity.y -= damping.y;

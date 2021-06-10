@@ -50,7 +50,7 @@ export class Edge<UserData = any> extends Shape {
         Vector.subtract(this.end, this.start, this.delta);
         this.length = this.delta.length();
 
-        this.delta.divide(this.length, this.normal);
+        this.delta.divideOut(this.length, this.normal);
         this.normal.rotate90();
 
         Vector.interpolate(this.start, this.end, 0.5, this.position);
@@ -199,7 +199,7 @@ export class Edge<UserData = any> extends Shape {
      * @returns The normal of the shape with the given index
      */
     getNormal (index: number, output: Vector) {
-        return index ? this.normal.clone(output) : this.normal.neg(output);
+        return index ? this.normal.clone(output) : this.normal.negOut(output);
     }
 
     /**

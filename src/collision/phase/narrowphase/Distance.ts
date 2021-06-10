@@ -12,10 +12,11 @@ export class SupportPoint {
     indexB: number = 0;
     index: number = 0;
     point: Vector = new Vector();
+    output: Vector = new Vector();
 
     compute (shapeA: Shape, shapeB: Shape, dir: Vector) {
         const supportA = shapeA.support(dir);
-        const supportB = shapeB.support(dir.neg(Vector.temp[0]));
+        const supportB = shapeB.support(dir.negOut(Vector.temp[0]));
 
         this.pointA = supportA;
         this.pointB = supportB;
@@ -24,7 +25,7 @@ export class SupportPoint {
         this.indexB = supportB.index;
         this.index = (this.indexA & 0xffff) << 16 | (this.indexB & 0xffff);
 
-        this.point = new Vector(this.pointA.x - this.pointB.x, this.pointA.y - this.pointB.y);
+        this.point = this.output.set(this.pointA.x - this.pointB.x, this.pointA.y - this.pointB.y);
     }
 
     clone (output: SupportPoint) {
@@ -54,7 +55,7 @@ export const GJK = (shapeA: Shape, shapeB: Shape, useEpa: boolean, output: Suppo
     let p1 = GJK_Temp[0];
     let p2 = GJK_Temp[1];
     p1.compute(shapeA, shapeB, INIT_DIR);
-    p2.compute(shapeA, shapeB, INIT_DIR.neg(dir));
+    p2.compute(shapeA, shapeB, INIT_DIR.negOut(dir));
 
     while (true) {
 

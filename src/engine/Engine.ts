@@ -33,7 +33,7 @@ export class Engine extends Events {
     constructor (options: EngineOptions = {}) {
         super();
         this.world = options.world ?? new World(this);
-        this.gravity = options.gravity === undefined ? new Vector(0, 9.8) : options.gravity.clone();
+        this.gravity = options.gravity === undefined ? new Vector(0, 9.8) : options.gravity.copy();
         this.manager = new Manager(this, options);
         this.solver = new Solver(this, options.solverOptions);
         this.sleeping = new Sleeping(this, options.sleepingOptions);

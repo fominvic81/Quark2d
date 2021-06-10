@@ -38,7 +38,7 @@ export class Pair {
         const bodyA = this.shapeA.body!;
         const bodyB = this.shapeB.body!;
 
-        this.normal.scale(this.depth, this.penetration);
+        this.normal.scaleOut(this.depth, this.penetration);
         this.surfaceVelocity = this.shapeA.surfaceVelocity + this.shapeB.surfaceVelocity;
         const share = 1 / (bodyA.inverseMass + bodyB.inverseMass);
         this.ratioA = share * bodyA.inverseMass;

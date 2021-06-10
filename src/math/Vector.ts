@@ -19,17 +19,21 @@ export class Vector {
 
     /**
      * Returns a new vector copied from 'this'.
-     * If the output isn't undefined copy 'x' and 'y' from 'this' to the output.
-     * @param output [output]
+     * @returns A copied vector
+     */
+    copy (): Vector {
+        return new Vector(this.x, this.y);
+    }
+
+    /**
+     * Copies values inside other vector.
+     * @param output
      * @returns A clonned vector
      */
-    clone (output: Vector | undefined = undefined): Vector {
-        if (output) {
-            output.x = this.x;
-            output.y = this.y;
-            return output;
-        }
-        return new Vector(this.x, this.y);
+    clone (output: Vector): Vector {
+        output.x = this.x;
+        output.y = this.y;
+        return output;
     }
 
     /**
@@ -46,28 +50,48 @@ export class Vector {
 
     /**
      * Rotates the vector by the given angle.
-     * If the output isn`t undefined doesn't changes the vector and copies 'x' and 'y' to the output.
      * @param angle
-     * @param output [output]
      * @returns A rotated vector
      */
-    rotate (angle: number, output: Vector = this): Vector {
+    rotate (angle: number): Vector {
         const cos: number = Math.cos(angle);
         const sin: number = Math.sin(angle);
         const x: number = this.x;
-        const y: number = this.y;
-        output.x = x * cos - y * sin;
-        output.y = x * sin + y * cos;
+        this.x = x * cos - this.y * sin;
+        this.y = x * sin + this.y * cos;
+        return this;
+    }
+
+    /**
+     * Rotates the vector by the given angle and sets it's value to output(original vector does not changes).
+     * @param angle
+     * @param output
+     * @returns A rotated vector
+     */
+    rotateOut (angle: number, output: Vector): Vector {
+        const cos: number = Math.cos(angle);
+        const sin: number = Math.sin(angle);
+        output.x = this.x * cos - this.y * sin;
+        output.y = this.x * sin + this.y * cos;
         return output;
     }
 
     /**
-     * Negates the vector.
-     * If the output isn`t undefined doesn't changes the vector and copies 'x' and 'y' to the output.
-     * @param output [output]
+     * Rotates the vector by 180 degrees.
      * @returns A negated vector
      */
-    neg (output: Vector = this): Vector {
+    neg (): Vector {
+        this.x = -this.x;
+        this.y = -this.y;
+        return this;
+    }
+
+    /**
+     * Rotates the vector by 180 degrees and sets it's value to output(original vector does not changes).
+     * @param output
+     * @returns A negated vector
+     */
+    negOut (output: Vector): Vector {
         output.x = -this.x;
         output.y = -this.y;
         return output;
@@ -75,27 +99,45 @@ export class Vector {
 
     /**
      * Rotates the vector by 90 degrees.
-     * If the output isn`t undefined doesn't changes the vector and copies 'x' and 'y' to the output.
-     * @param output [output]
      * @returns The rotated vector
      */
-    rotate90 (output: Vector = this): Vector {
+    rotate90 (): Vector {
         const x: number = this.x;
+        this.x = -this.y;
+        this.y = x;
+        return this;
+    }
+
+    /**
+     * Rotates the vector by 90 degrees and sets it's value to output(original vector does not changes).
+     * @param output
+     * @returns The rotated vector
+     */
+    rotate90Out (output: Vector): Vector {
         output.x = -this.y;
-        output.y = x;
+        output.y = this.x;
         return output;
     }
 
     /**
      * Rotates the vector by 270 degrees.
-     * If the output isn`t undefined doesn't changes the vector and copies 'x' and 'y' to the output.
-     * @param output [output]
      * @returns The rotated vector
      */
-    rotate270 (output: Vector = this): Vector {
+    rotate270 (): Vector {
         const x = this.x;
+        this.x = this.y;
+        this.y = -x;
+        return this;
+    }
+
+    /**
+     * Rotates the vector by 270 degrees and sets it's value to output(original vector does not changes).
+     * @param output
+     * @returns The rotated vector
+     */
+    rotate270Out (output: Vector): Vector {
         output.x = this.y;
-        output.y = -x;
+        output.y = -this.x;
         return output;
     }
 
@@ -117,40 +159,58 @@ export class Vector {
 
     /**
      * Normalises the vector.
-     * If the output isn`t undefined doesn't changes the vector and copies 'x' and 'y' to the output.
-     * @param output [output]
      * @returns The normalised vector
      */
-    normalise (output: Vector = this): Vector {
+    normalise (): Vector {
         const length: number = this.length();
-        output.x = this.x / length;
-        output.y = this.y / length;
-        return output;
+        this.x /= length;
+        this.y /= length;
+        return this;
     }
 
     /**
      * Scales the vector by the given scalar.
-     * If the output isn`t undefined doesn't changes the vector and copies 'x' and 'y' to the output.
-     * @param s The scalar
-     * @param output [output]
+     * @param scalar The scalar
      * @returns The scaled vector
      */
-    scale (s: number, output: Vector = this): Vector {
-        output.x = this.x * s;
-        output.y = this.y * s;
+    scale (scalar: number): Vector {
+        this.x *= scalar;
+        this.y *= scalar;
+        return this;
+    }
+
+    /**
+     * Scales the vector by the given scalar and sets it's value to output(original vector does not changes).
+     * @param scalar The scalar
+     * @param output
+     * @returns The scaled vector
+     */
+    scaleOut (scalar: number, output: Vector): Vector {
+        output.x = this.x * scalar;
+        output.y = this.y * scalar;
         return output;
     }
 
     /**
      * Divides the vector by the given divisor.
-     * If the output isn`t undefined doesn't changes the vector and copies 'x' and 'y' to the output.
-     * @param s The divisor
-     * @param output [output]
+     * @param divisor The divisor
      * @returns The divided vector
      */
-    divide (s: number, output: Vector = this): Vector {
-        output.x = this.x / s;
-        output.y = this.y / s;
+    divide (divisor: number): Vector {
+        this.x /= divisor;
+        this.y /= divisor;
+        return this;
+    }
+
+    /**
+     * Divides the vector by the given divisor and sets it's value to output(original vector does not changes).
+     * @param divisor The divisor
+     * @param output
+     * @returns The divided vector
+     */
+    divideOut (divisor: number, output: Vector): Vector {
+        output.x = this.x / divisor;
+        output.y = this.y / divisor;
         return output;
     }
 
@@ -235,7 +295,7 @@ export class Vector {
      * Adds two vectors.
      * @param vectorA
      * @param vectorB
-     * @param output [output]
+     * @param output
      * @returns Sum of two vectors
      */
     static add (vectorA: Vector, vectorB: Vector, output: Vector): Vector {
@@ -248,7 +308,7 @@ export class Vector {
      * Subtracts two vectors.
      * @param vectorA
      * @param vectorB
-     * @param output [output]
+     * @param output
      * @returns Difference of two vectors
      */
     static subtract (vectorA: Vector, vectorB: Vector, output: Vector): Vector {
@@ -261,7 +321,7 @@ export class Vector {
      * Multiplies two vectors.
      * @param vectorA
      * @param vectorB
-     * @param output [output]
+     * @param output
      * @returns Multiplied vector
      */
     static mult (vectorA: Vector, vectorB: Vector, output: Vector = vectorA): Vector {
@@ -285,7 +345,7 @@ export class Vector {
      * @param vectorA
      * @param vectorB
      * @param t
-     * @param output [output]
+     * @param output
      * @returns The interpolated vector
      */
     static interpolate (vectorA: Vector, vectorB: Vector, t: number, output: Vector): Vector {
@@ -362,11 +422,11 @@ export class Vector {
      * @param output
      * @returns The interpolated vector
      */
-    static interpolateT (vectorA: Vector, vectorB: Vector, t: number, output: Vector = new Vector()): Vector {
+    static interpolateT (vectorA: Vector, vectorB: Vector, t: number, output: Vector): Vector {
         const halfT: number = 0.5 * t;
         return Vector.add(
-            vectorA.scale(0.5 - halfT, Vector.prTemp[0]),
-            vectorB.scale(0.5 + halfT, Vector.prTemp[1]),
+            vectorA.scaleOut(0.5 - halfT, Vector.prTemp[0]),
+            vectorB.scaleOut(0.5 + halfT, Vector.prTemp[1]),
             output,
         );
     }

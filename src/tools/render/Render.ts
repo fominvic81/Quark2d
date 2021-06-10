@@ -196,7 +196,7 @@ export class Render extends Events {
                     } else {
                         const delta = Vector.subtract(end, start, Vector.temp[0]);
 
-                        const normal = distanceConstraint.normal.rotate90(Vector.temp[1]);
+                        const normal = distanceConstraint.normal.rotate90Out(Vector.temp[1]);
                         const count = Math.max(distanceConstraint.length * 2, 4);
 
                         this.ctx.beginPath();
@@ -204,7 +204,7 @@ export class Render extends Events {
 
                         for (let i = 1; i < count; ++i) {
                             const side = i % 2 === 0 ? 1 : -1;
-                            const offset = normal.scale(side * 0.25, Vector.temp[2]);
+                            const offset = normal.scaleOut(side * 0.25, Vector.temp[2]);
                             const p = i / count;
 
                             this.ctx.lineTo(
@@ -314,16 +314,16 @@ export class Render extends Events {
         
         const normals = convex.normals;
     
-        const first = Vector.add(vertices[0], normals[vertices.length - 1].scale(radius, Vector.temp[0]), Vector.temp[0]);
+        const first = Vector.add(vertices[0], normals[vertices.length - 1].scaleOut(radius, Vector.temp[0]), Vector.temp[0]);
 
         this.ctx.beginPath();
     
         this.ctx.moveTo(first.x, first.y);
 
-        let prevOffset = normals[vertices.length - 1].scale(radius, Vector.temp[0]);
+        let prevOffset = normals[vertices.length - 1].scaleOut(radius, Vector.temp[0]);
 
         for (let i = 0; i < vertices.length; ++i) {
-            const offset = normals[i].scale(radius, Vector.temp[1]);
+            const offset = normals[i].scaleOut(radius, Vector.temp[1]);
 
             const p1 = Vector.add(vertices[i], prevOffset, Vector.temp[2]);
 
@@ -372,11 +372,11 @@ export class Render extends Events {
 
     halfEdge (edge: Edge, radius: number, dir: number) {
 
-        const p1 = edge.normal.scale(edge.radius, Vector.temp[0]).rotate90().add(edge.start);
-        const p2 = edge.normal.scale(-edge.radius, Vector.temp[1]).rotate90().add(edge.end);
-        const p3 = edge.normal.scale(edge.radius * dir, Vector.temp[2]).add(edge.end);
-        const p4 = edge.normal.scale(edge.radius * dir, Vector.temp[3]).add(p1);
-        const p5 = edge.normal.scale(edge.radius * dir, Vector.temp[4]).add(p2);
+        const p1 = edge.normal.scaleOut(edge.radius, Vector.temp[0]).rotate90().add(edge.start);
+        const p2 = edge.normal.scaleOut(-edge.radius, Vector.temp[1]).rotate90().add(edge.end);
+        const p3 = edge.normal.scaleOut(edge.radius * dir, Vector.temp[2]).add(edge.end);
+        const p4 = edge.normal.scaleOut(edge.radius * dir, Vector.temp[3]).add(p1);
+        const p5 = edge.normal.scaleOut(edge.radius * dir, Vector.temp[4]).add(p2);
 
         this.ctx.moveTo(p1.x, p1.y);
         this.ctx.arcTo(p4.x, p4.y, p3.x, p3.y, radius);

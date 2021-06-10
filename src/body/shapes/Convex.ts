@@ -125,7 +125,7 @@ export class Convex<UserData = any> extends Shape {
             const normal = this.normals[v.index];
 
             const point = Vector.interpolate(vertex, vertex2, 0.5, Vector.temp[2]);
-            point.add(normal.scale(this.radius * 0.5, Vector.temp[3]));
+            point.add(normal.scaleOut(this.radius * 0.5, Vector.temp[3]));
 
             const areaFraction = length * this.radius * inverseArea;
             const inertia = (Math.pow(length, 2) + radiusSquared) / 12;
