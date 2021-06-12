@@ -473,6 +473,7 @@ export class Body<UserData = any> extends Events {
         if (offset) {
             this.angularVelocity += Vector.cross(offset, force) * this.inverseInertia * deltaSquared;
         }
+        this.setSleeping(SleepingState.AWAKE);
     }
 
     /**

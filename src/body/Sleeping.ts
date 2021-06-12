@@ -81,12 +81,6 @@ export class Sleeping {
                         body.setSleeping(sleeping);
                     }
                 }
-                for (const body of this.engine.world.sleepingBodies.values()) {
-                    if (body.force.x !== 0 || body.force.y !== 0) {
-                        body.setSleeping(awake);
-                        continue;
-                    }
-                }
                 break;
             case SleepingType.ISLAND_SLEEPING:
                 // TODO
