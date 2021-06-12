@@ -88,7 +88,7 @@ export class DistanceConstraint<UserData = any> extends Constraint {
             const angle = Vector.cross(this.offsetA, impulse) * this.bodyA.inverseInertia;
 
             this.bodyA.translate(Vector.temp[0].set(-x, -y));
-            angle && this.bodyA.constraintDir.rotate(-angle);
+            this.bodyA.constraintDir.rotate(-angle);
             this.bodyA.constraintAngle -= angle;
 
             this.bodyA.velocity.x -= x;
@@ -114,7 +114,7 @@ export class DistanceConstraint<UserData = any> extends Constraint {
             const angle = Vector.cross(this.offsetB, impulse) * this.bodyB.inverseInertia;
 
             this.bodyB.translate(Vector.temp[0].set(x, y));
-            angle && this.bodyB.constraintDir.rotate(angle);
+            this.bodyB.constraintDir.rotate(angle);
             this.bodyB.constraintAngle += angle;
 
             this.bodyB.velocity.x += x;

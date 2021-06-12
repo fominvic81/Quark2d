@@ -52,6 +52,7 @@ export class MouseConstraint extends Events {
     mouseUp (event: QMouseEvent) {
         if (event.mouse.leftButtonPressed) return;
         if (this.body && this.shape) {
+            this.body.constraintImpulse.set(0, 0);
             for (const constraint of this.constraints) {
                 constraint.setBodyA();
             }

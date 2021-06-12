@@ -28,25 +28,27 @@ export class FactoryComposite {
         frontWheel.addShape(new Circle({
             radius: 0.4 * size,
             filter: {group},
+            density: 500,
         }));
     
         const backWheel = new Body({position: new Vector(position.x - size, position.y + size * 0.5)});
         backWheel.addShape(new Circle({
             radius: 0.4 * size,
             filter: {group},
+            density: 500,
         }));
     
         const frontConstraint = new DistanceConstraint({
             bodyA: car,
             bodyB: frontWheel,
-            pointA: new Vector(size, 0.5 * size),
+            pointA: Vector.subtract(frontWheel.position, car.center, new Vector()),
             stiffness: 1,
         });
     
         const backConstraint = new DistanceConstraint({
             bodyA: car,
             bodyB: backWheel,
-            pointA: new Vector(-size, 0.5 * size),
+            pointA: Vector.subtract(backWheel.position, car.center, new Vector()),
             stiffness: 1,
         });
     

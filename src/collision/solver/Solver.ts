@@ -56,6 +56,12 @@ export class Solver {
 
         this.preSolve();
 
+        // solve constraints
+        this.preSolveConstraints();
+        for (let i = 0; i < this.options.constraintIterations; ++i) {
+            this.solveConstraints();
+        }
+
         // solve position
         for (let i = 0; i < this.options.positionIterations; ++i) {
             this.solvePosition();
@@ -63,17 +69,17 @@ export class Solver {
         this.postSolvePosition();
 
         // solve constraints
-        this.preSolveConstraints();
         for (let i = 0; i < this.options.constraintIterations; ++i) {
             this.solveConstraints();
         }
-        this.postSolveConstraints();
 
         // solve velocity
         if (this.options.warmStarting) this.warmStart();
         for (let i = 0; i < this.options.velocityIterations; ++i) {
             this.solveVelocity();
         }
+
+        this.postSolveConstraints();
     }
 
     /**
@@ -110,8 +116,8 @@ export class Solver {
             //   ||        ||
             //   \/        \/
             pair.separation = 
-                pair.normal.x * (pair.penetration.x - pair.shapeB.body!.positionImpulse.x + pair.shapeA.body!.positionImpulse.x) + 
-                pair.normal.y * (pair.penetration.y - pair.shapeB.body!.positionImpulse.y + pair.shapeA.body!.positionImpulse.y);
+                pair.normal.x * (pair.penetration.x - pair.shapeB.body!.positionImpulse.x - pair.shapeB.body!.constraintImpulse.x + pair.shapeA.body!.positionImpulse.x + pair.shapeA.body!.constraintImpulse.x) + 
+                pair.normal.y * (pair.penetration.y - pair.shapeB.body!.positionImpulse.y - pair.shapeB.body!.constraintImpulse.y + pair.shapeA.body!.positionImpulse.y + pair.shapeA.body!.constraintImpulse.y);
         }
 
         for (const pair of pairs) {
@@ -299,9 +305,8 @@ export class Solver {
      * Solves constraint.
      */
     solveConstraints () {
-        const constraints = this.engine.world.allConstraints();
 
-        for (const constraint of constraints) {
+        for (const constraint of this.engine.world.constraints.values()) {
             constraint.solve();
         }
     }

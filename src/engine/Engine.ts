@@ -52,10 +52,8 @@ export class Engine extends Events {
 
         this.sleeping.update(timestamp.delta);
 
-        this.applyGravity();
-
         for (const body of this.world.activeBodies.values()) {
-            body.updateVelocity(timestamp.delta);
+            body.updateVelocity(timestamp.delta, this.gravity);
         }
 
         this.manager.update();
@@ -96,16 +94,6 @@ export class Engine extends Events {
         }
 
         this.trigger('after-update', [{engine: this, timestamp}]);
-    }
-
-    /**
-     * Applies gravity force to all bodies.
-     */
-    applyGravity () {
-        for (const body of this.world.activeBodies.values()) {
-            body.force.x += this.gravity.x * body.mass;
-            body.force.y += this.gravity.y * body.mass;
-        }
     }
 
     /**

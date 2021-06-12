@@ -55,13 +55,10 @@ export class Body<UserData = any> extends Events {
     angle: number = 0;
     anglePrev: number = 0;
     angularVelocity: number = 0;
-    torque: number = 0;
     center: Vector = new Vector();
     position: Vector = new Vector();
     positionPrev: Vector = new Vector();
-    acceleration: Vector = new Vector();
     velocity: Vector = new Vector();
-    force: Vector = new Vector();
     dir: Vector = new Vector(1, 0);
     constraintDir: Vector = new Vector(1, 0);
     constraintAngle: number = 0;
@@ -120,29 +117,23 @@ export class Body<UserData = any> extends Events {
     }
 
     /**
-     * Updates acceleration and velocity of the body.
+     * Updates velocity of the body.
      * @param delta The delta time
      */
-    updateVelocity (delta: number) {
+    updateVelocity (delta: number, gravity: Vector) {
+        const deltaSquared = delta * delta;
+
         this.speedSquared = this.velocity.lengthSquared();
         this.angSpeedSquared = Math.pow(this.angularVelocity, 2);
         this.motion = this.speedSquared + this.angSpeedSquared;
 
-        // update acceleration
-        this.force.scaleOut(this.inverseMass * delta, this.acceleration);
-
         // update velocity
-        this.velocity.scale((1 - this.velocityDamping)).add(this.acceleration.scale(delta));
-
-        // update angularAcceleration
-        this.angularAcceleration = this.torque * this.inverseInertia * delta;
+        const rvd = (1 - this.velocityDamping);
+        this.velocity.x = this.velocity.x * rvd + gravity.x * deltaSquared;
+        this.velocity.y = this.velocity.y * rvd + gravity.y * deltaSquared;
 
         // update angularVelocity
-        this.angularVelocity = this.angularVelocity * (1 - this.velocityDamping) + this.angularAcceleration * delta;
-
-        // clear forces
-        this.force.set(0, 0);
-        this.torque = 0;
+        this.angularVelocity = this.angularVelocity * rvd;
     }
 
     /**
@@ -423,12 +414,8 @@ export class Body<UserData = any> extends Events {
         const previousType = this.type;
         this.type = type;
 
-        this.acceleration.set(0, 0);
         this.velocity.set(0, 0);
-        this.force.set(0, 0);
-        this.angularAcceleration = 0;
         this.angularVelocity = 0;
-        this.torque = 0;
         this.positionImpulse.set(0, 0);
 
         if (type === BodyType.dynamic) {
@@ -475,19 +462,22 @@ export class Body<UserData = any> extends Events {
 
     /**
      * Applies the given force to a body from the given offset(including resulting torque).
+     * @param delta
      * @param force
      * @param offset
      */
-    applyForce (force: Vector, offset?: Vector) {
-        this.force.add(force);
+    applyForce (delta: number, force: Vector, offset?: Vector) {
+        const deltaSquared = delta * delta;
+        this.velocity.x += force.x * this.inverseMass * deltaSquared;
+        this.velocity.y += force.y * this.inverseMass * deltaSquared;
         if (offset) {
-            this.torque += Vector.cross(offset, force);
+            this.angularVelocity += Vector.cross(offset, force) * this.inverseInertia * deltaSquared;
         }
     }
 
     /**
      * Applies the given impulse to a body from the given offset(including resulting angularVelocity).
-     * @param force
+     * @param impulse
      * @param offset
      */
     applyImpulse (impulse: Vector, offset?: Vector) {
