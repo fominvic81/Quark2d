@@ -58,7 +58,7 @@ export class Convex<UserData = any> extends Shape {
 
         for (let i = 1; i < l; ++i) {
             const vertex = vertices[i];
-            const dot = Vector.dot(vertex, vector);
+            const dot = vertex.x * vector.x + vertex.y * vector.y;
 
             if (dot > max) {
                 max = dot;
@@ -267,7 +267,6 @@ export class Convex<UserData = any> extends Shape {
      * @param vector
      */
     support (vector: Vector) {
-        const index = this.project(vector);
-        return this.vertices[index];
+        return this.vertices[this.project(vector)];
     }
 }

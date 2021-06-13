@@ -4,6 +4,8 @@ import { Vertex } from '../../../math/Vertex';
 import { Settings } from '../../../Settings';
 
 const INIT_DIR: Vector = new Vector(1, 0);
+const temp1 = new Vector();
+const temp2 = new Vector();
 
 export class SupportPoint {
     pointA: Vertex = new Vertex(0, 0, 0);
@@ -12,11 +14,10 @@ export class SupportPoint {
     indexB: number = 0;
     index: number = 0;
     point: Vector = new Vector();
-    output: Vector = new Vector();
 
     compute (shapeA: Shape, shapeB: Shape, dir: Vector) {
         const supportA = shapeA.support(dir);
-        const supportB = shapeB.support(dir.negOut(Vector.temp[0]));
+        const supportB = shapeB.support(dir.negOut(temp1));
 
         this.pointA = supportA;
         this.pointB = supportB;
@@ -25,7 +26,8 @@ export class SupportPoint {
         this.indexB = supportB.index;
         this.index = (this.indexA & 0xffff) << 16 | (this.indexB & 0xffff);
 
-        this.point = this.output.set(this.pointA.x - this.pointB.x, this.pointA.y - this.pointB.y);
+        this.point.x = this.pointA.x - this.pointB.x;
+        this.point.y = this.pointA.y - this.pointB.y;
     }
 
     clone (output: SupportPoint) {
@@ -38,7 +40,9 @@ export class SupportPoint {
     }
 }
 
-const GJK_Temp: SupportPoint[] = [new SupportPoint(), new SupportPoint(), new SupportPoint()];
+const GJK_Temp1: SupportPoint = new SupportPoint();
+const GJK_Temp2: SupportPoint = new SupportPoint();
+const GJK_Temp3: SupportPoint = new SupportPoint();
 const EPA_Temp: SupportPoint[] = [];
 
 for (let i = 0; i <= Settings.maxEPAIterations; ++i) {
@@ -49,11 +53,11 @@ export const GJK = (shapeA: Shape, shapeB: Shape, useEpa: boolean, output: Suppo
 
     const maxIterations = Settings.maxGJKIterations;
 
-    const dir = Vector.temp[1];
+    const dir = temp2;
 
     let iterations = 0;
-    let p1 = GJK_Temp[0];
-    let p2 = GJK_Temp[1];
+    let p1 = GJK_Temp1;
+    let p2 = GJK_Temp2;
     p1.compute(shapeA, shapeB, INIT_DIR);
     p2.compute(shapeA, shapeB, INIT_DIR.negOut(dir));
 
@@ -67,12 +71,19 @@ export const GJK = (shapeA: Shape, shapeB: Shape, useEpa: boolean, output: Suppo
 
         const t = Vector.zeroT(p1.point, p2.point);
         if (-1 < t && t < 1) {
-            Vector.subtract(p2.point, p1.point, dir).rotate270();
+            // Vector.subtract(p2.point, p1.point, dir).rotate270();
+            dir.x = p2.point.y - p1.point.y;
+            dir.y = p1.point.x - p2.point.x;
         } else {
-            Vector.interpolateT(p1.point, p2.point, t, dir).neg();
+            // Vector.interpolateT(p1.point, p2.point, t, dir).neg();
+            const halfT: number = 0.5 * t;
+            const a = 0.5 - halfT;
+            const b = 0.5 + halfT;
+            dir.x = -(p1.point.x * a + p2.point.x * b);
+            dir.y = -(p1.point.y * a + p2.point.y * b);
         }
 
-        const support = GJK_Temp[2];
+        const support = GJK_Temp3;
         support.compute(shapeA, shapeB, dir);
 
         if (Vector.zeroSide(p1.point, support.point) && Vector.zeroSide(support.point, p2.point)) {
@@ -144,7 +155,7 @@ export const EPA = (points: SupportPoint[], shapeA: Shape, shapeB: Shape, output
         }
 
         const p = EPA_Temp[iterations];
-        p.compute(shapeA, shapeB, Vector.subtract(p2.point, p1.point, Vector.temp[1]).rotate90());
+        p.compute(shapeA, shapeB, Vector.subtract(p2.point, p1.point, temp2).rotate90());
 
         if (p1.index === p.index || p2.index === p.index) {
             output.push(p1, p2);
