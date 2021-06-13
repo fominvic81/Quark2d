@@ -52,7 +52,6 @@ import { PointConstraint } from './constraint/PointConstraint';
 import { Factory } from './tools/factory/Factory';
 import { FactoryBody } from './tools/factory/FactoryBody';
 import { FactoryShape } from './tools/factory/FactoryShape';
-import { FactoryComposite } from './tools/factory/FactoryComposite';
 
 import { Mouse } from './tools/mouse/Mouse';
 import { MouseConstraint } from './tools/mouse/MouseConstraint';
@@ -114,7 +113,6 @@ export {
     Factory,
     FactoryBody,
     FactoryShape,
-    FactoryComposite,
     Mouse,
     MouseConstraint,
     Render,
@@ -174,7 +172,6 @@ export default {
     Factory,
     FactoryBody,
     FactoryShape,
-    FactoryComposite,
     Mouse,
     MouseConstraint,
     Render,
