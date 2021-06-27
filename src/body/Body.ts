@@ -34,11 +34,10 @@ export enum BodyType {
  * You can set the mass of the dynamic bodies, but it can't be zero.
  * 
  * A static bodies do not respond to forces and can't be moved by other bodies and behaves as if it has infinite mass.
- * Static bodies can be moved manually by the user.
  * Static bodies do not collide with other static and kinematic bodies.
  * 
  * A kinematic bodies do not respond to forces and can't be moved by other bodies and behaves as if it has infinite mass.
- * Kinematic can be moved manually by the user, but normally it must be moved by setting its velocity.
+ * Kinematic can be moved by setting its velocity.
  * Kinematic bodies do not collide with other kinematic and static bodies.
  */
 
