@@ -50,48 +50,34 @@ export class Engine extends Events {
         this.trigger('before-update', [{engine: this, timestamp}]);
         this.trigger('update', [{engine: this, timestamp}]);
 
-        this.sleeping.update(timestamp.delta);
-
-        for (const body of this.world.activeBodies.values()) {
-            body.updateVelocity(timestamp.delta, this.gravity);
-        }
-
-        this.manager.update();
-
-        this.sleeping.afterCollisions();
-
-        if (this.manager.startedPairs.length) {
-            this.trigger('started-collisions', [{pairs: this.manager.startedPairs}]);
-        }
-
-        if (this.manager.activePairs.length) {
-            this.trigger('active-collisions', [{pairs: this.manager.activePairs}]);
-        }
-
-        if (this.manager.endedPairs.length) {
-            this.trigger('ended-collisions', [{pairs: this.manager.endedPairs}]);
-        }
-
-        this.solver.update();
-
-        if (this.manager.startedPairs.length) {
-            this.trigger('started-collisions-after-solve', [{pairs: this.manager.startedPairs}]);
-        }
-
-        if (this.manager.activePairs.length) {
-            this.trigger('active-collisions-after-solve', [{pairs: this.manager.activePairs}]);
-        }
-
-        if (this.manager.endedPairs.length) {
-            this.trigger('ended-collisions-after-solve', [{pairs: this.manager.endedPairs}]);
-        }
-
         for (const body of this.world.activeBodies.values()) {
             body.updatePosition();
         }
         for (const body of this.world.kinematicBodies.values()) {
             body.updatePosition();
         }
+
+        this.manager.update();
+
+        this.sleeping.afterCollisions();
+
+        this.trigger('started-collisions', [{pairs: this.manager.startedPairs}]);
+        this.trigger('active-collisions', [{pairs: this.manager.activePairs}]);
+        this.trigger('ended-collisions', [{pairs: this.manager.endedPairs}]);
+
+        this.solver.preStep();
+
+        for (const body of this.world.activeBodies.values()) {
+            body.updateVelocity(timestamp.delta, this.gravity);
+        }
+
+        this.solver.step();
+
+        this.sleeping.afterSolve(timestamp.delta);
+
+        this.trigger('started-collisions-after-solve', [{pairs: this.manager.startedPairs}]);
+        this.trigger('active-collisions-after-solve', [{pairs: this.manager.activePairs}]);
+        this.trigger('ended-collisions-after-solve', [{pairs: this.manager.endedPairs}]);
 
         this.trigger('after-update', [{engine: this, timestamp}]);
     }

@@ -248,8 +248,7 @@ export class Render extends Events {
             this.statusText += `midphasePairs: ${this.engine.manager.midphase.getPairsCount()}   `;
             this.statusText += `narrowphasePairs: ${this.engine.manager.getPairsCount()}   `;
 
-            this.statusText += `positionIterations: ${this.engine.solver.options.positionIterations}   `;
-            this.statusText += `velocityIterations: ${this.engine.solver.options.velocityIterations}   `;
+            this.statusText += `iterations: ${this.engine.solver.options.iterations}   `;
             this.statusText += `constraintIterations: ${this.engine.solver.options.constraintIterations}   `;
         }
 

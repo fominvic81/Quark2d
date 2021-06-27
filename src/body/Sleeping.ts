@@ -58,7 +58,7 @@ export class Sleeping {
      * Updates the sleep state of bodies depending on their motion.
      * @param delta
      */
-    update (delta: number) {
+    afterSolve (delta: number) {
 
         const motionSleepLimit = Settings.motionSleepLimit;
         const sleepyTime = Settings.sleepyTime;

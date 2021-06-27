@@ -47,7 +47,6 @@ import { Intersection } from './collision/ray/Intersection';
 
 import { Constraint, ConstraintType } from './constraint/Constraint';
 import { DistanceConstraint } from './constraint/DistanceConstraint';
-import { PointConstraint } from './constraint/PointConstraint';
 
 import { Factory } from './tools/factory/Factory';
 import { FactoryBody } from './tools/factory/FactoryBody';
@@ -109,7 +108,6 @@ export {
     Constraint,
     ConstraintType,
     DistanceConstraint,
-    PointConstraint,
     Factory,
     FactoryBody,
     FactoryShape,
@@ -168,7 +166,6 @@ export default {
     Constraint,
     ConstraintType,
     DistanceConstraint,
-    PointConstraint,
     Factory,
     FactoryBody,
     FactoryShape,

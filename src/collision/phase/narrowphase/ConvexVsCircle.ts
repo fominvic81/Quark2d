@@ -70,7 +70,7 @@ export const ConvexVsCircle = (pair: Pair) => {
             }
 
             Vector.subtract(circlePosition, normals[normalIndex].scaleOut(radius, temp2), temp2).clone(closestPoint);
-            pair.depth = radius - maxDist;
+            pair.contacts[0].depth = radius - maxDist;
 
         }
     }
@@ -89,7 +89,7 @@ export const ConvexVsCircle = (pair: Pair) => {
 
         const dist: number = Math.sqrt(distSquared);
 
-        pair.depth = radius - dist;
+        pair.contacts[0].depth = radius - dist;
         pair.normal.divide(dist);
         if (flipped) {
             pair.normal.neg();

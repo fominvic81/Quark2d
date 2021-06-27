@@ -10,6 +10,9 @@ export class Contact {
     tangentShare: number = 0;
     normalShare: number = 0;
     bias: number = 0;
+    depth: number = 0;
+    positionBias: number = 0;
+    positionImpulse: number = 0;
     pair: Pair;
 
     constructor (pair: Pair) {

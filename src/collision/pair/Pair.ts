@@ -13,17 +13,12 @@ export class Pair {
     friction: number = 0;
     restitution: number = 0;
     surfaceVelocity: number = 0;
-    depth: number = 0;
-    separation: number = 0;
     normal: Vector = new Vector();
-    penetration: Vector = new Vector();
     contactsCount: number = 0;
     contacts: Contact[] = [new Contact(this), new Contact(this)];
     broadphaseCellsCount: number = 0;
     isSleeping: boolean = false;
     isSensor: boolean = false;
-    ratioA: number = 0;
-    ratioB: number = 0;
 
     constructor (shapeA: Shape, shapeB: Shape) {
         this.shapeA = shapeA;
@@ -38,11 +33,7 @@ export class Pair {
         const bodyA = this.shapeA.body!;
         const bodyB = this.shapeB.body!;
 
-        this.normal.scaleOut(this.depth, this.penetration);
         this.surfaceVelocity = this.shapeA.surfaceVelocity + this.shapeB.surfaceVelocity;
-        const share = 1 / (bodyA.inverseMass + bodyB.inverseMass);
-        this.ratioA = share * bodyA.inverseMass;
-        this.ratioB = share * bodyB.inverseMass;
 
         // relative velocity
         let rvX: number, rvY: number,
@@ -59,28 +50,31 @@ export class Pair {
 
             const tangentCrossA = contact.offsetA.x * this.normal.x + contact.offsetA.y * this.normal.y;
             const tangentCrossB = contact.offsetB.x * this.normal.x + contact.offsetB.y * this.normal.y;
-            contact.tangentShare = 1 / (this.contactsCount * (
+            contact.tangentShare = 1 / (
                 bodyA.inverseMass +
                 bodyB.inverseMass +
                 bodyA.inverseInertia * tangentCrossA * tangentCrossA +
                 bodyB.inverseInertia * tangentCrossB * tangentCrossB
-            ));
+            );
 
             const normalCrossA = contact.offsetA.x * this.normal.y - contact.offsetA.y * this.normal.x;
             const normalCrossB = contact.offsetB.x * this.normal.y - contact.offsetB.y * this.normal.x;
-            contact.normalShare = 1 / (this.contactsCount * (
+            contact.normalShare = 1 / (
                 bodyA.inverseMass +
                 bodyB.inverseMass +
                 bodyA.inverseInertia * normalCrossA * normalCrossA +
                 bodyB.inverseInertia * normalCrossB * normalCrossB
-            ));
-            
-            rvX = (bodyA.velocity.x - contact.offsetA.y * bodyA.angularVelocity) - (bodyB.velocity.x - contact.offsetB.y * bodyB.angularVelocity);
-            rvY = (bodyA.velocity.y + contact.offsetA.x * bodyA.angularVelocity) - (bodyB.velocity.y + contact.offsetB.x * bodyB.angularVelocity);
+            );
+
+            contact.positionBias = contact.depth * Settings.depthDamping;
+            contact.positionImpulse = 0;
+
+            rvX = (bodyB.velocity.x - contact.offsetB.y * bodyB.angularVelocity) - (bodyA.velocity.x - contact.offsetA.y * bodyA.angularVelocity);
+            rvY = (bodyB.velocity.y + contact.offsetB.x * bodyB.angularVelocity) - (bodyA.velocity.y + contact.offsetA.x * bodyA.angularVelocity);
 
             normalVelocity = this.normal.x * rvX + this.normal.y * rvY;
 
-            if (normalVelocity > Settings.restitutionThreshold) contact.bias = normalVelocity * this.restitution; else contact.bias = 0;
+            if (normalVelocity < -Settings.restitutionThreshold) contact.bias = normalVelocity * this.restitution; else contact.bias = 0;
         }
     }
 }

@@ -34,7 +34,7 @@ export const EdgeVsCircle = (pair: Pair) => {
         const dist: number = Math.sqrt(distSquared);
 
         normal.divide(dist);
-        pair.depth = radius - dist;
+        pair.contacts[0].depth = radius - dist;
 
     } else if (dot < 0) {
         const distSquared: number = normal.lengthSquared();
@@ -46,7 +46,7 @@ export const EdgeVsCircle = (pair: Pair) => {
         const dist: number = Math.sqrt(distSquared);
 
         normal.divide(dist);
-        pair.depth = radius - dist;
+        pair.contacts[0].depth = radius - dist;
     } else {
 
         const eDot: number = Vector.dot(edge.start, edge.normal);
@@ -58,13 +58,13 @@ export const EdgeVsCircle = (pair: Pair) => {
             if (dist > radius) {
                 return;
             }
-            pair.depth = radius - dist;
+            pair.contacts[0].depth = radius - dist;
             edge.normal.clone(normal);
         } else {
             if (dist < -radius) {
                 return;
             }
-            pair.depth = radius + dist;
+            pair.contacts[0].depth = radius + dist;
             edge.normal.negOut(normal);
         }
 

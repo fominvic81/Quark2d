@@ -66,24 +66,16 @@ export const contacts = (pair: Pair, refFace: Vector[], incFace: Vector[], norma
         pair.contacts[1].vertex,
     ];
 
-    let count = clip(contactsTemp, incFace, tangent.negOut(Vector.temp[2]), offset1);
-    if (count < 2) {
-        pair.contactsCount = count;
-        contactsTemp[0].clone(contacts[0]);
-        return;
-    }
-
-    count = clip(contacts, contactsTemp, tangent, offset2);
-
-    pair.contactsCount = count;
-    if (count < 2) {
-        return;
-    }
+    clip(contactsTemp, incFace, tangent.negOut(Vector.temp[2]), offset1);
+    clip(contacts, contactsTemp, tangent, offset2);
 
     const separation = Vector.dot(contacts[1], normal) - Vector.dot(refFace[0], normal);
-
+    
     if (separation > radius) {
-        --pair.contactsCount;
+        pair.contactsCount = 1;
+    } else {
+        pair.contactsCount = 2;
+        pair.contacts[1].depth = (radius - separation);
     }
 }
 
@@ -115,19 +107,20 @@ export const collide = (pair: Pair) => {
         const length = Math.sqrt(lengthSquared);
         normal.divide(length);
 
-        pair.depth = radius - length;
-
+        
         pair.contactsCount = 1;
         Vector.add(vertex1, normal.scaleOut(shapeA.radius, temp), pair.contacts[0].vertex);
+        pair.contacts[0].depth = radius - length;
     } else {
         let incFace: Vector[];
         let refFace: Vector[];
         let incRadius: number;
         let flipped: boolean = false;
+        let depth: number;
 
         if (points[0].pointA === points[1].pointA) {
             shapeB.getNormal(points[1].indexB, normal);
-            pair.depth = -Vector.dot(normal, points[0].point) + radius;
+            depth = -Vector.dot(normal, points[0].point) + radius;
             incRadius = shapeA.radius;
             
 
@@ -135,7 +128,7 @@ export const collide = (pair: Pair) => {
             refFace = [points[0].pointB, points[1].pointB];
         } else {
             shapeA.getNormal(points[1].indexA, normal);
-            pair.depth = Vector.dot(normal, points[0].point) + radius;
+            depth = Vector.dot(normal, points[0].point) + radius;
             incRadius = shapeB.radius;
             
             incFace = supportEdge(shapeB, points[0].indexB, normal.negOut(temp));
@@ -144,10 +137,12 @@ export const collide = (pair: Pair) => {
             flipped = true;
         }
 
-        if (pair.depth < 0) return;
+        if (depth < 0) return;
 
         const tangent = normal.rotate270Out(temp);
         contacts(pair, refFace, incFace, normal, tangent, radius);
+
+        pair.contacts[0].depth = depth;
 
         for (let i = 0; i < pair.contactsCount; ++i) {
             pair.contacts[i].vertex.subtract(normal.scaleOut(incRadius, temp));

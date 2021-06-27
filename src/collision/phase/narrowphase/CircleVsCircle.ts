@@ -20,10 +20,10 @@ export const CircleVsCircle = (pair: Pair) => {
     pair.contactsCount = 1;
 
     if (distSquared === 0) {
-        pair.depth = radius;
         pair.normal.set(0, 1);
-
+        
         circleA.position.clone(pair.contacts[0].vertex);
+        pair.contacts[0].depth = radius;
 
         pair.isActive = true;
         return;
@@ -32,7 +32,7 @@ export const CircleVsCircle = (pair: Pair) => {
 
     const dist: number = normal.length();
 
-    pair.depth = radius - dist;
+    pair.contacts[0].depth = radius - dist;
     normal.divide(dist)
 
     pair.normal.scaleOut(circleA.radius, Vector.temp[0]).add(circleA.position).clone(pair.contacts[0].vertex);

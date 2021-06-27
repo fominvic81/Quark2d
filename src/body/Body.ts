@@ -8,7 +8,6 @@ import { Edge } from './shapes/Edge';
 import { Constraint } from '../constraint/Constraint';
 import { Settings } from '../Settings';
 import { Engine } from '../engine/Engine';
-import { GridBroadphase } from '../collision/phase/broadphase/Grid';
 
 export interface BodyOptions {
     position?: Vector,
@@ -47,10 +46,8 @@ export class Body<UserData = any> extends Events {
     id: number = Common.nextId();
     name: string = 'body';
     shapes: Set<Shape> = new Set();
-    positionImpulse: Vector = new Vector();
-    constraintImpulse: Vector = new Vector();
-    constraintAngleImpulse: number = 0;
-    pairsCount: number = 0;
+    positionBias: Vector = new Vector();
+    positionBiasAngle: number = 0;
     angularAcceleration: number = 0;
     angle: number = 0;
     anglePrev: number = 0;
@@ -60,8 +57,6 @@ export class Body<UserData = any> extends Events {
     positionPrev: Vector = new Vector();
     velocity: Vector = new Vector();
     dir: Vector = new Vector(1, 0);
-    constraintDir: Vector = new Vector(1, 0);
-    constraintAngle: number = 0;
     type: BodyType = BodyType.dynamic;
     velocityDamping: number = 0;
     mass: number = 0;
@@ -142,11 +137,14 @@ export class Body<UserData = any> extends Events {
     updatePosition () {
         // update position 
         this.position.clone(this.positionPrev);
-        this.translate(this.velocity);
+        this.translate(Vector.add(this.velocity, this.positionBias, Body.vecTemp[0]));
 
         // update angle
         this.anglePrev = this.angle;
-        this.rotate(this.angularVelocity);
+        this.rotate(this.angularVelocity + this.positionBiasAngle);
+
+        this.positionBias.set(0, 0);
+        this.positionBiasAngle = 0;
 
         // update AABB
         for (const shape of this.shapes) {
@@ -337,10 +335,6 @@ export class Body<UserData = any> extends Events {
         this.dir.x = dx * cos - dy * sin;
         this.dir.y = dx * sin + dy * cos;
 
-        this.constraintDir.x = this.dir.x;
-        this.constraintDir.y = this.dir.y;
-        this.constraintAngle = this.angle;
-
         for (const shape of this.shapes) {
 
             dx = shape.position.x - this.center.x;
@@ -416,7 +410,8 @@ export class Body<UserData = any> extends Events {
 
         this.velocity.set(0, 0);
         this.angularVelocity = 0;
-        this.positionImpulse.set(0, 0);
+        this.positionBias.set(0, 0);
+        this.positionBiasAngle = 0;
 
         if (type === BodyType.dynamic) {
             this.setSleeping(SleepingState.AWAKE);
@@ -441,9 +436,10 @@ export class Body<UserData = any> extends Events {
         if (this.sleepState === SleepingState.SLEEPING) {
             this.sleepyTimer = Settings.sleepyTime;
 
-            this.positionImpulse.set(0, 0);
-            this.velocity.set(0, 0);
+            this.positionBias.set(0, 0);
+            this.positionBiasAngle = 0;
 
+            this.velocity.set(0, 0);
             this.angularVelocity = 0;
 
             this.motion = 0;
