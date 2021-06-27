@@ -45,15 +45,15 @@ import { Ray } from './collision/ray/Ray';
 import { RaycastResult } from './collision/ray/RaycastResult';
 import { Intersection } from './collision/ray/Intersection';
 
-import { Constraint, ConstraintType } from './constraint/Constraint';
-import { DistanceConstraint } from './constraint/DistanceConstraint';
+import { Joint, JointType } from './joint/Joint';
+import { DistJoint } from './joint/DistJoint';
 
 import { Factory } from './tools/factory/Factory';
 import { FactoryBody } from './tools/factory/FactoryBody';
 import { FactoryShape } from './tools/factory/FactoryShape';
 
 import { Mouse } from './tools/mouse/Mouse';
-import { MouseConstraint } from './tools/mouse/MouseConstraint';
+import { MouseJoint } from './tools/mouse/MouseJoint';
 
 import { Render } from './tools/render/Render';
 import { Draw } from './tools/render/Draw';
@@ -96,7 +96,7 @@ export {
     Broadphase,
     GridBroadphase,
     AABBTree,
-    AABBTreeNode as Node,
+    AABBTreeNode,
     Midphase,
     Narrowphase,
     Contact,
@@ -105,14 +105,14 @@ export {
     Ray,
     RaycastResult,
     Intersection,
-    Constraint,
-    ConstraintType,
-    DistanceConstraint,
+    Joint,
+    JointType,
+    DistJoint,
     Factory,
     FactoryBody,
     FactoryShape,
     Mouse,
-    MouseConstraint,
+    MouseJoint,
     Render,
     Draw,
     Runner,
@@ -154,7 +154,7 @@ export default {
     Broadphase,
     GridBroadphase,
     AABBTree,
-    AABBTreeNode: Node,
+    AABBTreeNode,
     Midphase,
     Narrowphase,
     Contact,
@@ -163,14 +163,14 @@ export default {
     Ray,
     RaycastResult,
     Intersection,
-    Constraint,
-    ConstraintType,
-    DistanceConstraint,
+    Joint,
+    JointType,
+    DistJoint,
     Factory,
     FactoryBody,
     FactoryShape,
     Mouse,
-    MouseConstraint,
+    MouseJoint,
     Render,
     Draw,
     Runner,

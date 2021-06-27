@@ -1,30 +1,30 @@
 import { Events } from './Events';
 import { Common } from './Common';
 import { Body } from '../body/Body';
-import { Constraint } from '../constraint/Constraint';
+import { Joint } from '../joint/Joint';
 
 /**
- * The 'Composite' is a container for bodies and constraints. You can add or remove the bodies and constraints from the composite.
+ * The 'Composite' is a container for bodies and joints.
  */
 
 export class Composite extends Events {
     id: number = Common.nextId();
     name: string = 'composite';
     bodies: Map<number, Body> = new Map();
-    constraints: Map<number, Constraint> = new Map();
+    joints: Map<number, Joint> = new Map();
 
     /**
      * Adds given objects to the composite.
      * @param objects
      */
-    add (...objects: Array<Body | Constraint>) {
+    add (...objects: Array<Body | Joint>) {
         for (const object of objects) {
             switch (object.name) {
                 case 'body':
                     this.addBody(<Body>object);
                     break;
-                case 'constraint':
-                    this.addConstraint(<Constraint>object);
+                case 'joint':
+                    this.addJoint(<Joint>object);
                     break;
             }
         }
@@ -82,69 +82,69 @@ export class Composite extends Events {
     }
 
     /**
-     * Adds the given constraints to the composite.
+     * Adds the given joints to the composite.
      */
-    addConstraint (...constraints: Constraint[]) {
-        for (const constraint of constraints) {
-            this.trigger('add-constraint', [{constraint}]);
-            this.constraints.set(constraint.id, constraint);
+    addJoint (...joints: Joint[]) {
+        for (const joint of joints) {
+            this.trigger('add-joint', [{joint}]);
+            this.joints.set(joint.id, joint);
         }
     }
 
     /**
-     * Removes the given constraints from the composite.
-     * @param constraints
+     * Removes the given joints from the composite.
+     * @param joints
      */
-    removeConstraint (...constraints: Constraint[]) {
-        for (const constraint of constraints) {
-            if (this.constraints.has(constraint.id)) {
-                this.trigger('remove-constraint', [{constraint}]);
-                this.constraints.delete(constraint.id);
+    removeJoint (...joints: Joint[]) {
+        for (const joint of joints) {
+            if (this.joints.has(joint.id)) {
+                this.trigger('remove-joint', [{joint}]);
+                this.joints.delete(joint.id);
             }
         }
     }
 
     /**
-     * Returns the constraint with the given id if the constraint exists in the composite.
+     * Returns the joint with the given id if the joint exists in the composite.
      * @param id
-     * @returns The constraint with the given id if the constraint exists in the composite
+     * @returns The joint with the given id if the joint exists in the composite
      */
-    getConstraint (id: number) {
-        return this.constraints.get(id);
+    getJoint (id: number) {
+        return this.joints.get(id);
     }
 
     /**
-     * Returns true if the constraint with the given id exists in the composite.
+     * Returns true if the joint with the given id exists in the composite.
      * @param id
-     * @returns True if the constraint with the given id exists in the composite
+     * @returns True if the joint with the given id exists in the composite
      */
-    hasConstraint (id: number) {
-        return this.constraints.has(id);
+    hasJoint (id: number) {
+        return this.joints.has(id);
     }
 
     /**
-     * Returns all constraints that exists in the composite.
-     * @returns All constraints that exists in the composite
+     * Returns all joints that exists in the composite.
+     * @returns All joints that exists in the composite
      */
-    allConstraints () {
-        return [...this.constraints.values()];
+    allJoints () {
+        return [...this.joints.values()];
     }
 
     /**
-     * Adds all bodies and constraints from given composite.
+     * Adds all bodies and joints from given composite.
      * @param composite
      */
     merge (composite: Composite) {
         this.add(...composite.bodies.values());
-        this.add(...composite.constraints.values());
+        this.add(...composite.joints.values());
     }
 
     /**
-     * Returns the array of all bodies and constraints that exists in the composite.
-     * @returns The array of all bodies and constraints that exists in the composite
+     * Returns the array of all bodies and joints that exists in the composite.
+     * @returns The array of all bodies and joints that exists in the composite
      */
     all () {
-        let all = [...this.bodies.values(), ...this.constraints.values()];
+        let all = [...this.bodies.values(), ...this.joints.values()];
 
         return all;
     }
@@ -157,10 +157,10 @@ export class Composite extends Events {
     }
 
     /**
-     * Removes all constraints from the composite.
+     * Removes all joints from the composite.
      */
-    clearConstraints () {
-        this.constraints.clear();
+    clearJoints () {
+        this.joints.clear();
     }
 
     /**
@@ -168,7 +168,7 @@ export class Composite extends Events {
      */
     clear () {
         this.clearBodies();
-        this.clearConstraints();
+        this.clearJoints();
     }
 
 };

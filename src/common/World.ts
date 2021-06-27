@@ -4,7 +4,7 @@ import { Engine } from '../engine/Engine';
 import { Composite } from './Composite';
 
 /**
- * The 'World'(extends 'Composite') is container for bodies and constraints. The 'World' provides some addition optimizations for sleeping and static bodies.
+ * The 'World'(extends 'Composite') is container for bodies and joints. The 'World' provides some addition optimizations for sleeping and static bodies.
  */
 
 export class World extends Composite {

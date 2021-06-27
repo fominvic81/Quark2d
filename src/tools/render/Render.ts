@@ -5,17 +5,17 @@ import { Events } from '../../common/Events';
 import { Mouse, QMouseEvent } from '../mouse/Mouse';
 import { SleepingState } from '../../body/Sleeping';
 import { AABB } from '../../math/AABB';
-import { Constraint, ConstraintType } from '../../constraint/Constraint';
+import { Joint, JointType } from '../../joint/Joint';
 import { Engine } from '../../engine/Engine';
 import { Body } from '../../body/Body';
 import { Convex } from '../../body/shapes/Convex';
 import { Edge } from '../../body/shapes/Edge';
-import { DistanceConstraint } from '../../constraint/DistanceConstraint';
+import { DistJoint } from '../../joint/DistJoint';
 import { Settings } from '../../Settings';
 
 interface RenderOptions {
     backgroundColor?: string;
-    showConstraints?: boolean;
+    showJoints?: boolean;
     showSleeping?: boolean;
     showRadius?: boolean;
 
@@ -40,7 +40,7 @@ export class Render extends Events {
         lineWidth: number;
 
         backgroundColor: string;
-        showConstraints: boolean;
+        showJoints: boolean;
         showSleeping: boolean;
         showRadius: boolean;
 
@@ -69,7 +69,7 @@ export class Render extends Events {
             lineWidth: 1,
 
             backgroundColor: options.backgroundColor ?? 'rgb(48, 48, 48)',
-            showConstraints: options.showConstraints ?? true,
+            showJoints: options.showJoints ?? true,
             showSleeping: options.showSleeping ?? true,
             showRadius: options.showRadius ?? true,
 
@@ -121,7 +121,7 @@ export class Render extends Events {
         this.updateAABB();
 
         const allBodies = this.engine.world.allBodies();
-        const allConstraints = this.engine.world.allConstraints();
+        const allJoints = this.engine.world.allJoints();
 
         const bodies = [];
 
@@ -135,8 +135,8 @@ export class Render extends Events {
         }
 
         this.bodies(bodies);
-        if (this.options.showConstraints) {
-            this.constraints(allConstraints);
+        if (this.options.showJoints) {
+            this.joints(allJoints);
         }
         
         this.trigger('after-step', [{render: this, timestamp}]);
@@ -180,24 +180,24 @@ export class Render extends Events {
         }
     }
 
-    constraints (constraints: Constraint[]) {
+    joints (joints: Joint[]) {
 
-        for (const constraint of constraints) {
-            if (!constraint.bodyA && !constraint.bodyB) continue;
-            const start = constraint.getWorldPointA();
-            const end = constraint.getWorldPointB();
+        for (const joint of joints) {
+            if (!joint.bodyA && !joint.bodyB) continue;
+            const start = joint.getWorldPointA();
+            const end = joint.getWorldPointB();
 
-            switch (constraint.type) {
-                case ConstraintType.DISTANCE_CONSTRAINT:
-                    const distanceConstraint = <DistanceConstraint>constraint;
+            switch (joint.type) {
+                case JointType.DIST_JOINT:
+                    const distjoint = <DistJoint>joint;
 
-                    if (distanceConstraint.length <= 1 || distanceConstraint.stiffness > 0.8) {
+                    if (distjoint.length <= 1 || distjoint.stiffness > 0.8) {
                         Draw.line(this.ctx, start, end, 'rgb(128, 128, 128)', this.options.lineWidth / 20);
                     } else {
                         const delta = Vector.subtract(end, start, Vector.temp[0]);
 
-                        const normal = distanceConstraint.normal.rotate90Out(Vector.temp[1]);
-                        const count = Math.max(distanceConstraint.length * 2, 4);
+                        const normal = distjoint.normal.rotate90Out(Vector.temp[1]);
+                        const count = Math.max(distjoint.length * 2, 4);
 
                         this.ctx.beginPath();
                         this.ctx.moveTo(start.x, start.y);
@@ -240,16 +240,16 @@ export class Render extends Events {
 
             this.statusText += `bodies: ${this.engine.world.bodies.size}   `
 
-            const allConstraints = this.engine.world.allConstraints();
+            const alljoints = this.engine.world.allJoints();
 
-            this.statusText += `constraints: ${allConstraints.length}   `
+            this.statusText += `joints: ${alljoints.length}   `
 
             this.statusText += `broadphasePairs: ${this.engine.manager.broadphase.getPairsCount()}   `;
             this.statusText += `midphasePairs: ${this.engine.manager.midphase.getPairsCount()}   `;
             this.statusText += `narrowphasePairs: ${this.engine.manager.getPairsCount()}   `;
 
             this.statusText += `iterations: ${this.engine.solver.options.iterations}   `;
-            this.statusText += `constraintIterations: ${this.engine.solver.options.constraintIterations}   `;
+            this.statusText += `jointIterations: ${this.engine.solver.options.jointIterations}   `;
         }
 
         this.ctx.font = '12px Arial';

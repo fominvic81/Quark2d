@@ -7,7 +7,7 @@ import { Settings } from '../../Settings';
 
 export interface SolverOptions {
     iterations?: number;
-    constraintIterations?: number;
+    jointIterations?: number;
     warmStarting?: boolean;
 }
 
@@ -15,7 +15,7 @@ export class Solver {
     engine: Engine;
     options: {
         iterations: number;
-        constraintIterations: number;
+        jointIterations: number;
         warmStarting: boolean;
     }
 
@@ -23,7 +23,7 @@ export class Solver {
         this.engine = engine;
         this.options = {
             iterations: options.iterations ?? 8,
-            constraintIterations: options.constraintIterations ?? 3,
+            jointIterations: options.jointIterations ?? 3,
             warmStarting: options.warmStarting ?? true,
         }
     }
@@ -41,13 +41,13 @@ export class Solver {
                     contact.normalImpulse = 0;
                 }
             }
-            for (const constraint of this.engine.world.constraints.values()) {
-                constraint.impulse = 0;
+            for (const joint of this.engine.world.joints.values()) {
+                joint.impulse = 0;
             }
         }
 
-        for (const constraint of this.engine.world.constraints.values()) {
-            constraint.preSovle();
+        for (const joint of this.engine.world.joints.values()) {
+            joint.preSovle();
         }
     }
 
@@ -55,14 +55,14 @@ export class Solver {
         if (this.options.warmStarting) {
             this.warmStart();
 
-            for (const constraint of this.engine.world.constraints.values()) {
-                constraint.warmStart();
+            for (const joint of this.engine.world.joints.values()) {
+                joint.warmStart();
             }
         }
 
-        for (let i = 0; i < this.options.constraintIterations; ++i) {
-            for (const constraint of this.engine.world.constraints.values()) {
-                constraint.solve();
+        for (let i = 0; i < this.options.jointIterations; ++i) {
+            for (const joint of this.engine.world.joints.values()) {
+                joint.solve();
             }
         }
         for (let i = 0; i < this.options.iterations; ++i) {

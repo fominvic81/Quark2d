@@ -2,12 +2,11 @@ import { Vector } from '../math/Vector';
 import { Common } from '../common/Common';
 import { Body } from '../body/Body';
 
-export enum ConstraintType {
-    DISTANCE_CONSTRAINT = Math.pow(2, 0),
-    Point_CONSTRAINT = Math.pow(2, 1),
+export enum JointType {
+    DIST_JOINT = Math.pow(2, 0),
 }
 
-export interface ConstraintOptions {
+export interface JointOptions {
     bodyA?: Body;
     bodyB?: Body;
     pointA?: Vector;
@@ -15,13 +14,13 @@ export interface ConstraintOptions {
 }
 
 /**
- * Constraints are used to constrain bodies to each other or to fixed world position.
+ * Joints are used to connect bodies to each other or to fixed world position.
  */
 
-export abstract class Constraint<UserData = any> {
+export abstract class Joint<UserData = any> {
     id: number = Common.nextId();
-    name: string = 'constraint';
-    type: ConstraintType = 0;
+    name: string = 'joint';
+    type: JointType = 0;
     bodyA?: Body;
     bodyB?: Body;
     pointA: Vector;
@@ -41,7 +40,7 @@ export abstract class Constraint<UserData = any> {
         new Vector(),
     ];
 
-    constructor (options: ConstraintOptions = {}, userData?: UserData) {
+    constructor (options: JointOptions = {}, userData?: UserData) {
 
         this.setBodyA(options.bodyA);
         this.setBodyB(options.bodyB);
@@ -58,39 +57,36 @@ export abstract class Constraint<UserData = any> {
 
     abstract warmStart(): void;
 
-    /**
-     * Solves a constraint.
-     */
     abstract solve (): void;
 
 
     /**
-     * Sets constraint.bodyA to the given body. Body can be undefined.
+     * Sets joint.bodyA to the given body. Body can be undefined.
      * @param body
      */
     setBodyA (body?: Body) {
         if (this.bodyA) {
-            this.bodyA.constraints.delete(this);
+            this.bodyA.joints.delete(this);
             this.bodyA = undefined;
         }
         if (body) {
             this.bodyA = body;
-            body.constraints.add(this);
+            body.joints.add(this);
         }
     }
 
     /**
-     * Sets constraint.bodyB to the given body. Body can be undefined.
+     * Sets joint.bodyB to the given body. Body can be undefined.
      * @param body
      */
     setBodyB (body?: Body) {
         if (this.bodyB) {
-            this.bodyB.constraints.delete(this);
+            this.bodyB.joints.delete(this);
             this.bodyB = undefined;
         }
         if (body) {
             this.bodyB = body;
-            body.constraints.add(this);
+            body.joints.add(this);
         }
     }
 

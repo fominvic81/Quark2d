@@ -1,21 +1,22 @@
 import { BodyType } from '../body/Body';
 import { SleepingState } from '../body/Sleeping';
 import { Vector } from '../math/Vector';
-import { Constraint, ConstraintOptions, ConstraintType } from './Constraint';
+import { Joint, JointOptions, JointType } from './Joint';
 
-interface DistanceConstraintOptions extends ConstraintOptions {
+interface DistJointOptions extends JointOptions {
     stiffness?: number;
     length?: number;
     minLength?: number;
 }
 
 /**
- * The distance constraint keeps two points on two bodies on a fixed distance.
- * You can do distance constraint more softy by setting less stiffness.
+ * The dist joint keeps two points on two bodies on a fixed distance.
+ * You can do dist joint more softy by setting less stiffness.
+ * Stiffness must be beetwen 0 and 1.
  */
 
-export class DistanceConstraint<UserData = any> extends Constraint {
-    type: number = ConstraintType.DISTANCE_CONSTRAINT;
+export class DistJoint<UserData = any> extends Joint {
+    type: number = JointType.DIST_JOINT;
     stiffness: number;
     length: number;
     minLength: number | undefined;
@@ -23,7 +24,7 @@ export class DistanceConstraint<UserData = any> extends Constraint {
     normal: Vector = new Vector();
     delta: Vector = new Vector();
 
-    constructor (options: DistanceConstraintOptions = {}, userData?: UserData) {
+    constructor (options: DistJointOptions = {}, userData?: UserData) {
         super(options, userData);
         this.stiffness = options.stiffness ?? 0.1;
 
@@ -82,7 +83,7 @@ export class DistanceConstraint<UserData = any> extends Constraint {
         );
         const normalVelocity = Vector.dot(this.normal, relativeVelocity);
 
-        const delta = Vector.subtract(this.delta, relativeVelocity, Constraint.vecTemp[0]);
+        const delta = Vector.subtract(this.delta, relativeVelocity, Joint.vecTemp[0]);
 
         const dist = delta.length();
 

@@ -5,7 +5,7 @@ import { SleepingState } from './Sleeping';
 import { Shape, ShapeType } from './shapes/Shape';
 import { Convex } from './shapes/Convex';
 import { Edge } from './shapes/Edge';
-import { Constraint } from '../constraint/Constraint';
+import { Joint } from '../joint/Joint';
 import { Settings } from '../Settings';
 import { Engine } from '../engine/Engine';
 
@@ -68,7 +68,7 @@ export class Body<UserData = any> extends Events {
     motion: number = 0;
     speedSquared: number = 0;
     angSpeedSquared: number = 0;
-    constraints: Set<Constraint> = new Set();
+    joints: Set<Joint> = new Set();
     engine?: Engine;
     userData?: UserData;
 
