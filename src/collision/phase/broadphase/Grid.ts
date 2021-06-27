@@ -119,11 +119,7 @@ export class GridBroadphase extends Broadphase {
         return output;
     }
 
-    createPair (shapeA_: Shape, shapeB_: Shape) {
-        const comp: boolean = shapeA_.body!.id > shapeB_.body!.id;
-        const shapeA: Shape = comp ? shapeA_ : shapeB_;
-        const shapeB: Shape = !comp ? shapeA_ : shapeB_;
-
+    createPair (shapeA: Shape, shapeB: Shape) {
         const bodyA: Body = shapeA.body!;
         const bodyB: Body = shapeB.body!;
 
