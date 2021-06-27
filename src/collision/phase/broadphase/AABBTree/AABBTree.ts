@@ -64,10 +64,13 @@ export class AABBTree extends Broadphase {
         }
         shape.aabb.clone(node.aabb);
 
-        node.aabb.minX -= this.aabbGrow;
-        node.aabb.minY -= this.aabbGrow;
-        node.aabb.maxX += this.aabbGrow;
-        node.aabb.maxY += this.aabbGrow;
+        const w = node.aabb.getWidth();
+        const h = node.aabb.getHeight();
+
+        node.aabb.minX -= this.aabbGrow * w;
+        node.aabb.minY -= this.aabbGrow * h;
+        node.aabb.maxX += this.aabbGrow * w;
+        node.aabb.maxY += this.aabbGrow * h;
         const body = shape.body!;
 
         if (body.velocity.x > 0) {
