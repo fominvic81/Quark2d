@@ -57,7 +57,7 @@ export class DistJoint<UserData = any> extends Joint {
         const bodyA = this.bodyA;
         const bodyB = this.bodyB;
 
-        const impulse = this.normal.scaleOut(this.impulse, new Vector());
+        const impulse = this.normal.scaleOut(this.impulse, Joint.vecTemp[0]);
 
         if (bodyA && bodyA.type === BodyType.dynamic && bodyA.sleepState !== SleepingState.SLEEPING) {
             bodyA.velocity.x -= impulse.x * bodyA.inverseMass;
@@ -77,13 +77,13 @@ export class DistJoint<UserData = any> extends Joint {
         const bodyA = this.bodyA;
         const bodyB = this.bodyB;
 
-        const relativeVelocity = new Vector().set(
+        const relativeVelocity = Joint.vecTemp[1].set(
             (bodyB ? (bodyB.velocity.x - this.offsetB.y * bodyB.angularVelocity) : 0) - (bodyA ? (bodyA.velocity.x - this.offsetA.y * bodyA.angularVelocity) : 0),
             (bodyB ? (bodyB.velocity.y + this.offsetB.x * bodyB.angularVelocity) : 0) - (bodyA ? (bodyA.velocity.y + this.offsetA.x * bodyA.angularVelocity) : 0),
         );
         const normalVelocity = Vector.dot(this.normal, relativeVelocity);
 
-        const delta = Vector.subtract(this.delta, relativeVelocity, Joint.vecTemp[0]);
+        const delta = Vector.subtract(this.delta, relativeVelocity, Joint.vecTemp[2]);
 
         const dist = delta.length();
 
@@ -105,7 +105,7 @@ export class DistJoint<UserData = any> extends Joint {
         const normalImpulse = (diff - normalVelocity) * 0.5 * this.share * this.stiffness;
         this.impulse += normalImpulse * 0.1;
 
-        const impulse = this.normal.scaleOut(normalImpulse, new Vector());
+        const impulse = this.normal.scaleOut(normalImpulse, Joint.vecTemp[3]);
 
         if (bodyA && bodyA.type === BodyType.dynamic && bodyA.sleepState !== SleepingState.SLEEPING) {
             bodyA.velocity.x -= impulse.x * bodyA.inverseMass;
