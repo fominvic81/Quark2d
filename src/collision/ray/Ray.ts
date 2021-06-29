@@ -2,10 +2,16 @@ import { Vector } from '../../math/Vector';
 import { RaycastResult } from './RaycastResult';
 import { Engine } from '../../engine/Engine';
 import { AABB } from '../../math/AABB';
+import { Filter } from '../../body/Filter';
 
 interface RayOptions {
     from?: Vector;
     to?: Vector;
+    filter?: {
+        category?: number,
+        mask?: number,
+        group?: number,
+    };
 }
 
 const aabb = new AABB();
@@ -20,9 +26,16 @@ export class Ray {
     to: Vector = new Vector();
     delta: Vector = new Vector();
     result: RaycastResult = new RaycastResult();
+    filter: Filter = new Filter();
 
     constructor (options: RayOptions = {}) {
         this.set(options.from ?? this.from, options.to ?? this.to);
+
+        if (options.filter) {
+            this.filter.category = options.filter.category ?? this.filter.category;
+            this.filter.mask = options.filter.mask ?? this.filter.mask;
+            this.filter.group = options.filter.group ?? this.filter.group;
+        }
     }
 
     /**
@@ -54,19 +67,21 @@ export class Ray {
 
         if (useBroadphase) {
             for (const shape of engine.manager.broadphase.raycast(this.from, this.to)) {
-                const intersection = result.createIntersection(shape);
+                if (Filter.canCollide(shape.filter, this.filter)) {
+                    const intersection = result.createIntersection(shape);
 
-                if (useRadius) {
-                    if (intersection.shape.raycastRadius(intersection, this.from, this.to, this.delta)) {
-                        result.intersections.push(intersection);
+                    if (useRadius) {
+                        if (intersection.shape.raycastRadius(intersection, this.from, this.to, this.delta)) {
+                            result.intersections.push(intersection);
+                        } else {
+                            result.intersectionsPool.push(intersection);
+                        }
                     } else {
-                        result.intersectionsPool.push(intersection);
-                    }
-                } else {
-                    if (intersection.shape.raycast(intersection, this.from, this.to, this.delta)) {
-                        result.intersections.push(intersection);
-                    } else {
-                        result.intersectionsPool.push(intersection);
+                        if (intersection.shape.raycast(intersection, this.from, this.to, this.delta)) {
+                            result.intersections.push(intersection);
+                        } else {
+                            result.intersectionsPool.push(intersection);
+                        }
                     }
                 }
             }
@@ -87,20 +102,22 @@ export class Ray {
             }
             for (const body of engine.world.bodies.values()) {
                 for (const shape of body.shapes) {
-                    if (aabb.overlaps(shape.aabb)) {
-                        const intersection = result.createIntersection(shape);
+                    if (Filter.canCollide(shape.filter, this.filter)) {
+                        if (aabb.overlaps(shape.aabb)) {
+                            const intersection = result.createIntersection(shape);
 
-                        if (useRadius) {
-                            if (intersection.shape.raycastRadius(intersection, this.from, this.to, this.delta)) {
-                                result.intersections.push(intersection);
+                            if (useRadius) {
+                                if (intersection.shape.raycastRadius(intersection, this.from, this.to, this.delta)) {
+                                    result.intersections.push(intersection);
+                                } else {
+                                    result.intersectionsPool.push(intersection);
+                                }
                             } else {
-                                result.intersectionsPool.push(intersection);
-                            }
-                        } else {
-                            if (intersection.shape.raycast(intersection, this.from, this.to, this.delta)) {
-                                result.intersections.push(intersection);
-                            } else {
-                                result.intersectionsPool.push(intersection);
+                                if (intersection.shape.raycast(intersection, this.from, this.to, this.delta)) {
+                                    result.intersections.push(intersection);
+                                } else {
+                                    result.intersectionsPool.push(intersection);
+                                }
                             }
                         }
                     }

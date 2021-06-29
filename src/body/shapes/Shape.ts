@@ -17,7 +17,7 @@ export interface ShapeOptions {
         category?: number,
         mask?: number,
         group?: number,
-    },
+    };
     restitution?: number;
     friction?: number;
     surfaceVelocity?: number;
