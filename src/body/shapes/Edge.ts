@@ -1,3 +1,4 @@
+import { circleTest } from '../../collision/ray/CircleTest';
 import { Intersection } from '../../collision/ray/Intersection';
 import { Common } from '../../common/Common';
 import { Vector } from '../../math/Vector';
@@ -149,19 +150,74 @@ export class Edge<UserData = any> extends Shape {
 
     raycast (intersection: Intersection, from: Vector, to: Vector, delta: Vector) {
 
-        const contact = intersection.contacts[0];
+        const fraction = Vector.lineLineIntersectionFraction(
+            from,
+            to,
+            this.start,
+            this.end,
+        );
 
-        const point = Vector.lineLineIntersection(this.start, this.end, from, to, contact.point);
-        if (point) {
+        if (fraction) {
+            intersection.fraction = fraction;
 
-            this.normal.clone(contact.normal);
-            if (Vector.dot(delta, contact.normal) > 0) {
-                contact.normal.neg();
-            }
-            ++intersection.contactsCount;
+            intersection.point.x = from.x + delta.x * fraction;
+            intersection.point.y = from.y + delta.y * fraction;
 
+            this.normal.scaleOut(-Common.sign(Vector.dot(this.normal, delta)), intersection.normal);
+
+            return true;
         }
+        
+        return false;
+    }
 
+    raycastRadius (intersection: Intersection, from: Vector, to: Vector, delta: Vector) {
+
+        const r = this.radius;
+        const sign = -Common.sign(Vector.dot(this.normal, delta));
+        const offset = this.normal.scaleOut(r * sign, Vector.temp[0]);
+
+        const fraction1 = Vector.lineLineIntersectionFraction(
+            from,
+            to,
+            Vector.add(this.start, offset, Vector.temp[1]),
+            Vector.add(this.end, offset, Vector.temp[2]),
+        );
+
+        if (fraction1) {
+            intersection.fraction = fraction1;
+
+            intersection.point.x = from.x + delta.x * fraction1;
+            intersection.point.y = from.y + delta.y * fraction1;
+
+            this.normal.scaleOut(sign, intersection.normal);
+
+            return true;
+        } else {
+            
+            const fraction2 = circleTest(from, delta, this.start, this.radius);
+            const fraction3 = circleTest(from, delta, this.end, this.radius);
+
+            // both equals Infinity
+            if (fraction2 === fraction3) return false;
+
+            if (fraction2 < fraction3) {
+                intersection.fraction = fraction2;
+
+                intersection.point.x = from.x + delta.x * fraction2;
+                intersection.point.y = from.y + delta.y * fraction2;
+
+                Vector.subtract(intersection.point, this.start, intersection.normal).divide(this.radius);
+            } else {
+                intersection.fraction = fraction3;
+
+                intersection.point.x = from.x + delta.x * fraction3;
+                intersection.point.y = from.y + delta.y * fraction3;
+
+                Vector.subtract(intersection.point, this.end, intersection.normal).divide(this.radius);
+            }
+            return true;
+        }
     }
 
     /**

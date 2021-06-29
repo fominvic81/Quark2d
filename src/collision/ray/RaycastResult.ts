@@ -22,7 +22,6 @@ export class RaycastResult {
 
         if (intersection) {
             intersection.shape = shape;
-            intersection.contactsCount = 0;
 
             return intersection;
         } else {

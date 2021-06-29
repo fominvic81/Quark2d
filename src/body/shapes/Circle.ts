@@ -3,6 +3,7 @@ import { Vector } from '../../math/Vector';
 import { Intersection } from '../../collision/ray/Intersection';
 import { Vertex } from '../../math/Vertex';
 import { Settings } from '../../Settings';
+import { circleTest } from '../../collision/ray/CircleTest';
 
 export interface CircleOptions extends ShapeOptions {}
 
@@ -66,48 +67,21 @@ export class Circle<UserData = any> extends Shape {
     }
 
     raycast (intersection: Intersection, from: Vector, to: Vector, delta: Vector) {
+        return this.raycastRadius(intersection, from, to, delta);
+    }
 
-        const position = this.position;
-        const radius = this.radius;
+    raycastRadius (intersection: Intersection, from: Vector, to: Vector, delta: Vector) {
+        const fraction = circleTest(from, delta, this.position, this.radius);
+        if (fraction === Infinity) return false;
 
-        const posDelta = Vector.subtract(from, position, Vector.temp[0]);
+        intersection.fraction = fraction;
+        
+        intersection.point.x = from.x + delta.x * fraction;
+        intersection.point.y = from.y + delta.y * fraction;
 
-        const a = delta.lengthSquared();
-        const b = 2 * Vector.dot(delta, posDelta);
-        const c = posDelta.lengthSquared() - Math.pow(radius, 2);
-        const d = Math.pow(b, 2) - 4 * a * c;
+        Vector.subtract(intersection.point, this.position, intersection.normal).divide(this.radius);
 
-        if (d < 0) {
-            return intersection;
-        }
-        if (d === 0) { // one intersection
-            // TODO
-            return intersection;
-        }
-        const dSqrt = Math.sqrt(d);
-        const inverse2a = 1 / (2 * a);
-        const p1 = (-b - dSqrt) * inverse2a;
-        const p2 = (dSqrt - b) * inverse2a;
-
-        if (p1 >= 0 && p1 <= 1) {
-            const contact = intersection.contacts[intersection.contactsCount];
-            ++intersection.contactsCount;
-
-            Vector.interpolate(from, to, p1, contact.point);
-            
-            Vector.subtract(contact.point, position, contact.normal);
-            contact.normal.divide(radius);
-        }
-
-        if (p2 >= 0 && p2 <= 1) {
-            const contact = intersection.contacts[intersection.contactsCount];
-            ++intersection.contactsCount;
-
-            Vector.interpolate(from, to, p2, contact.point);
-            
-            Vector.subtract(position, contact.point, contact.normal);
-            contact.normal.divide(radius);
-        }
+        return true;
     }
 
     /**

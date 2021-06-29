@@ -16,7 +16,7 @@ export class Common {
      * @returns The sign of 'n'
      */
     static sign (n: number): number {
-        return n >= 0 ? 1 : -1;
+        return n < 0 ? -1 : 1;
     }
 
     /**
@@ -101,5 +101,5 @@ export class Common {
         if (minDiff > 0 && maxDiff < 0) return angle;
         if (Math.abs(maxDiff) > Math.abs(minDiff)) return angle - minDiff;
         return angle - maxDiff;
-    };
+    }
 }

@@ -365,7 +365,7 @@ export class Vector {
      */
     static lineLineIntersection (start1: Vector, end1: Vector, start2: Vector, end2: Vector, output: Vector): Vector | undefined {
         const t = Vector.lineLineIntersectionFraction(start1, end1, start2, end2);
-        if(t < 0){
+        if(!t){
             return;
         } else {
             output.x = start1.x + (t * (end1.x - start1.x));
@@ -382,7 +382,7 @@ export class Vector {
      * @param end2 
      * @returns The intersection fraction
      */
-    static lineLineIntersectionFraction (start1: Vector, end1: Vector, start2: Vector, end2: Vector): number {
+    static lineLineIntersectionFraction (start1: Vector, end1: Vector, start2: Vector, end2: Vector): number | undefined {
         const deltaX1 = end1.x - start1.x;
         const deltaY1 = end1.y - start1.y;
         const deltaX2 = end2.x - start2.x;
@@ -394,9 +394,9 @@ export class Vector {
         const determinant = deltaX1 * deltaY2 - deltaX2 * deltaY1;
     
         let a = (deltaX1 * deltaStartX - deltaY1 * deltaStartY) / determinant;
-        if (a < 0 || a > 1) return -1;
+        if (a < 0 || a > 1) return;
         let b = (deltaX2 * deltaStartX - deltaY2 * deltaStartY) / determinant;
-        if (b < 0 || b > 1) return -1;
+        if (b < 0 || b > 1) return;
         return b;
     };
 

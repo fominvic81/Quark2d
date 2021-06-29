@@ -110,7 +110,9 @@ export abstract class Shape<UserData = any> {
      */
     abstract updateAABB (): AABB;
 
-    abstract raycast (intersection: Intersection, from: Vector, to: Vector, delta: Vector): void;
+    abstract raycast (intersection: Intersection, from: Vector, to: Vector, delta: Vector): boolean;
+
+    abstract raycastRadius (intersection: Intersection, from: Vector, to: Vector, delta: Vector): boolean;
 
     /**
      * Returns true if the shape contains the given point.

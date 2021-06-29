@@ -3,6 +3,7 @@ import { Vector } from '../../math/Vector';
 import { Vertices } from '../../math/Vertices';
 import { Vertex } from '../../math/Vertex';
 import { Intersection } from '../../collision/ray/Intersection';
+import { circleTest } from '../../collision/ray/CircleTest';
 
 export interface ConvexOptions extends ShapeOptions {
     vertices?: Vector[];
@@ -183,30 +184,83 @@ export class Convex<UserData = any> extends Shape {
         const vertices = this.vertices;
         const normals = this.normals;
 
-        let contact = intersection.contacts[intersection.contactsCount];
-
         let prevVertex = vertices[vertices.length - 1];
         for (const vertex of vertices) {
 
+            const normal = normals[prevVertex.index];
+            if (Vector.dot(delta, normal) < 0) {
+                const fraction = Vector.lineLineIntersectionFraction(
+                    from,
+                    to,
+                    prevVertex,
+                    vertex,
+                );
+                if (fraction) {
+                    intersection.fraction = fraction;
 
-            const point = Vector.lineLineIntersection(prevVertex, vertex, from, to, contact.point);
-            if (point) {
+                    normal.clone(intersection.normal);
 
-                normals[prevVertex.index].clone(contact.normal);
-                if (Vector.dot(delta, contact.normal) > 0) {
-                    contact.normal.neg();
+                    intersection.point.x = from.x + fraction * delta.x;
+                    intersection.point.y = from.y + fraction * delta.y;
+                    return true;
                 }
-
-                intersection.contactsCount += 1;
-                contact = intersection.contacts[intersection.contactsCount];
-
             }
-            if (intersection.contactsCount >= 2) break;
 
             prevVertex = vertex;
         }
 
-        return intersection;
+        return false;
+    }
+
+    raycastRadius (intersection: Intersection, from: Vector, to: Vector, delta: Vector) {
+        const vertices = this.vertices;
+        const normals = this.normals;
+        const r = this.radius;
+        
+        let t = Infinity;
+
+        let prevVertex = vertices[vertices.length - 1];
+        for (const vertex of vertices) {
+
+            const normal = normals[prevVertex.index];
+            if (Vector.dot(delta, normal) < 0) {
+                const offset = normal.scaleOut(r, Vector.temp[0]);
+                const fraction = Vector.lineLineIntersectionFraction(
+                    from,
+                    to,
+                    Vector.add(prevVertex, offset, Vector.temp[1]),
+                    Vector.add(vertex, offset, Vector.temp[2]),
+                );
+
+                if (fraction) {
+                    t = fraction;
+                    intersection.fraction = fraction;
+
+                    normal.clone(intersection.normal);
+
+                    intersection.point.x = from.x + fraction * delta.x;
+                    intersection.point.y = from.y + fraction * delta.y;
+                    break;
+                }
+            }
+
+            prevVertex = vertex;
+        }
+        for (const vertex of vertices) {
+
+            const fraction = circleTest(from, delta, vertex, r);
+            if (fraction < t) {
+                t = fraction;
+                intersection.fraction = fraction;
+
+                intersection.point.x = from.x + fraction * delta.x;
+                intersection.point.y = from.y + fraction * delta.y;
+
+                Vector.subtract(intersection.point, vertex, intersection.normal).divide(r);
+            }
+        }
+
+        return t !== Infinity;
     }
 
     /**

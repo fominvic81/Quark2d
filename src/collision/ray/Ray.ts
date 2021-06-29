@@ -38,12 +38,12 @@ export class Ray {
     /**
      * Casts the ray.
      * @param engine
-     * @param composite
      * @param useBroadphase
+     * @param useRadius
      * @param result
      * @returns Result
      */
-    cast (engine: Engine, useBroadphase: boolean = true, result: RaycastResult = this.result) {
+    cast (engine: Engine, useBroadphase: boolean = true, useRadius: boolean = true, result: RaycastResult = this.result) {
         result.reset();
 
         Vector.subtract(this.to, this.from, this.delta);
@@ -55,12 +55,19 @@ export class Ray {
         if (useBroadphase) {
             for (const shape of engine.manager.broadphase.raycast(this.from, this.to)) {
                 const intersection = result.createIntersection(shape);
-                intersection.shape.raycast(intersection, this.from, this.to, this.delta);
 
-                if (intersection.contactsCount > 0) {
-                    result.intersections.push(intersection);
+                if (useRadius) {
+                    if (intersection.shape.raycastRadius(intersection, this.from, this.to, this.delta)) {
+                        result.intersections.push(intersection);
+                    } else {
+                        result.intersectionsPool.push(intersection);
+                    }
                 } else {
-                    result.intersectionsPool.push(intersection);
+                    if (intersection.shape.raycast(intersection, this.from, this.to, this.delta)) {
+                        result.intersections.push(intersection);
+                    } else {
+                        result.intersectionsPool.push(intersection);
+                    }
                 }
             }
         } else {
@@ -82,12 +89,19 @@ export class Ray {
                 for (const shape of body.shapes) {
                     if (aabb.overlaps(shape.aabb)) {
                         const intersection = result.createIntersection(shape);
-                        intersection.shape.raycast(intersection, this.from, this.to, this.delta);
 
-                        if (intersection.contactsCount > 0) {
-                            result.intersections.push(intersection);
+                        if (useRadius) {
+                            if (intersection.shape.raycastRadius(intersection, this.from, this.to, this.delta)) {
+                                result.intersections.push(intersection);
+                            } else {
+                                result.intersectionsPool.push(intersection);
+                            }
                         } else {
-                            result.intersectionsPool.push(intersection);
+                            if (intersection.shape.raycast(intersection, this.from, this.to, this.delta)) {
+                                result.intersections.push(intersection);
+                            } else {
+                                result.intersectionsPool.push(intersection);
+                            }
                         }
                     }
                 }

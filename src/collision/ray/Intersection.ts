@@ -1,10 +1,11 @@
 import { Shape } from '../../body/shapes/Shape';
-import { RayContact } from './RayContact';
+import { Vector } from '../../math/Vector';
 
 export class Intersection {
     shape: Shape;
-    contactsCount: number = 0;
-    contacts: RayContact[] = [new RayContact(), new RayContact()];
+    point: Vector = new Vector();
+    normal: Vector = new Vector();
+    fraction: number = 0;
 
     constructor (shape: Shape) {
         this.shape = shape;
