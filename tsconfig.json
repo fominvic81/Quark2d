@@ -2,6 +2,7 @@
     "compilerOptions": {
         "module": "esnext",
         "target": "es6",
+        "lib": ["DOM", "ES2017"],
         "strict": true,
         "noImplicitAny": true,
         "removeComments": false,
@@ -16,5 +17,6 @@
     "files": [
         "./src/Quark2d.ts",
         "./types/Polydecomp.d.ts"
-    ]
+    ],
+    "exclude": ["node_modules"],
 }

@@ -8,7 +8,9 @@ module.exports = {
 
     output: {
         filename: 'Quark2d.js',
-        path: path.resolve(__dirname, 'build'),
+        path: path  .resolve(__dirname, 'build'),
+        library: 'quark2d',
+        libraryTarget: 'commonjs-module'
     },
     module: {
         rules: [
