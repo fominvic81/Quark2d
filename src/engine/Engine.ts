@@ -8,6 +8,9 @@ import { BroadphaseOptions } from '../collision/phase/broadphase/Broadphase';
 import { AABB } from '../math/AABB';
 import { GridBroadphase, GridBroadphaseOptions } from '../collision/phase/broadphase/Grid';
 import { AABBTree, AABBTreeOptions } from '../collision/phase/broadphase/AABBTree/AABBTree';
+/* develblock:start */
+import { Timer } from '../tools/debug/Timer';
+/* develblock:end */
 
 interface EngineOptions {
     world?: World;
@@ -29,6 +32,9 @@ export class Engine extends Events {
     solver: Solver;
     sleeping: Sleeping;
     timestamp?: {delta: number, tps?: number};
+    /* develblock:start */
+    timer: Timer = new Timer();
+    /* develblock:end */
 
     constructor (options: EngineOptions = {}) {
         super();
@@ -65,13 +71,29 @@ export class Engine extends Events {
         this.trigger('active-collisions', [{pairs: this.manager.activePairs}]);
         this.trigger('ended-collisions', [{pairs: this.manager.endedPairs}]);
 
+        /* develblock:start */
+        this.timer.timeStart('Solver preStep')
+        /* develblock:end */
+        
         this.solver.preStep();
+
+        /* develblock:start */
+        this.timer.timeEnd('Solver preStep')
+        /* develblock:end */
 
         for (const body of this.world.activeBodies.values()) {
             body.updateVelocity(timestamp.delta, this.gravity);
         }
 
+        /* develblock:start */
+        this.timer.timeStart('Solver step')
+        /* develblock:end */
+
         this.solver.step();
+
+        /* develblock:start */
+        this.timer.timeEnd('Solver step')
+        /* develblock:end */
 
         this.sleeping.afterSolve(timestamp.delta);
 

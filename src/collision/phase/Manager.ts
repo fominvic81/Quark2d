@@ -44,9 +44,31 @@ export class Manager {
         this.pairsToSolve.length = 0;
         this.contactsToSolve.length = 0;
 
+        /* develblock:start */
+        this.engine.timer.timeStart('Manager');
+        this.engine.timer.timeStart('Broadphase');
+        /* develblock:end */
+
         this.broadphase.update();
+
+        /* develblock:start */
+        this.engine.timer.timeEnd('Broadphase');
+        this.engine.timer.timeStart('Midphase');
+        /* develblock:end */
+
         this.midphase.update(this.broadphase.activePairs);
+
+        /* develblock:start */
+        this.engine.timer.timeEnd('Midphase');
+        this.engine.timer.timeStart('Narrowphase');
+        /* develblock:end */
+
         this.narrowphase.update(this.midphase.activePairs);
+
+        /* develblock:start */
+        this.engine.timer.timeEnd('Narrowphase');
+        this.engine.timer.timeEnd('Manager');
+        /* develblock:end */
     }
 
     getPairsCount () {
