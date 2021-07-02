@@ -239,7 +239,7 @@ export class GridBroadphase extends Broadphase {
         }
     }
 
-    *raycast (start: Vector, end: Vector) {
+    *raycast (start: Vector, delta: Vector) {
         const wasChecked: Set<number> = new Set();
         const position = Vector.temp[0];
 
@@ -248,10 +248,8 @@ export class GridBroadphase extends Broadphase {
         
         let fromX = (start.x / gridSize);
         let fromY = (start.y / gridSize);
-        let toX = (end.x / gridSize);
-        let toY = (end.y / gridSize);
-        let deltaX = toX - fromX;
-        let deltaY = toY - fromY;
+        let deltaX = (delta.x / gridSize);
+        let deltaY = (delta.y / gridSize);
 
         let signX;
         let signY;

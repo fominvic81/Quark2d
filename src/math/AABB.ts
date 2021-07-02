@@ -156,6 +156,61 @@ export class AABB {
     }
 
     /**
+     * Returns the intersection fraction between aabb and line segment.
+     * @param start The start of line segment
+     * @param delta Vector from start of line segment to end of line segment
+     * @returns The intersection fraction between aabb and line segment.
+     */
+    raycast (start: Vector, delta: Vector) {
+        let tmin = -Infinity;
+        let tmax = Infinity;
+
+        if (Math.abs(delta.x) < 0.00001) {
+            if (start.x < this.minX || this.maxX < start.x) return Infinity;
+        } else {
+            const inv_d = 1 / delta.x;
+
+            let t1 = (this.minX - start.x) * inv_d;
+            let t2 = (this.maxX - start.x) * inv_d;
+
+            if (t1 > t2) {
+                [t1, t2] = [t2, t1];
+            }
+
+            tmin = Math.max(tmin, t1);
+            tmax = Math.min(tmax, t2);
+
+            if (tmin > tmax) return Infinity;
+        }
+
+        if (Math.abs(delta.y) < 0.00001) {
+            if (start.y < this.minY || this.maxY < start.y) return Infinity;
+        } else {
+            const inv_d = 1 / delta.y;
+
+            let t1 = (this.minY - start.y) * inv_d;
+            let t2 = (this.maxY - start.y) * inv_d;
+
+            if (t1 > t2) {
+                [t1, t2] = [t2, t1];
+            }
+
+            tmin = Math.max(tmin, t1);
+            tmax = Math.min(tmax, t2);
+
+            if (tmin > tmax) return Infinity;
+        }
+
+        if (tmin > 1) return Infinity;
+        if (tmin < 0) {
+            if (this.contains(start)) return 0;
+            return Infinity;
+        }
+
+        return tmin;
+    }
+
+    /**
      * Returns true if aabbA is completely inside aabbB.
      * @param aabbA
      * @param aabbB

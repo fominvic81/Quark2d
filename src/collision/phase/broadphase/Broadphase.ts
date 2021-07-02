@@ -40,7 +40,7 @@ export abstract class Broadphase {
 
     abstract aabbTest (aabb: AABB): Generator<Shape>;
 
-    abstract raycast (start: Vector, end: Vector): Generator<Shape>
+    abstract raycast (start: Vector, delta: Vector): Generator<Shape>
 
     abstract getPairsCount (): number;
 }

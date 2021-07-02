@@ -279,8 +279,25 @@ export class AABBTree extends Broadphase {
         }
     }
 
-    *raycast (start: Vector, end: Vector) {
-        // TODO
+    *raycast (start: Vector, delta: Vector) {
+        if (!this.root) return;
+        const stack = [this.root];
+
+        while (stack.length) {
+
+            const node = stack.pop()!;
+
+            const fraction = node.aabb.raycast(start, delta);
+            if (fraction === Infinity) continue;
+
+            if (node.isLeaf) {
+                yield node.shape!;
+            } else {
+                stack.push(node.childA!);
+                stack.push(node.childB!);
+            }
+
+        }
     }
 
     getPairsCount () {
