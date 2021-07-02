@@ -43,7 +43,6 @@ export enum BodyType {
 
 export class Body<UserData = any> extends Events {
     id: number = Common.nextId();
-    name: string = 'body';
     shapes: Set<Shape> = new Set();
     positionBias: Vector = new Vector();
     positionBiasAngle: number = 0;

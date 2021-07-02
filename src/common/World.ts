@@ -1,13 +1,16 @@
 import { Body, BodyType } from '../body/Body';
 import { SleepingState } from '../body/Sleeping';
 import { Engine } from '../engine/Engine';
-import { Composite } from './Composite';
+import { Joint } from '../joint/Joint';
+import { Events } from './Events';
 
 /**
- * The 'World'(extends 'Composite') is container for bodies and joints. The 'World' provides some addition optimizations for sleeping and static bodies.
+ * The world is container for bodies and joints.
  */
 
-export class World extends Composite {
+export class World extends Events {
+    bodies: Map<number, Body> = new Map();
+    joints: Map<number, Joint> = new Map();
     sleepingBodies: Map<number, Body> = new Map();
     staticBodies: Map<number, Body> = new Map();
     kinematicBodies: Map<number, Body> = new Map();
@@ -25,10 +28,26 @@ export class World extends Composite {
      * Adds given objects to the world.
      * @param objects
      */
+     add (...objects: Array<Body | Joint>) {
+        for (const object of objects) {
+            if (object instanceof Body) {
+                this.addBody(object);
+            } else if (object instanceof Joint) {
+                this.addJoint(object);
+            }
+        }
+    }
+
+    /**
+     * Adds given objects to the world.
+     * @param objects
+     */
     addBody (...bodies: Body[]) {
-        super.addBody(...bodies);
 
         for (const body of bodies) {
+            this.trigger('add-body', [{body}]);
+            this.bodies.set(body.id, body);
+
             body.engine = this.engine;
             this.engine.manager.broadphase.addBody(body);
 
@@ -92,13 +111,17 @@ export class World extends Composite {
     }
 
     /**
-     * Removes the given bodies from the world(after removing body from world you must call engine.removeBody()).
+     * Removes the given bodies from the world.
      * @param bodies
      */
     removeBody (...bodies: Body[]) {
-        super.removeBody(...bodies);
         
         for (const body of bodies) {
+            if (this.bodies.has(body.id)) {
+                this.trigger('remove-body', [{body}]);
+                this.bodies.delete(body.id);
+            }
+
             this.engine.manager.broadphase.removeBody(body);
             body.engine = undefined;
 
@@ -121,6 +144,15 @@ export class World extends Composite {
     }
 
     /**
+     * Returns the body with the given id if the body exists in the world.
+     * @param id
+     * @returns The Body with the given id if the body exists in the world
+     */
+     getBody (id: number) {
+        return this.bodies.get(id);
+    }
+
+    /**
      * @returns All active bodies that exists in the world.
      */
     getActiveBodies () {
@@ -139,6 +171,104 @@ export class World extends Composite {
      */
     getStaticBodies () {
         return [...this.staticBodies.values()];
+    }
+
+    /**
+     * Returns true if the body with given id exists in the world.
+     * @param id 
+     * @returns True if the body with given id exists in the world
+     */
+     hasBody (id: number) {
+        return this.bodies.has(id);
+    }
+
+    /**
+     * Returns all bodies that exists in the world.
+     * @returns All bodies that exists in the world
+     */
+    allBodies () {
+        return [...this.bodies.values()];
+    }
+
+    /**
+     * Adds the given joints to the world.
+     */
+    addJoint (...joints: Joint[]) {
+        for (const joint of joints) {
+            this.trigger('add-joint', [{joint}]);
+            this.joints.set(joint.id, joint);
+        }
+    }
+
+    /**
+     * Removes the given joints from the world.
+     * @param joints
+     */
+    removeJoint (...joints: Joint[]) {
+        for (const joint of joints) {
+            if (this.joints.has(joint.id)) {
+                this.trigger('remove-joint', [{joint}]);
+                this.joints.delete(joint.id);
+            }
+        }
+    }
+
+    /**
+     * Returns the joint with the given id if a joint exists in the world.
+     * @param id
+     * @returns The joint with the given id if a joint exists in the world
+     */
+    getJoint (id: number) {
+        return this.joints.get(id);
+    }
+
+    /**
+     * Returns true if the joint with the given id exists in the world.
+     * @param id
+     * @returns True if the joint with the given id exists in the world
+     */
+    hasJoint (id: number) {
+        return this.joints.has(id);
+    }
+
+    /**
+     * Returns all joints that exists in the world.
+     * @returns All joints that exists in the world
+     */
+    allJoints () {
+        return [...this.joints.values()];
+    }
+
+    /**
+     * Returns the array of all bodies and joints that exists in the world.
+     * @returns The array of all bodies and joints that exists in the world
+     */
+    all () {
+        let all = [...this.bodies.values(), ...this.joints.values()];
+
+        return all;
+    }
+
+    /**
+     * Removes all bodies from the world.
+     */
+    clearBodies () {
+        this.bodies.clear();
+    }
+
+    /**
+     * Removes all joints from the world.
+     */
+    clearJoints () {
+        this.joints.clear();
+    }
+
+    /**
+     * Removes all objects from the world.
+     */
+    clear () {
+        this.clearBodies();
+        this.clearJoints();
     }
 
 }

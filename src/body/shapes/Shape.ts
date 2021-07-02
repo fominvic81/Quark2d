@@ -36,7 +36,6 @@ export enum ShapeType {
 
 export abstract class Shape<UserData = any> {
     id: number = Common.nextId();
-    name: string = 'shape';
     type: number = 0;
     body: undefined | Body;
     position: Vector = new Vector();

@@ -19,7 +19,6 @@ export interface JointOptions {
 
 export abstract class Joint<UserData = any> {
     id: number = Common.nextId();
-    name: string = 'joint';
     type: JointType = 0;
     bodyA?: Body;
     bodyB?: Body;

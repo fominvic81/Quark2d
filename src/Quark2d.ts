@@ -16,7 +16,6 @@ import { Vertices } from './math/Vertices';
 import { Common } from './common/Common';
 import { Grid } from './common/Grid';
 import { Events } from './common/Events';
-import { Composite } from './common/Composite';
 import { World,  } from './common/World';
 
 import { CircleVsCircle } from './collision/phase/narrowphase/CircleVsCircle';
@@ -82,7 +81,6 @@ export {
     Common,
     Grid,
     Events,
-    Composite,
     World,
     CircleVsCircle,
     ConvexVsCircle,
@@ -156,7 +154,6 @@ export default {
     Common,
     Grid,
     Events,
-    Composite,
     World,
     CircleVsCircle,
     ConvexVsCircle,
