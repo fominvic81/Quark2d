@@ -150,7 +150,7 @@ export class Edge<UserData = any> extends Shape {
 
     raycast (intersection: Intersection, from: Vector, to: Vector, delta: Vector) {
 
-        const fraction = Vector.lineLineIntersectionFraction(
+        const fraction = Vector.lineSegmentsIntersectionFraction(
             from,
             to,
             this.start,
@@ -177,7 +177,7 @@ export class Edge<UserData = any> extends Shape {
         const sign = -Common.sign(Vector.dot(this.normal, delta));
         const offset = this.normal.scaleOut(r * sign, Vector.temp[0]);
 
-        const fraction1 = Vector.lineLineIntersectionFraction(
+        const fraction1 = Vector.lineSegmentsIntersectionFraction(
             from,
             to,
             Vector.add(this.start, offset, Vector.temp[1]),

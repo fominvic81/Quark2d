@@ -318,29 +318,6 @@ export class Vector {
     }
 
     /**
-     * Multiplies two vectors.
-     * @param vectorA
-     * @param vectorB
-     * @param output
-     * @returns Multiplied vector
-     */
-    static mult (vectorA: Vector, vectorB: Vector, output: Vector = vectorA): Vector {
-        output.x = vectorA.x * vectorB.x;
-        output.y = vectorA.y * vectorB.y;
-        return output;
-    }
-
-    /**
-     * Returns true if two vectors are collinear or false if not.
-     * @param vectorA
-     * @param vectorB
-     * @returns True if two vectors are collinear or false if not
-     */
-    static isCollinear (vectorA: Vector, vectorB: Vector): boolean {
-        return (Math.abs(vectorA.x / vectorA.y - vectorB.x / vectorB.y) < 0.0001) || (vectorA.y === 0 && vectorB.y === 0);
-    }
-
-    /**
      * Interpolates two vectors('t' is from 0 to 1).
      * @param vectorA
      * @param vectorB
@@ -363,8 +340,8 @@ export class Vector {
      * @param output
      * @returns The intersection point
      */
-    static lineLineIntersection (start1: Vector, end1: Vector, start2: Vector, end2: Vector, output: Vector): Vector | undefined {
-        const t = Vector.lineLineIntersectionFraction(start1, end1, start2, end2);
+    static lineSegmentsIntersection (start1: Vector, end1: Vector, start2: Vector, end2: Vector, output: Vector): Vector | undefined {
+        const t = Vector.lineSegmentsIntersectionFraction(start1, end1, start2, end2);
         if(!t){
             return;
         } else {
@@ -382,7 +359,7 @@ export class Vector {
      * @param end2 
      * @returns The intersection fraction
      */
-    static lineLineIntersectionFraction (start1: Vector, end1: Vector, start2: Vector, end2: Vector): number | undefined {
+    static lineSegmentsIntersectionFraction (start1: Vector, end1: Vector, start2: Vector, end2: Vector): number | undefined {
         const deltaX1 = end1.x - start1.x;
         const deltaY1 = end1.y - start1.y;
         const deltaX2 = end2.x - start2.x;
@@ -400,12 +377,6 @@ export class Vector {
         return b;
     };
 
-    /**
-     * Returns t (from -1 to 1) where Vector.interpolateT is closest to zero.
-     * @param vectorA
-     * @param vectorB
-     * @returns t
-     */
     static zeroT (vectorA: Vector, vectorB: Vector): number {
         const delta = Vector.subtract(vectorB, vectorA, Vector.prTemp[0]);
         return -Common.clamp(

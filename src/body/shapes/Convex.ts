@@ -189,7 +189,7 @@ export class Convex<UserData = any> extends Shape {
 
             const normal = normals[prevVertex.index];
             if (Vector.dot(delta, normal) < 0) {
-                const fraction = Vector.lineLineIntersectionFraction(
+                const fraction = Vector.lineSegmentsIntersectionFraction(
                     from,
                     to,
                     prevVertex,
@@ -225,7 +225,7 @@ export class Convex<UserData = any> extends Shape {
             const normal = normals[prevVertex.index];
             if (Vector.dot(delta, normal) < 0) {
                 const offset = normal.scaleOut(r, Vector.temp[0]);
-                const fraction = Vector.lineLineIntersectionFraction(
+                const fraction = Vector.lineSegmentsIntersectionFraction(
                     from,
                     to,
                     Vector.add(prevVertex, offset, Vector.temp[1]),
