@@ -23,6 +23,17 @@ interface EngineOptions {
 
 /**
  * The 'Engine' is a class that manages updating the simulation of the world.
+ * 
+ * Events:
+ * * before-update
+ * * update
+ * * started-collisions
+ * * active-collisions
+ * * ended-collisions
+ * * started-collisions-after-solve
+ * * active-collisions-after-solve
+ * * ended-collisions-after-solve
+ * * after-update
  */
 
 export class Engine extends Events {

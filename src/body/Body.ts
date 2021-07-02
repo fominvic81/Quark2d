@@ -39,6 +39,19 @@ export enum BodyType {
  * A kinematic bodies do not respond to forces and can't be moved by other bodies and behaves as if it has infinite mass.
  * Kinematic can be moved by setting its velocity.
  * Kinematic bodies do not collide with other kinematic and static bodies.
+ * 
+ * 
+ * 
+ * 
+ * Events:
+ * * add-shape
+ * * remove-shape
+ * * become-dynamic
+ * * become-static
+ * * become-kinematic
+ * * sleep-start
+ * * sleep-end
+ * 
  */
 
 export class Body<UserData = any> extends Events {

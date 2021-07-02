@@ -6,6 +6,12 @@ import { Events } from './Events';
 
 /**
  * The world is container for bodies and joints.
+ * 
+ * Events:
+ * * add-body
+ * * remove-body
+ * * add-joint
+ * * remove-joint
  */
 
 export class World extends Events {

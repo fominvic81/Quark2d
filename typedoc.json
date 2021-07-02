@@ -1,5 +1,13 @@
 {
     "entryPoints": ["src/Quark2d.ts"],
     "out": "docs",
-    "readme": "none"
+    "readme": "none",
+    "exclude": [
+        "**/Solver.ts",
+        "**/Draw.ts",
+        "**/phase/**",
+        "**/pair/**",
+        "**/debug/**",
+        "**/mouse/**"
+    ]
 }

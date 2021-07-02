@@ -31,7 +31,7 @@ export interface RenderOptions {
  * The Render is a class, that provides methods for rendering the world, based on HTML5 canvas.
  */
 
-export class Render extends Events {
+export class Render {
     engine: Engine;
     options: {
         scale: Vector;
@@ -58,7 +58,6 @@ export class Render extends Events {
     mouse: Mouse;
 
     constructor (engine: Engine, element: HTMLElement = document.body, options: RenderOptions = {}) {
-        super();
 
         this.engine = engine;
 
@@ -98,7 +97,6 @@ export class Render extends Events {
     update (timestamp: {delta: number}) {
 
         this.statusTimer += timestamp.delta;
-        this.trigger('before-step', [{render: this, timestamp}]);
 
         this.ctx.setTransform(1, 0, 0, 1, 0, 0);
 
@@ -138,9 +136,6 @@ export class Render extends Events {
         if (this.options.showJoints) {
             this.joints(allJoints);
         }
-        
-        this.trigger('after-step', [{render: this, timestamp}]);
-        
     }
 
     updateAABB () {

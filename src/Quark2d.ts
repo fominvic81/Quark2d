@@ -43,6 +43,7 @@ import { Solver, SolverOptions } from './collision/solver/Solver';
 import { Ray, RayOptions } from './collision/ray/Ray';
 import { RaycastResult } from './collision/ray/RaycastResult';
 import { Intersection } from './collision/ray/Intersection';
+import { circleTest } from './collision/ray/CircleTest';
 
 import { Joint, JointType, JointOptions } from './joint/Joint';
 import { DistJoint, DistJointOptions } from './joint/DistJoint';
@@ -58,6 +59,8 @@ import { Render, RenderOptions } from './tools/render/Render';
 import { Draw } from './tools/render/Draw';
 
 import { Runner, RunnerType, RunnerOptions } from './tools/runner/Runner';
+
+import { Timer } from './tools/debug/Timer';
 
 import { Settings } from './Settings';
 
@@ -103,6 +106,7 @@ export {
     Ray,
     RaycastResult,
     Intersection,
+    circleTest,
     Joint,
     JointType,
     DistJoint,
@@ -115,6 +119,7 @@ export {
     Draw,
     Runner,
     RunnerType,
+    Timer,
     Settings,
     SleepingOptions,
     EdgeOptions,
@@ -176,6 +181,7 @@ export default {
     Ray,
     RaycastResult,
     Intersection,
+    circleTest,
     Joint,
     JointType,
     DistJoint,
@@ -188,5 +194,6 @@ export default {
     Draw,
     Runner,
     RunnerType,
+    Timer,
     Settings,
 }

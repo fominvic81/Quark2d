@@ -21,6 +21,14 @@ export interface RunnerOptions {
 
 /**
  * The 'Runner' is a class that provides a loop.
+ * 
+ * Events:
+ * * before-update
+ * * update
+ * * after-update
+ * * before-render
+ * * render
+ * * after-render
  */
 
 export class Runner extends Events {
