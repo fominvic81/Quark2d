@@ -12,7 +12,7 @@ export enum RunnerType {
     dynamic,
 }
 
-interface RunnerOptions {
+export interface RunnerOptions {
     tps?: number;
     type?: RunnerType;
     timescale?: number;

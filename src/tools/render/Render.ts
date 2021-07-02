@@ -13,7 +13,7 @@ import { Edge } from '../../body/shapes/Edge';
 import { DistJoint } from '../../joint/DistJoint';
 import { Settings } from '../../Settings';
 
-interface RenderOptions {
+export interface RenderOptions {
     backgroundColor?: string;
     showJoints?: boolean;
     showSleeping?: boolean;

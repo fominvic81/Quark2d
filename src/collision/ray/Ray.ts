@@ -4,7 +4,7 @@ import { Engine } from '../../engine/Engine';
 import { AABB } from '../../math/AABB';
 import { Filter } from '../../body/Filter';
 
-interface RayOptions {
+export interface RayOptions {
     from?: Vector;
     to?: Vector;
     filter?: {

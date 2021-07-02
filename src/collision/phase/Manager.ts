@@ -7,7 +7,7 @@ import { GridBroadphase, GridBroadphaseOptions } from './broadphase/Grid';
 import { Midphase } from './Midphase';
 import { Narrowphase } from './narrowphase/Narrowphase';
 
-interface ManagerOptions {
+export interface ManagerOptions {
     broadphaseConstructor?: (typeof GridBroadphase) | (typeof AABBTree);
     broadphaseOptions?: BroadphaseOptions | GridBroadphaseOptions | AABBTreeOptions;
 }

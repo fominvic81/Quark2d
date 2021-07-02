@@ -3,7 +3,7 @@ import { SleepingState } from '../body/Sleeping';
 import { Vector } from '../math/Vector';
 import { Joint, JointOptions, JointType } from './Joint';
 
-interface DistJointOptions extends JointOptions {
+export interface DistJointOptions extends JointOptions {
     stiffness?: number;
     length?: number;
     minLength?: number;
