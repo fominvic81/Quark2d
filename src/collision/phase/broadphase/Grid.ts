@@ -25,19 +25,19 @@ export class Region extends AABB {
 }
 
 export interface GridBroadphaseOptions extends BroadphaseOptions {
-    gridSize?: number;
+    cellSize?: number;
 }
 
 export class GridBroadphase extends Broadphase {
     type = BroadphaseType.Grid;
     grid: Grid<Cell> = new Grid();
-    gridSize: number;
+    cellSize: number;
     activePairs: Set<Pair> = new Set();
 
     constructor (manager: Manager, options: GridBroadphaseOptions = {}) {
         super(manager, options);
 
-        this.gridSize = options.gridSize ?? 1;
+        this.cellSize = options.cellSize ?? 1;
     }
 
     update () {
@@ -105,10 +105,10 @@ export class GridBroadphase extends Broadphase {
     }
 
     createRegion (aabb: AABB, output: Region) {
-        output.minX = aabb.minX / this.gridSize;
-        output.minY = aabb.minY / this.gridSize;
-        output.maxX = aabb.maxX / this.gridSize;
-        output.maxY = aabb.maxY / this.gridSize;
+        output.minX = aabb.minX / this.cellSize;
+        output.minY = aabb.minY / this.cellSize;
+        output.maxX = aabb.maxX / this.cellSize;
+        output.maxY = aabb.maxY / this.cellSize;
 
         output.minX = Math.floor(output.minX);
         output.minY = Math.floor(output.minY);
@@ -214,7 +214,7 @@ export class GridBroadphase extends Broadphase {
     }
 
     *pointTest (point: Vector) {
-        const position = Vector.temp[0].set(Math.floor(point.x / this.gridSize), Math.floor(point.y / this.gridSize));
+        const position = Vector.temp[0].set(Math.floor(point.x / this.cellSize), Math.floor(point.y / this.cellSize));
         const shapes = this.grid.get(position);
         if (shapes) for (const shape of shapes?.values()) {
             yield shape;
@@ -228,7 +228,7 @@ export class GridBroadphase extends Broadphase {
         let y;
         for (let x = region.minX; x <= region.maxX; ++x) {
             for (y = region.minY; y <= region.maxY; ++y) {
-                const position = Vector.temp[0].set(Math.floor(x / this.gridSize), Math.floor(y / this.gridSize));
+                const position = Vector.temp[0].set(Math.floor(x / this.cellSize), Math.floor(y / this.cellSize));
                 const shapes = this.grid.get(position);
                 if (shapes) for (const shape of shapes?.values()) {
                     if (shapesSet.has(shape)) continue;
@@ -244,7 +244,7 @@ export class GridBroadphase extends Broadphase {
         const position = Vector.temp[0];
 
         // TODO: Rewrite it.
-        const gridSize: number = this.gridSize;
+        const gridSize: number = this.cellSize;
         
         let fromX = (start.x / gridSize);
         let fromY = (start.y / gridSize);
