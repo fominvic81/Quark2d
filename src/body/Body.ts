@@ -12,7 +12,6 @@ import { Engine } from '../engine/Engine';
 export interface BodyOptions {
     position?: Vector,
     angle?: number,
-    mass?: number,
     type?: BodyType,
     velocityDamping?: number,
     fixedRotation?: boolean,
