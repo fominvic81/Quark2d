@@ -50,7 +50,7 @@ export class Sleeping {
         this.type = type;
 
         for (const body of this.engine.world.sleepingBodies.values()) {
-            body.setSleeping(SleepingState.AWAKE);
+            body.setSleepingState(SleepingState.AWAKE);
         }
     }
 
@@ -64,12 +64,12 @@ export class Sleeping {
         const sleepyTime = Settings.sleepyTime;
 
         const sleeping = SleepingState.SLEEPING;
-        const awake = SleepingState.AWAKE;
 
         switch (this.type) {
             case SleepingType.NO_SLEEPING: return;
             case SleepingType.BODY_SLEEPING:
                 for (const body of this.engine.world.activeBodies.values()) {
+                    if (!body.canSleep) continue;
 
                     if (body.motion <= motionSleepLimit) {
                         body.sleepyTimer += delta;
@@ -78,7 +78,7 @@ export class Sleeping {
                     }
 
                     if (body.sleepyTimer >= sleepyTime) {
-                        body.setSleeping(sleeping);
+                        body.setSleepingState(sleeping);
                     }
                 }
                 break;
@@ -117,22 +117,22 @@ export class Sleeping {
                     const awakeBody = bodyASleeping ? bodyB : bodyA;
         
                     if (awakeBody.motion > collisionMotionSleepLimit) {
-                        sleepingBody.setSleeping(awake);
+                        sleepingBody.setSleepingState(awake);
                     }
                 }
         
                 const endedPairs = this.engine.manager.endedPairs;
         
                 for (const pair of endedPairs) {
-                    if (pair.shapeA.body?.type === BodyType.dynamic) pair.shapeA.body?.setSleeping(awake);
-                    if (pair.shapeB.body?.type === BodyType.dynamic) pair.shapeB.body?.setSleeping(awake);
+                    if (pair.shapeA.body?.type === BodyType.dynamic) pair.shapeA.body?.setSleepingState(awake);
+                    if (pair.shapeB.body?.type === BodyType.dynamic) pair.shapeB.body?.setSleepingState(awake);
                 }
         
                 const startedPairs = this.engine.manager.startedPairs;
         
                 for (const pair of startedPairs) {
-                    if (pair.shapeA.body?.type === BodyType.dynamic) pair.shapeA.body?.setSleeping(awake);
-                    if (pair.shapeB.body?.type === BodyType.dynamic) pair.shapeB.body?.setSleeping(awake);
+                    if (pair.shapeA.body?.type === BodyType.dynamic) pair.shapeA.body?.setSleepingState(awake);
+                    if (pair.shapeB.body?.type === BodyType.dynamic) pair.shapeB.body?.setSleepingState(awake);
                 }
                 break;
             case SleepingType.ISLAND_SLEEPING:

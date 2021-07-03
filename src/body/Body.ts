@@ -16,6 +16,7 @@ export interface BodyOptions {
     type?: BodyType,
     velocityDamping?: number,
     fixedRotation?: boolean,
+    canSleep?: boolean,
 }
 
 export enum BodyType {
@@ -81,6 +82,7 @@ export class Body<UserData = any> extends Events {
     speedSquared: number = 0;
     angSpeedSquared: number = 0;
     joints: Set<Joint> = new Set();
+    canSleep: boolean = true;
     engine?: Engine;
     userData?: UserData;
 
@@ -117,6 +119,9 @@ export class Body<UserData = any> extends Events {
                     break;
                 case 'fixedRotation':
                     this.setFixedRotation(option[1]);
+                    break;
+                case 'canSleep':
+                    this.setAbilityToSleep(option[1]);
                     break;
             }
         }
@@ -425,7 +430,7 @@ export class Body<UserData = any> extends Events {
         this.positionBiasAngle = 0;
 
         if (type === BodyType.dynamic) {
-            this.setSleeping(SleepingState.AWAKE);
+            this.setSleepingState(SleepingState.AWAKE);
             this.trigger('become-dynamic', [{previousType}]);
         } else if (type === BodyType.static) {
             this.trigger('become-static', [{previousType}]);
@@ -440,7 +445,7 @@ export class Body<UserData = any> extends Events {
      * Sets sleeping state to the given value
      * @param value
      */
-    setSleeping (value: SleepingState) {
+    setSleepingState (value: SleepingState) {
         const prevState = this.sleepState;
         this.sleepState = value;
 
@@ -464,7 +469,18 @@ export class Body<UserData = any> extends Events {
                 this.trigger('sleep-end');
             }
         }
+    }
 
+    /**
+     * Sets body.canSleep to the given value. If necessary awakens a body.
+     * @param value
+     */
+    setAbilityToSleep (value: boolean) {
+        this.canSleep = value;
+
+        if (!value) {
+            this.setSleepingState(SleepingState.AWAKE);
+        }
     }
 
     /**
@@ -480,7 +496,7 @@ export class Body<UserData = any> extends Events {
         if (offset) {
             this.angularVelocity += Vector.cross(offset, force) * this.inverseInertia * deltaSquared;
         }
-        this.setSleeping(SleepingState.AWAKE);
+        this.setSleepingState(SleepingState.AWAKE);
     }
 
     /**

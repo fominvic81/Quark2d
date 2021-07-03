@@ -41,8 +41,8 @@ export class DistJoint<UserData = any> extends Joint {
     }
 
     preSovle () {
-        this.bodyA?.setSleeping(SleepingState.AWAKE);
-        this.bodyB?.setSleeping(SleepingState.AWAKE);
+        this.bodyA?.setSleepingState(SleepingState.AWAKE);
+        this.bodyB?.setSleepingState(SleepingState.AWAKE);
 
         const pointA = this.getWorldPointA();
         const pointB = this.getWorldPointB();
