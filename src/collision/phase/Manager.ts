@@ -31,7 +31,7 @@ export class Manager {
     constructor (engine: Engine, options: ManagerOptions = {}) {
         this.engine = engine;
 
-        this.broadphase = new (options.broadphaseConstructor ?? GridBroadphase)(this, options.broadphaseOptions);
+        this.broadphase = new (options.broadphaseConstructor ?? AABBTree)(this, options.broadphaseOptions);
         this.midphase = new Midphase(this);
         this.narrowphase = new Narrowphase(this);
     }
