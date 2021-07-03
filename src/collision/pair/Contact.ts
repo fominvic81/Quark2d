@@ -7,6 +7,8 @@ export class Contact {
     tangentImpulse: number = 0;
     offsetA: Vector = new Vector();
     offsetB: Vector = new Vector();
+    relativeVelocity: Vector = new Vector();
+    normalVelocity: number = 0;
     tangentShare: number = 0;
     normalShare: number = 0;
     bias: number = 0;

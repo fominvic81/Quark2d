@@ -35,9 +35,7 @@ export class Pair {
 
         this.surfaceVelocity = this.shapeA.surfaceVelocity + this.shapeB.surfaceVelocity;
 
-        // relative velocity
-        let rvX: number, rvY: number,
-            normalVelocity: number,
+        let normalVelocity: number,
             contact: Contact;
 
         for (let i = 0; i < this.contactsCount; ++i) {
@@ -69,12 +67,12 @@ export class Pair {
             contact.positionBias = contact.depth * Settings.depthDamping;
             contact.positionImpulse = 0;
 
-            rvX = (bodyB.velocity.x - contact.offsetB.y * bodyB.angularVelocity) - (bodyA.velocity.x - contact.offsetA.y * bodyA.angularVelocity);
-            rvY = (bodyB.velocity.y + contact.offsetB.x * bodyB.angularVelocity) - (bodyA.velocity.y + contact.offsetA.x * bodyA.angularVelocity);
+            contact.relativeVelocity.x = (bodyB.velocity.x - contact.offsetB.y * bodyB.angularVelocity) - (bodyA.velocity.x - contact.offsetA.y * bodyA.angularVelocity);
+            contact.relativeVelocity.y = (bodyB.velocity.y + contact.offsetB.x * bodyB.angularVelocity) - (bodyA.velocity.y + contact.offsetA.x * bodyA.angularVelocity);
 
-            normalVelocity = this.normal.x * rvX + this.normal.y * rvY;
+            contact.normalVelocity = this.normal.x * contact.relativeVelocity.x + this.normal.y * contact.relativeVelocity.y;
 
-            if (normalVelocity < -Settings.restitutionThreshold) contact.bias = normalVelocity * this.restitution; else contact.bias = 0;
+            if (contact.normalVelocity < -Settings.restitutionThreshold) contact.bias = contact.normalVelocity * this.restitution; else contact.bias = 0;
         }
     }
 }
