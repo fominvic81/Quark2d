@@ -8,6 +8,9 @@ export const Settings = {
 
     slop,
     defaultRadius: 2 * slop,
+    defaultDensity: 100,
+    defaultRestitution: 0.1,
+    defaultFriction: 0.4,
 
     maxGJKIterations: 30,
     maxEPAIterations: 40,

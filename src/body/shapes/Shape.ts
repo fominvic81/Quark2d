@@ -63,7 +63,7 @@ export abstract class Shape<UserData = any> {
     /** The area of the shape. */
     area: number = 0;
     /** The density of the shape. */
-    density: number = 100;
+    density: number = Settings.defaultDensity;
     /** The mass of the shape. */
     mass: number = 0;
     /** The moment of inertia of the shape. */
@@ -103,8 +103,8 @@ export abstract class Shape<UserData = any> {
             this.filter.mask = options.filter.mask ?? this.filter.mask;
             this.filter.group = options.filter.group ?? this.filter.group;
         }
-        this.restitution = options.restitution ?? 0.1;
-        this.friction = options.friction ?? 0.4;
+        this.restitution = options.restitution ?? Settings.defaultRestitution;
+        this.friction = options.friction ?? Settings.defaultFriction;
         this.surfaceVelocity = options.surfaceVelocity ?? 0;
         this.isSensor = options.isSensor ?? false;
 

@@ -4,6 +4,7 @@ import { Vertices } from '../../math/Vertices';
 import { Vertex } from '../../math/Vertex';
 import { Intersection } from '../../collision/ray/Intersection';
 import { circleTest } from '../../collision/ray/CircleTest';
+import { Settings } from '../../Settings';
 
 export interface ConvexOptions extends ShapeOptions {
     /** Array of vertices of the shape. */
@@ -41,7 +42,7 @@ export class Convex<UserData = any> extends Shape {
         this.updateCenterOfMass();
 
         if (options.mass) this.setMass(options.mass);
-        if (!options.mass || options.density) this.setDensity(options.density ?? 100);
+        if (!options.mass || options.density) this.setDensity(options.density ?? Settings.defaultDensity);
 
         this.updateInertia();
     }

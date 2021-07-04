@@ -19,7 +19,7 @@ export class Circle<UserData = any> extends Shape {
         this.updateArea();
         
         if (options.mass) this.setMass(options.mass);
-        if (!options.mass || options.density) this.setDensity(options.density ?? 100);
+        if (!options.mass || options.density) this.setDensity(options.density ?? Settings.defaultDensity);
 
         this.inertia = this.updateInertia();
     }

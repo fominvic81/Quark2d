@@ -3,6 +3,7 @@ import { Intersection } from '../../collision/ray/Intersection';
 import { Common } from '../../common/Common';
 import { Vector } from '../../math/Vector';
 import { Vertex } from '../../math/Vertex';
+import { Settings } from '../../Settings';
 import { Shape, ShapeOptions, ShapeType } from './Shape';
 
 export interface EdgeOptions extends ShapeOptions {
@@ -39,7 +40,7 @@ export class Edge<UserData = any> extends Shape {
         this.updateArea();
 
         if (options.mass) this.setMass(options.mass);
-        if (!options.mass || options.density) this.setDensity(100);
+        if (!options.mass || options.density) this.setDensity(Settings.defaultDensity);
 
         this.updateInertia();
     }
