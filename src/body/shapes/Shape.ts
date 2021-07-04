@@ -10,17 +10,32 @@ import { Vertex } from '../../math/Vertex';
 import { Settings } from '../../Settings';
 
 export interface ShapeOptions {
+    /** The density of the shape. */
     density?: number;
+    /** The mass of the shape. */
     mass?: number;
+    /** A rounding radius of the shape(radius of circle, radius of capsule, ...). */
     radius?: number;
+    /** A collision filter of the shape */
     filter?: {
         category?: number,
         mask?: number,
         group?: number,
     };
+    /**
+     * The restitution(elasticity) of the shape. Must be in range 0...1.
+     * A value of 0 means that the body will not bounce at all.
+     * A value of 1 means that the body may bounce with 100% of its kinetic energy.
+     */
     restitution?: number;
+    /** The friction of shape. Must be in range 0...Infinity. */
     friction?: number;
+    /** The surface velocity of the shape. Useful for creating conveyor belts. */
     surfaceVelocity?: number;
+    /**
+     * A flag that indicates whether a body is a sensor.
+     * Sensors does not react with other bodies but triggers collision events.
+     */
     isSensor?: boolean;
 }
 
@@ -35,24 +50,50 @@ export enum ShapeType {
  */
 
 export abstract class Shape<UserData = any> {
+    /** An id of the body */
     id: number = Common.nextId();
-    type: number = 0;
+    /** A type of the shape. */
+    abstract type: number = 0;
+    /** A body to which the shape is attached. */
     body: undefined | Body;
+    /** Current position of the shape. */
     position: Vector = new Vector();
+    /** The axis-aligned bounding box of the shape. */
     aabb: AABB = new AABB();
+    /** The area of the shape. */
     area: number = 0;
+    /** The density of the shape. */
     density: number = 100;
+    /** The mass of the shape. */
     mass: number = 0;
+    /** The moment of inertia of the shape. */
     inertia: number = 0;
+    /** @ignore */
     areaInertia: number = 0;
+    /** A rounding radius of the shape(radius of circle, radius of capsule, ...). */
     radius: number;
+    /** A collision filter of the shape */
     filter: Filter = new Filter();
+    /**
+     * The restitution(elasticity) of the shape. Must be in range 0...1.
+     * A value of 0 means that the body will not bounce at all.
+     * A value of 1 means that the body may bounce with 100% of its kinetic energy.
+     */
     restitution: number;
+    /** The friction of shape. Must be in range 0...Infinity. */
     friction: number;
+    /** The surface velocity of the shape. Useful for creating conveyor belts. */
     surfaceVelocity: number;
+    /**
+     * A flag that indicates whether a body is a sensor.
+     * Sensors does not react with other bodies but triggers collision events.
+     */
     isSensor: boolean;
+    /** @ignore */
     region: Region = new Region();
+    /** @ignore */
     AABBTreeNode?: AABBTreeNode;
+    /** A variable that contains user data */
     userData?: UserData;
 
     constructor (options: ShapeOptions = {}, userData?: UserData) {

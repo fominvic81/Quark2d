@@ -6,7 +6,9 @@ import { Vertex } from '../../math/Vertex';
 import { Shape, ShapeOptions, ShapeType } from './Shape';
 
 export interface EdgeOptions extends ShapeOptions {
+    /** The first point of the shape. */
     start?: Vector;
+    /** The second point of the shape. */
     end?: Vector;
 }
 
@@ -16,10 +18,13 @@ export interface EdgeOptions extends ShapeOptions {
 
 export class Edge<UserData = any> extends Shape {
     type: number = ShapeType.EDGE;
+    /** The first point of the shape. */
     start: Vertex;
+    /** The second point of the shape. */
     end: Vertex;
+    /** The length of the shape. */
     length: number = 1;
-    delta: Vector = new Vector();
+    /** The normal of the shape. */
     normal: Vector = new Vector();
 
     constructor (options: EdgeOptions = {}, userData?: UserData) {
@@ -48,10 +53,10 @@ export class Edge<UserData = any> extends Shape {
         start.clone(this.start);
         end.clone(this.end);
 
-        Vector.subtract(this.end, this.start, this.delta);
-        this.length = this.delta.length();
+        const delta = Vector.subtract(this.end, this.start, Vector.temp[0]);
+        this.length = delta.length();
 
-        this.delta.divideOut(this.length, this.normal);
+        delta.divideOut(this.length, this.normal);
         this.normal.rotate90();
 
         Vector.interpolate(this.start, this.end, 0.5, this.position);

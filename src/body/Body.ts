@@ -12,9 +12,16 @@ import { Engine } from '../engine/Engine';
 export interface BodyOptions {
     position?: Vector,
     angle?: number,
+    /** A type of the body(dynamic, static or kinematic). */
     type?: BodyType,
+    /**
+     * A number that determines how fast the body slows down.
+     * Must be from 0 to 1.
+     */
     velocityDamping?: number,
+    /** A variable which determines the body's ability to rotate */
     fixedRotation?: boolean,
+    /** A variable which determines the body's ability to sleep */
     canSleep?: boolean,
 }
 
@@ -55,36 +62,61 @@ export enum BodyType {
  */
 
 export class Body<UserData = any> extends Events {
+    /** An id of the body */
     id: number = Common.nextId();
+    /**
+     * Set of shapes attached to the body.
+     */
     shapes: Set<Shape> = new Set();
+    /** @ignore */
     positionBias: Vector = new Vector();
+    /** @ignore */
     positionBiasAngle: number = 0;
-    angularAcceleration: number = 0;
+    /** Current angle of the body. */
     angle: number = 0;
-    anglePrev: number = 0;
+    /** An angular velocity of the body. */
     angularVelocity: number = 0;
+    /** A center mass of the body. */
     center: Vector = new Vector();
+    /** Vector relative to which the shapes are attached. */
     position: Vector = new Vector();
-    positionPrev: Vector = new Vector();
+    /** A linear velocity of the body. */
     velocity: Vector = new Vector();
+    /** @ignore */
     dir: Vector = new Vector(1, 0);
+    /** A type of the body(dynamic, static or kinematic). */
     type: BodyType = BodyType.dynamic;
+    /**
+     * A number that determines how fast the body slows down.
+     * Must be in range 0...1.
+     */
     velocityDamping: number = 0;
+    /** The sum of masses of all shapes attached to the body. */
     mass: number = 0;
+    /** A number equal to 1 / body.mass. */
     inverseMass: number = 0;
+    /** The moment of inertia of the body. This determines how hard it is to rotate the body. */
     inertia: number = 0;
+    /** A number equal to 1 / body.inertia. */
     inverseInertia: number = 0;
+    /** The sum of areas of all shapes attached to the body. */
     area: number = 0;
+    /** Current sleeping state of the body(awake, sleepy, of sleeping) */
     sleepState: SleepingState = SleepingState.AWAKE;
+    /** @ignore */
     sleepyTimer: number = 0;
+    /** @ignore */
     motion: number = 0;
-    speedSquared: number = 0;
-    angSpeedSquared: number = 0;
+    /** A Set of all joints attached to the body */
     joints: Set<Joint> = new Set();
+    /** A variable which determines the body's ability to sleep */
     canSleep: boolean = true;
+    /** @ignore */
     engine?: Engine;
+    /** A variable that contains user data */
     userData?: UserData;
 
+    /** @ignore */
     private static vecTemp: Vector[] = [
         new Vector(),
     ];
@@ -133,9 +165,7 @@ export class Body<UserData = any> extends Events {
     updateVelocity (delta: number, gravity: Vector) {
         const deltaSquared = delta * delta;
 
-        this.speedSquared = this.velocity.lengthSquared();
-        this.angSpeedSquared = Math.pow(this.angularVelocity, 2);
-        this.motion = this.speedSquared + this.angSpeedSquared;
+        this.motion = this.velocity.lengthSquared() + Math.pow(this.angularVelocity, 2);
 
         // update velocity
         const rvd = (1 - this.velocityDamping);
@@ -151,11 +181,9 @@ export class Body<UserData = any> extends Events {
      */
     updatePosition () {
         // update position 
-        this.position.clone(this.positionPrev);
         this.translate(Vector.add(this.velocity, this.positionBias, Body.vecTemp[0]));
 
         // update angle
-        this.anglePrev = this.angle;
         this.rotate(this.angularVelocity + this.positionBiasAngle);
 
         this.positionBias.set(0, 0);

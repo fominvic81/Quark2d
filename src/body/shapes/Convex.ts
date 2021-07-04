@@ -6,6 +6,7 @@ import { Intersection } from '../../collision/ray/Intersection';
 import { circleTest } from '../../collision/ray/CircleTest';
 
 export interface ConvexOptions extends ShapeOptions {
+    /** Array of vertices of the shape. */
     vertices?: Vector[];
 }
 
@@ -15,9 +16,13 @@ export interface ConvexOptions extends ShapeOptions {
 
 export class Convex<UserData = any> extends Shape {
     type: number = ShapeType.CONVEX;
+    /** Array of vertices of the shape. */
     vertices: Vertex[];
+    /** @ignore */
     deltaVertices: Vertex[];
+    /** Array of normals of the shape. */
     normals: Vertex[] = [];
+    /** Array of lengths of the edges of the shape. */
     lengths: number[] = [];
 
     private static DEFAULT_VERTICES = [new Vector(-1, -1), new Vector(1, -1), new Vector(1, 1), new Vector(-1, 1)];

@@ -1,10 +1,8 @@
+import { Engine } from '../engine/Engine';
 
 /**
  * The 'Filter' is class for creating collision filters.
  */
-
-import { Engine } from '../engine/Engine';
-
 export class Filter {
     mask: number = 4294967295;
     category: number = 1;
