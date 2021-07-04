@@ -37,6 +37,8 @@ Constraints
 
 Fast collsion detection and solving
 
+GJK, EPA
+
 Grid broadphase
 
 Collision filtering
@@ -56,7 +58,7 @@ Mouse wheel to zoom.
         Render,
         Runner,
         Vector,
-        MouseConstraint,
+        MouseJoint,
         Body,
         BodyType,
         Circle,
@@ -118,22 +120,21 @@ Mouse wheel to zoom.
     engine.world.add(ground);
 
     // Create a render
-    const render = new Render(engine, {
-        element: document.body,
+    const render = new Render(engine, document.body, {
         width: 800,
         height: 600,
     });
 
-    // Create a mouse constraint
-    const mouseConstraint = new MouseConstraint(engine, render.mouse);
+    // Create a mouse joint
+    const mouseJoint = new MouseJoint(engine, render.mouse);
 
     // Create a runner
     const runner = new Runner();
-    runner.events.on('update', (ts) => {
-        engine.update(ts);
+    runner.on('update', (timestamp) => {
+        engine.update(timestamp);
     })
-    runner.events.on('render', (ts) => {
-        render.step(ts);
+    runner.on('render', (timestamp) => {
+        render.update(timestamp);
     });
 
     // Run the runner
