@@ -1,7 +1,7 @@
 import { Engine } from '../../engine/Engine';
 import { Contact } from '../pair/Contact';
 import { Pair } from '../pair/Pair';
-import { AABBTree, AABBTreeOptions } from './broadphase/AABBTree/AABBTree';
+import { AABBTree, AABBTreeOptions } from './broadphase/AABBTree';
 import { Broadphase, BroadphaseOptions } from './broadphase/Broadphase';
 import { GridBroadphase, GridBroadphaseOptions } from './broadphase/Grid';
 import { Midphase } from './Midphase';

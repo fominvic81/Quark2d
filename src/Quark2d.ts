@@ -30,8 +30,7 @@ import { distance } from './collision/phase/narrowphase/Distance';
 import { Manager, ManagerOptions } from './collision/phase/Manager';
 import { Broadphase, BroadphaseOptions } from './collision/phase/broadphase/Broadphase';
 import { GridBroadphase, GridBroadphaseOptions } from './collision/phase/broadphase/Grid';
-import { AABBTree, AABBTreeOptions } from './collision/phase/broadphase/AABBTree/AABBTree';
-import { AABBTreeNode } from './collision/phase/broadphase/AABBTree/Node';
+import { AABBTree, AABBTreeOptions } from './collision/phase/broadphase/AABBTree';
 import { Midphase } from './collision/phase/Midphase';
 import { Narrowphase } from './collision/phase/narrowphase/Narrowphase';
 
@@ -97,7 +96,6 @@ export {
     Broadphase,
     GridBroadphase,
     AABBTree,
-    AABBTreeNode,
     Midphase,
     Narrowphase,
     Contact,
@@ -172,7 +170,6 @@ export default {
     Broadphase,
     GridBroadphase,
     AABBTree,
-    AABBTreeNode,
     Midphase,
     Narrowphase,
     Contact,

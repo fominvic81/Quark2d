@@ -3,7 +3,7 @@ import { AABB } from '../../math/AABB';
 import { Common } from '../../common/Common';
 import { Filter } from '../Filter';
 import { Region } from '../../collision/phase/broadphase/Grid';
-import { AABBTreeNode } from '../../collision/phase/broadphase/AABBTree/Node';
+import { AABBTreeNode } from '../../collision/phase/broadphase/AABBTree';
 import { Body } from '../Body';
 import { Intersection } from '../../collision/ray/Intersection';
 import { Vertex } from '../../math/Vertex';
@@ -53,7 +53,7 @@ export abstract class Shape<UserData = any> {
     /** An id of the body */
     id: number = Common.nextId();
     /** A type of the shape. */
-    abstract type: number = 0;
+    abstract type: number;
     /** A body to which the shape is attached. */
     body: undefined | Body;
     /** Current position of the shape. */

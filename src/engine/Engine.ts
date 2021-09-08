@@ -7,7 +7,7 @@ import { Manager } from '../collision/phase/Manager';
 import { BroadphaseOptions } from '../collision/phase/broadphase/Broadphase';
 import { AABB } from '../math/AABB';
 import { GridBroadphase, GridBroadphaseOptions } from '../collision/phase/broadphase/Grid';
-import { AABBTree, AABBTreeOptions } from '../collision/phase/broadphase/AABBTree/AABBTree';
+import { AABBTree, AABBTreeOptions } from '../collision/phase/broadphase/AABBTree';
 /* develblock:start */
 import { Timer } from '../tools/debug/Timer';
 /* develblock:end */
