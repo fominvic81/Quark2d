@@ -30,6 +30,10 @@ interface EngineOptions {
  * * started-collisions
  * * active-collisions
  * * ended-collisions
+ * * before-presolve
+ * * after-presolve
+ * * before-solve
+ * * after-solve
  * * started-collisions-after-solve
  * * active-collisions-after-solve
  * * ended-collisions-after-solve
@@ -85,8 +89,10 @@ export class Engine extends Events {
         /* develblock:start */
         this.timer.timeStart('Solver preStep')
         /* develblock:end */
-        
+
+        this.trigger('before-presolve')
         this.solver.preStep();
+        this.trigger('after-presolve')
 
         /* develblock:start */
         this.timer.timeEnd('Solver preStep')
@@ -99,8 +105,11 @@ export class Engine extends Events {
         /* develblock:start */
         this.timer.timeStart('Solver step')
         /* develblock:end */
-
+        
+        this.trigger('before-solve');
         this.solver.step();
+        this.trigger('after-solve');
+
 
         /* develblock:start */
         this.timer.timeEnd('Solver step')
