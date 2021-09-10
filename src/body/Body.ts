@@ -99,6 +99,8 @@ export class Body<UserData = any> extends Events {
     inertia: number = 0;
     /** A number equal to 1 / body.inertia. */
     inverseInertia: number = 0;
+    /** A variable which determines this body's ability to spin */
+    fixedRotation: boolean = false;
     /** The sum of areas of all shapes attached to the body. */
     area: number = 0;
     /** Current sleeping state of the body(awake, sleepy, of sleeping) */
@@ -265,7 +267,7 @@ export class Body<UserData = any> extends Events {
     updateInertia () {
         this.inertia = 0;
     
-        if (this.type === BodyType.dynamic) {
+        if (this.type === BodyType.dynamic && !this.fixedRotation) {
             for (const shape of this.shapes) {
                 shape.updateInertia();
                 const distSquared = Vector.distSquared(this.center, shape.position);
@@ -554,11 +556,7 @@ export class Body<UserData = any> extends Events {
      * @param value
      */
     setFixedRotation (value: boolean) {
-        if (value) {
-            this.inertia = 0;
-            this.inverseInertia = 0;
-        } else {
-            this.updateInertia();
-        }
+        this.fixedRotation = value;
+        this.updateInertia();
     }
 }
