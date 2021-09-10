@@ -11,6 +11,8 @@ export interface JointOptions {
     bodyB?: Body;
     pointA?: Vector;
     pointB?: Vector;
+    worldPointA?: Vector;
+    worldPointB?: Vector;
 }
 
 /**
@@ -22,15 +24,14 @@ export abstract class Joint<UserData = any> {
     type: JointType = 0;
     bodyA?: Body;
     bodyB?: Body;
-    pointA: Vector;
-    pointB: Vector;
-    worldPointA: Vector;
-    worldPointB: Vector;
+    pointA: Vector = new Vector();
+    pointB: Vector = new Vector();
+    worldPointA: Vector = new Vector();
+    worldPointB: Vector = new Vector();
     offsetA: Vector;
     offsetB: Vector;
-    userData?: UserData;
     impulse: number = 0;
-    share: number = 0;
+    userData?: UserData;
 
     protected static vecTemp = [
         new Vector(), new Vector(),
@@ -43,10 +44,16 @@ export abstract class Joint<UserData = any> {
 
         this.setBodyA(options.bodyA);
         this.setBodyB(options.bodyB);
-        this.pointA = options.pointA ? options.pointA.copy() : new Vector();
-        this.pointB = options.pointB ? options.pointB.copy() : new Vector();
-        this.worldPointA = this.bodyA ? new Vector() : this.pointA.copy();
-        this.worldPointB = this.bodyB ? new Vector() : this.pointB.copy();
+        if (options.pointA) {
+            this.setPointA(options.pointA);
+        } else if (options.worldPointA) {
+            this.setWorldPointA(options.worldPointA);
+        }
+        if (options.pointB) {
+            this.setPointB(options.pointB);
+        } else if (options.worldPointB) {
+            this.setWorldPointB(options.worldPointB);
+        }
         this.offsetA = new Vector();
         this.offsetB = new Vector();
         this.userData = userData;
@@ -58,12 +65,34 @@ export abstract class Joint<UserData = any> {
 
     abstract solve (): void;
 
+    setPointA (point: Vector) {
+        point.clone(this.pointA);
+        if (this.bodyA) {
+            this.pointA.rotate(-this.bodyA.angle);
+        }
+    }
+
+    setPointB (point: Vector) {
+        point.clone(this.pointB);
+        if (this.bodyB) {
+            this.pointB.rotate(-this.bodyB.angle);
+        }
+    }
+
+    setWorldPointA (point: Vector) {
+        this.setPointA(Vector.subtract(point, this.bodyA ? this.bodyA.position : Vector.zero, Joint.vecTemp[0]));
+    }
+    
+    setWorldPointB (point: Vector) {
+        this.setPointB(Vector.subtract(point, this.bodyB ? this.bodyB.position : Vector.zero, Joint.vecTemp[0]));
+    }
 
     /**
      * Sets joint.bodyA to the given body. Body can be undefined.
      * @param body
      */
     setBodyA (body?: Body) {
+        this.impulse = 0;
         if (this.bodyA) {
             this.bodyA.joints.delete(this);
             this.bodyA = undefined;
@@ -79,6 +108,7 @@ export abstract class Joint<UserData = any> {
      * @param body
      */
     setBodyB (body?: Body) {
+        this.impulse = 0;
         if (this.bodyB) {
             this.bodyB.joints.delete(this);
             this.bodyB = undefined;

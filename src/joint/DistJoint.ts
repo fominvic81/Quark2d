@@ -47,10 +47,7 @@ export class DistJoint<UserData = any> extends Joint {
         const pointA = this.getWorldPointA();
         const pointB = this.getWorldPointB();
 
-        const delta = Vector.subtract(pointA, pointB, this.delta);
-        const dist = this.curLength = delta.length();
-
-        dist ? delta.divideOut(dist, this.normal) : this.normal.set(0, 1);
+        Vector.subtract(pointA, pointB, this.delta);
     }
 
     warmStart () {
@@ -81,11 +78,13 @@ export class DistJoint<UserData = any> extends Joint {
             (bodyB ? (bodyB.velocity.x - this.offsetB.y * bodyB.angularVelocity) : 0) - (bodyA ? (bodyA.velocity.x - this.offsetA.y * bodyA.angularVelocity) : 0),
             (bodyB ? (bodyB.velocity.y + this.offsetB.x * bodyB.angularVelocity) : 0) - (bodyA ? (bodyA.velocity.y + this.offsetA.x * bodyA.angularVelocity) : 0),
         );
-        const normalVelocity = Vector.dot(this.normal, relativeVelocity);
-
         const delta = Vector.subtract(this.delta, relativeVelocity, Joint.vecTemp[2]);
 
-        const dist = delta.length();
+        const dist = this.curLength = delta.length();
+
+        const normal = dist ? delta.divideOut(dist, this.normal) : this.normal.set(0, 1);
+
+        const normalVelocity = Vector.dot(this.normal, relativeVelocity);
 
         if (this.minLength !== undefined && dist > this.minLength && dist < this.length) {
             this.impulse = 0;
@@ -93,16 +92,14 @@ export class DistJoint<UserData = any> extends Joint {
         }
         const diff = (this.minLength !== undefined && dist < this.minLength) ? (dist - this.minLength) : (dist - this.length);
 
-        const normal = dist ? delta.divideOut(dist, this.normal) : this.normal.set(0, 1);
-
         const normalCrossA = Vector.cross(this.offsetA, normal);
         const normalCrossB = Vector.cross(this.offsetB, normal);
-        this.share = 1 / (
+        const share = 1 / (
             (bodyA ? (bodyA.inverseMass + bodyA.inverseInertia * normalCrossA * normalCrossA) : 0) +
             (bodyB ? (bodyB.inverseMass + bodyB.inverseInertia * normalCrossB * normalCrossB) : 0)
         );
 
-        const normalImpulse = (diff - normalVelocity) * 0.5 * this.share * this.stiffness;
+        const normalImpulse = (diff - normalVelocity) * 0.5 * share * this.stiffness;
         this.impulse += normalImpulse * 0.1;
 
         const impulse = this.normal.scaleOut(normalImpulse, Joint.vecTemp[3]);
