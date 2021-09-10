@@ -11,6 +11,8 @@ export interface EdgeOptions extends ShapeOptions {
     start?: Vector;
     /** The second point of the shape. */
     end?: Vector;
+    /** An initial angle of the shape */
+    angle?: number;
 }
 
 /**
@@ -43,6 +45,7 @@ export class Edge<UserData = any> extends Shape {
         if (!options.mass || options.density) this.setDensity(Settings.defaultDensity);
 
         this.updateInertia();
+        if (options.angle) this.rotate(options.angle);
     }
 
     /**

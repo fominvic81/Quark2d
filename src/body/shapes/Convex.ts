@@ -9,6 +9,8 @@ import { Settings } from '../../Settings';
 export interface ConvexOptions extends ShapeOptions {
     /** Array of vertices of the shape. */
     vertices?: Vector[];
+    /** An initial angle of the shape */
+    angle?: number;
 }
 
 /**
@@ -45,6 +47,7 @@ export class Convex<UserData = any> extends Shape {
         if (!options.mass || options.density) this.setDensity(options.density ?? Settings.defaultDensity);
 
         this.updateInertia();
+        if (options.angle) this.rotate(options.angle);
     }
 
     /**
