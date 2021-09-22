@@ -28,7 +28,7 @@ import { EPA } from './collision/phase/narrowphase/Distance';
 import { distance } from './collision/phase/narrowphase/Distance';
 
 import { Manager, ManagerOptions } from './collision/phase/Manager';
-import { Broadphase, BroadphaseOptions } from './collision/phase/broadphase/Broadphase';
+import { Broadphase, BroadphaseOptions, BroadphaseType } from './collision/phase/broadphase/Broadphase';
 import { GridBroadphase, GridBroadphaseOptions } from './collision/phase/broadphase/Grid';
 import { AABBTree, AABBTreeOptions } from './collision/phase/broadphase/AABBTree';
 import { Midphase } from './collision/phase/Midphase';
@@ -95,6 +95,7 @@ export {
     distance,
     Manager,
     Broadphase,
+    BroadphaseType,
     GridBroadphase,
     AABBTree,
     Midphase,
@@ -135,7 +136,7 @@ export {
     SolverOptions,
     RayOptions,
     JointOptions,
-    DistJointOptions,   
+    DistJointOptions,
     RenderOptions,
     RunnerOptions,
 }
@@ -170,6 +171,7 @@ export default {
     distance,
     Manager,
     Broadphase,
+    BroadphaseType,
     GridBroadphase,
     AABBTree,
     Midphase,
