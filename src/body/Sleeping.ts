@@ -2,12 +2,6 @@ import { Engine } from '../engine/Engine';
 import { Settings } from '../Settings';
 import { BodyType } from './Body';
 
-export enum SleepingState {
-    AWAKE,
-    SLEEPY,
-    SLEEPING,
-}
-
 export enum SleepingType {
     NO_SLEEPING,
     BODY_SLEEPING,
@@ -50,7 +44,7 @@ export class Sleeping {
         this.type = type;
 
         for (const body of this.engine.world.sleepingBodies.values()) {
-            body.setSleepingState(SleepingState.AWAKE);
+            body.setSleeping(false);
         }
     }
 
@@ -63,27 +57,54 @@ export class Sleeping {
         const motionSleepLimit = Settings.motionSleepLimit;
         const sleepyTime = Settings.sleepyTime;
 
-        const sleeping = SleepingState.SLEEPING;
-
         switch (this.type) {
             case SleepingType.NO_SLEEPING: return;
             case SleepingType.BODY_SLEEPING:
                 for (const body of this.engine.world.activeBodies.values()) {
-                    if (!body.canSleep) continue;
+                    if (!body.canSleep || body.joints.size) continue;
 
                     if (body.motion <= motionSleepLimit) {
                         body.sleepyTimer += delta;
+                        body.sleepyTimer = Math.min(body.sleepyTimer, sleepyTime);
                     } else if (body.sleepyTimer > 0) {
                         body.sleepyTimer -= delta;
+                        body.sleepyTimer = Math.max(body.sleepyTimer, 0);
                     }
 
                     if (body.sleepyTimer >= sleepyTime) {
-                        body.setSleepingState(sleeping);
+                        body.setSleeping(true);
                     }
                 }
                 break;
             case SleepingType.ISLAND_SLEEPING:
-                // TODO
+                for (const body of this.engine.world.activeBodies.values()) {
+
+                    if (body.motion <= motionSleepLimit) {
+                        body.sleepyTimer += delta;
+                        body.sleepyTimer = Math.min(body.sleepyTimer, sleepyTime);
+                    } else if (body.sleepyTimer > 0) {
+                        body.sleepyTimer -= delta;
+                        body.sleepyTimer = Math.max(body.sleepyTimer, 0);
+                    }
+                }
+                for (const island of this.engine.islandManager.islands) {
+                    let sleep = true;
+                    for (const body of island.bodies) {
+                        if (body.sleepyTimer < sleepyTime) {
+                            sleep = false;
+                            break;
+                        }
+                    }
+                    if (sleep) {
+                        for (const body of island.bodies) {
+                            body.setSleeping(true);
+                        }
+                    } else {
+                        for (const body of island.bodies) {
+                            if (body.isSleeping) body.setSleeping(false);
+                        }
+                    }
+                }
                 break;
         }
     }
@@ -95,9 +116,6 @@ export class Sleeping {
 
         const collisionMotionSleepLimit = Settings.collisionMotionSleepLimit;
 
-        const sleeping = SleepingState.SLEEPING;
-        const awake = SleepingState.AWAKE;
-
         switch (this.type) {
             case SleepingType.NO_SLEEPING: return;
             case SleepingType.BODY_SLEEPING:
@@ -106,37 +124,42 @@ export class Sleeping {
                 for (const pair of pairs) {
                     const bodyA = pair.shapeA.body!;
                     const bodyB = pair.shapeB.body!;
-        
-                    if (bodyA.sleepState !== sleeping && bodyB.sleepState !== sleeping) continue;
-        
-                    const bodyASleeping = bodyA.sleepState === sleeping;
+
+                    if (!bodyA.isSleeping && !bodyB.isSleeping) continue;
+
+                    const bodyASleeping = bodyA.isSleeping;
                     const sleepingBody = bodyASleeping ? bodyA : bodyB;
-        
+
                     if (sleepingBody.type !== BodyType.dynamic) continue;
-        
+
                     const awakeBody = bodyASleeping ? bodyB : bodyA;
-        
+
                     if (awakeBody.motion > collisionMotionSleepLimit) {
-                        sleepingBody.setSleepingState(awake);
+                        sleepingBody.setSleeping(false);
                     }
                 }
-        
-                const endedPairs = this.engine.manager.endedPairs;
-        
-                for (const pair of endedPairs) {
-                    if (pair.shapeA.body?.type === BodyType.dynamic) pair.shapeA.body?.setSleepingState(awake);
-                    if (pair.shapeB.body?.type === BodyType.dynamic) pair.shapeB.body?.setSleepingState(awake);
+
+                for (const pair of this.engine.manager.endedPairs) {
+                    if (pair.shapeA.body?.type === BodyType.dynamic) pair.shapeA.body?.setSleeping(false);
+                    if (pair.shapeB.body?.type === BodyType.dynamic) pair.shapeB.body?.setSleeping(false);
                 }
-        
-                const startedPairs = this.engine.manager.startedPairs;
-        
-                for (const pair of startedPairs) {
-                    if (pair.shapeA.body?.type === BodyType.dynamic) pair.shapeA.body?.setSleepingState(awake);
-                    if (pair.shapeB.body?.type === BodyType.dynamic) pair.shapeB.body?.setSleepingState(awake);
+
+                for (const pair of this.engine.manager.startedPairs) {
+                    if (pair.shapeA.body?.type === BodyType.dynamic) pair.shapeA.body?.setSleeping(false);
+                    if (pair.shapeB.body?.type === BodyType.dynamic) pair.shapeB.body?.setSleeping(false);
                 }
                 break;
             case SleepingType.ISLAND_SLEEPING:
-                // TODO
+
+                for (const pair of this.engine.manager.endedPairs) {
+                    if (pair.shapeA.body?.type === BodyType.dynamic) pair.shapeA.body?.setSleeping(false);
+                    if (pair.shapeB.body?.type === BodyType.dynamic) pair.shapeB.body?.setSleeping(false);
+                }
+                
+                for (const pair of this.engine.manager.startedPairs) {
+                    if (pair.shapeA.body?.type === BodyType.dynamic) pair.shapeA.body?.setSleeping(false);
+                    if (pair.shapeB.body?.type === BodyType.dynamic) pair.shapeB.body?.setSleeping(false);
+                }
                 break;
         }
     }

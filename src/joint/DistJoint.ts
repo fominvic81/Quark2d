@@ -1,5 +1,4 @@
 import { BodyType } from '../body/Body';
-import { SleepingState } from '../body/Sleeping';
 import { Vector } from '../math/Vector';
 import { Joint, JointOptions, JointType } from './Joint';
 
@@ -41,9 +40,6 @@ export class DistJoint<UserData = any> extends Joint {
     }
 
     preSovle () {
-        this.bodyA?.setSleepingState(SleepingState.AWAKE);
-        this.bodyB?.setSleepingState(SleepingState.AWAKE);
-
         const pointA = this.getWorldPointA();
         const pointB = this.getWorldPointB();
 
@@ -56,12 +52,12 @@ export class DistJoint<UserData = any> extends Joint {
 
         const impulse = this.normal.scaleOut(this.impulse, Joint.vecTemp[0]);
 
-        if (bodyA && bodyA.type === BodyType.dynamic && bodyA.sleepState !== SleepingState.SLEEPING) {
+        if (bodyA && bodyA.type === BodyType.dynamic && !bodyA.isSleeping) {
             bodyA.velocity.x -= impulse.x * bodyA.inverseMass;
             bodyA.velocity.y -= impulse.y * bodyA.inverseMass;
             bodyA.angularVelocity -= (this.offsetA.x * impulse.y - this.offsetA.y * impulse.x) * bodyA.inverseInertia;
         }
-        if (bodyB && bodyB.type === BodyType.dynamic && bodyB.sleepState !== SleepingState.SLEEPING) {
+        if (bodyB && bodyB.type === BodyType.dynamic && !bodyB.isSleeping) {
             bodyB.velocity.x += impulse.x * bodyB.inverseMass;
             bodyB.velocity.y += impulse.y * bodyB.inverseMass;
             bodyB.angularVelocity += (this.offsetB.x * impulse.y - this.offsetB.y * impulse.x) * bodyB.inverseInertia;
@@ -104,12 +100,12 @@ export class DistJoint<UserData = any> extends Joint {
 
         const impulse = this.normal.scaleOut(normalImpulse, Joint.vecTemp[3]);
 
-        if (bodyA && bodyA.type === BodyType.dynamic && bodyA.sleepState !== SleepingState.SLEEPING) {
+        if (bodyA && bodyA.type === BodyType.dynamic && !bodyA.isSleeping) {
             bodyA.velocity.x -= impulse.x * bodyA.inverseMass;
             bodyA.velocity.y -= impulse.y * bodyA.inverseMass;
             bodyA.angularVelocity -= (this.offsetA.x * impulse.y - this.offsetA.y * impulse.x) * bodyA.inverseInertia;
         }
-        if (bodyB && bodyB.type === BodyType.dynamic && bodyB.sleepState !== SleepingState.SLEEPING) {
+        if (bodyB && bodyB.type === BodyType.dynamic && !bodyB.isSleeping) {
             bodyB.velocity.x += impulse.x * bodyB.inverseMass;
             bodyB.velocity.y += impulse.y * bodyB.inverseMass;
             bodyB.angularVelocity += (this.offsetB.x * impulse.y - this.offsetB.y * impulse.x) * bodyB.inverseInertia;

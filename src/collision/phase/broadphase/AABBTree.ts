@@ -31,6 +31,7 @@ export class AABBTree extends Broadphase {
     aabbGrow: number;
     velocityFactor: number;
     nodesStack: AABBTreeNode[] = [];
+    endedPairs: Set<Pair> = new Set();
 
     constructor (manager: Manager, options: AABBTreeOptions = {}) {
         super(manager, options);
@@ -46,6 +47,7 @@ export class AABBTree extends Broadphase {
     }
 
     update () {
+        this.endedPairs.clear();
         for (const body of this.engine.world.activeBodies.values()) {
             for (const shape of body.shapes) {
                 this.updateShape(shape);
@@ -56,6 +58,7 @@ export class AABBTree extends Broadphase {
                 this.updateShape(shape);
             }
         }
+        this.manager.endedPairs.push(...this.endedPairs);
     }
 
     updateShape (shape: Shape) {
@@ -80,6 +83,7 @@ export class AABBTree extends Broadphase {
             const pair = p || new Pair(shape, shapeB);
 
             this.activePairs.add(pair);
+            this.endedPairs.delete(pair);
 
             if (!p) {
                 this.manager.pairs.set(pairId, pair);
@@ -236,9 +240,12 @@ export class AABBTree extends Broadphase {
 
         for (const shapeB of this.aabbTest(node.aabb)) {
             const pairId = Common.combineId(shape.id, shapeB.id);
-            const pair = this.manager.pairs.get(pairId)!;
+            const pair = this.manager.pairs.get(pairId);
 
-            this.activePairs.delete(pair);
+            if (pair?.isActive) {
+                this.endedPairs.add(pair);
+            }
+            this.activePairs.delete(pair!);
         }
     }
 

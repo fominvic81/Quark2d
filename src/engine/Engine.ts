@@ -8,6 +8,7 @@ import { BroadphaseOptions } from '../collision/phase/broadphase/Broadphase';
 import { AABB } from '../math/AABB';
 import { GridBroadphase, GridBroadphaseOptions } from '../collision/phase/broadphase/Grid';
 import { AABBTree, AABBTreeOptions } from '../collision/phase/broadphase/AABBTree';
+import { IslandManager } from '../collision/island/IslandManager';
 /* develblock:start */
 import { Timer } from '../tools/debug/Timer';
 /* develblock:end */
@@ -46,6 +47,7 @@ export class Engine extends Events {
     manager: Manager;
     solver: Solver;
     sleeping: Sleeping;
+    islandManager: IslandManager = new IslandManager(this);
     timestamp?: {delta: number, tps?: number};
     /* develblock:start */
     timer: Timer = new Timer();
@@ -79,6 +81,7 @@ export class Engine extends Events {
         }
 
         this.manager.update();
+        this.islandManager.update();
 
         this.sleeping.afterCollisions();
 

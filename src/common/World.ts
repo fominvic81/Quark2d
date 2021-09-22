@@ -1,5 +1,4 @@
 import { Body, BodyType } from '../body/Body';
-import { SleepingState } from '../body/Sleeping';
 import { Engine } from '../engine/Engine';
 import { Joint } from '../joint/Joint';
 import { Events } from './Events';
@@ -58,7 +57,7 @@ export class World extends Events {
             this.engine.manager.broadphase.addBody(body);
 
             if (body.type === BodyType.dynamic) {
-                if (body.sleepState === SleepingState.SLEEPING) {
+                if (body.isSleeping) {
                     this.sleepingBodies.set(body.id, body);
                 } else {
                     this.activeBodies.set(body.id, body);
@@ -88,7 +87,7 @@ export class World extends Events {
             });
             const becomeStaticId = body.on('become-static', (event) => {
                 if (event.previousType === BodyType.dynamic) {
-                    if (body.sleepState === SleepingState.SLEEPING) {
+                    if (body.isSleeping) {
                         this.sleepingBodies.delete(body.id);
                     } else {
                         this.activeBodies.delete(body.id);
@@ -101,7 +100,7 @@ export class World extends Events {
             });
             const becomeKinematicId = body.on('become-kinematic', (event) => {
                 if (event.previousType === BodyType.dynamic) {
-                    if (body.sleepState === SleepingState.SLEEPING) {
+                    if (body.isSleeping) {
                         this.sleepingBodies.delete(body.id);
                     } else {
                         this.activeBodies.delete(body.id);
@@ -132,7 +131,7 @@ export class World extends Events {
             body.engine = undefined;
 
             if (body.type === BodyType.dynamic) {
-                if (body.sleepState === SleepingState.SLEEPING) {
+                if (body.isSleeping) {
                     this.sleepingBodies.delete(body.id);
                 } else {
                     this.activeBodies.delete(body.id);

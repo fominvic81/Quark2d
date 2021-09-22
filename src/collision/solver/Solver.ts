@@ -1,4 +1,3 @@
-import { SleepingState } from '../../body/Sleeping';
 import { Common } from '../../common/Common';
 import { Contact } from '../pair/Contact';
 import { Engine } from '../../engine/Engine';
@@ -83,12 +82,12 @@ export class Solver {
             impulseX = contact.pair.normal.x * contact.normalImpulse - contact.pair.normal.y * contact.tangentImpulse;
             impulseY = contact.pair.normal.y * contact.normalImpulse + contact.pair.normal.x * contact.tangentImpulse;
 
-            if (bodyA.type === BodyType.dynamic && bodyA.sleepState !== SleepingState.SLEEPING) {
+            if (bodyA.type === BodyType.dynamic && !bodyA.isSleeping) {
                 bodyA.velocity.x += impulseX * bodyA.inverseMass;
                 bodyA.velocity.y += impulseY * bodyA.inverseMass;
                 bodyA.angularVelocity += (contact.offsetA.x * impulseY - contact.offsetA.y * impulseX) * bodyA.inverseInertia;
             }
-            if (bodyB.type === BodyType.dynamic && bodyB.sleepState !== SleepingState.SLEEPING) {
+            if (bodyB.type === BodyType.dynamic && !bodyB.isSleeping) {
                 bodyB.velocity.x -= impulseX * bodyB.inverseMass;
                 bodyB.velocity.y -= impulseY * bodyB.inverseMass;
                 bodyB.angularVelocity -= (contact.offsetB.x * impulseY - contact.offsetB.y * impulseX) * bodyB.inverseInertia;
@@ -148,12 +147,12 @@ export class Solver {
                 impulseX = normalX * normalImpulse - normalY * tangentImpulse;
                 impulseY = normalY * normalImpulse + normalX * tangentImpulse;
 
-                if (bodyA.type === BodyType.dynamic && bodyA.sleepState !== SleepingState.SLEEPING) {
+                if (bodyA.type === BodyType.dynamic && !bodyA.isSleeping) {
                     bodyA.velocity.x += impulseX * bodyA.inverseMass;
                     bodyA.velocity.y += impulseY * bodyA.inverseMass;
                     bodyA.angularVelocity += (contact.offsetA.x * impulseY - contact.offsetA.y * impulseX) * bodyA.inverseInertia;
                 }
-                if (bodyB.type === BodyType.dynamic && bodyB.sleepState !== SleepingState.SLEEPING) {
+                if (bodyB.type === BodyType.dynamic && !bodyB.isSleeping) {
                     bodyB.velocity.x -= impulseX * bodyB.inverseMass;
                     bodyB.velocity.y -= impulseY * bodyB.inverseMass;
                     bodyB.angularVelocity -= (contact.offsetB.x * impulseY - contact.offsetB.y * impulseX) * bodyB.inverseInertia;
@@ -172,12 +171,12 @@ export class Solver {
                 impulseX = -normalImpulse * normalX;
                 impulseY = -normalImpulse * normalY;
 
-                if (bodyA.type === BodyType.dynamic && bodyA.sleepState !== SleepingState.SLEEPING) {
+                if (bodyA.type === BodyType.dynamic && !bodyA.isSleeping) {
                     bodyA.positionBias.x += impulseX * bodyA.inverseMass;
                     bodyA.positionBias.y += impulseY * bodyA.inverseMass;
                     bodyA.positionBiasAngle += (contact.offsetA.x * impulseY - contact.offsetA.y * impulseX) * bodyA.inverseInertia;
                 }
-                if (bodyB.type === BodyType.dynamic && bodyB.sleepState !== SleepingState.SLEEPING) {
+                if (bodyB.type === BodyType.dynamic && !bodyB.isSleeping) {
                     bodyB.positionBias.x -= impulseX * bodyB.inverseMass;
                     bodyB.positionBias.y -= impulseY * bodyB.inverseMass;
                     bodyB.positionBiasAngle -= (contact.offsetB.x * impulseY - contact.offsetB.y * impulseX) * bodyB.inverseInertia;

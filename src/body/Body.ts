@@ -1,13 +1,14 @@
 import { Vector } from '../math/Vector';
 import { Common } from '../common/Common';
 import { Events } from '../common/Events';
-import { SleepingState } from './Sleeping';
 import { Shape, ShapeType } from './shapes/Shape';
 import { Convex } from './shapes/Convex';
 import { Edge } from './shapes/Edge';
 import { Joint } from '../joint/Joint';
 import { Settings } from '../Settings';
 import { Engine } from '../engine/Engine';
+import { Pair } from '../Quark2d';
+import { Island } from '../collision/island/IslandManager';
 
 export interface BodyOptions {
     position?: Vector,
@@ -103,8 +104,8 @@ export class Body<UserData = any> extends Events {
     fixedRotation: boolean = false;
     /** The sum of areas of all shapes attached to the body. */
     area: number = 0;
-    /** Current sleeping state of the body(awake, sleepy, of sleeping) */
-    sleepState: SleepingState = SleepingState.AWAKE;
+    /**  */
+    isSleeping: boolean = false;
     /** @ignore */
     sleepyTimer: number = 0;
     /** @ignore */
@@ -117,6 +118,10 @@ export class Body<UserData = any> extends Events {
     engine?: Engine;
     /** A variable that contains user data */
     userData?: UserData;
+    pairs: Map<number, Pair> = new Map();
+    /** @ignore */
+    visited: boolean = false;
+    island?: Island;
 
     /** @ignore */
     private static vecTemp: Vector[] = [
@@ -459,7 +464,7 @@ export class Body<UserData = any> extends Events {
         this.positionBiasAngle = 0;
 
         if (type === BodyType.dynamic) {
-            this.setSleepingState(SleepingState.AWAKE);
+            this.setSleeping(false);
             this.trigger('become-dynamic', [{previousType}]);
         } else if (type === BodyType.static) {
             this.trigger('become-static', [{previousType}]);
@@ -471,14 +476,14 @@ export class Body<UserData = any> extends Events {
     }
 
     /**
-     * Sets sleeping state to the given value
+     * Sets 'isSleeping' to the given value
      * @param value
      */
-    setSleepingState (value: SleepingState) {
-        const prevState = this.sleepState;
-        this.sleepState = value;
+    setSleeping (value: boolean) {
+        const wasSleeping = this.isSleeping;
+        this.isSleeping = value;
 
-        if (this.sleepState === SleepingState.SLEEPING) {
+        if (this.isSleeping) {
             this.sleepyTimer = Settings.sleepyTime;
 
             this.positionBias.set(0, 0);
@@ -489,14 +494,10 @@ export class Body<UserData = any> extends Events {
 
             this.motion = 0;
 
-            if (this.sleepState !== prevState) {
-                this.trigger('sleep-start');
-            }
-        } else if (this.sleepState === SleepingState.AWAKE) {
+            if (this.isSleeping !== wasSleeping) this.trigger('sleep-start');
+        } else {
             this.sleepyTimer = 0;
-            if (this.sleepState !== prevState) {
-                this.trigger('sleep-end');
-            }
+            if (this.isSleeping !== wasSleeping) this.trigger('sleep-end');
         }
     }
 
@@ -508,7 +509,7 @@ export class Body<UserData = any> extends Events {
         this.canSleep = value;
 
         if (!value) {
-            this.setSleepingState(SleepingState.AWAKE);
+            this.setSleeping(false);
         }
     }
 
@@ -525,7 +526,7 @@ export class Body<UserData = any> extends Events {
         if (offset) {
             this.angularVelocity += Vector.cross(offset, force) * this.inverseInertia * deltaSquared;
         }
-        this.setSleepingState(SleepingState.AWAKE);
+        this.setSleeping(false);
     }
 
     /**

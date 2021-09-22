@@ -33,6 +33,7 @@ export class GridBroadphase extends Broadphase {
     grid: Grid<Cell> = new Grid();
     cellSize: number;
     activePairs: Set<Pair> = new Set();
+    endedPairs: Set<Pair> = new Set();
 
     constructor (manager: Manager, options: GridBroadphaseOptions = {}) {
         super(manager, options);
@@ -41,6 +42,7 @@ export class GridBroadphase extends Broadphase {
     }
 
     update () {
+        this.endedPairs.clear();
         for (const body of this.engine.world.activeBodies.values()) {
             for (const shape of body.shapes) {
                 this.updateShape(shape);
@@ -51,6 +53,7 @@ export class GridBroadphase extends Broadphase {
                 this.updateShape(shape);
             }
         }
+        this.manager.endedPairs.push(...this.endedPairs)
     }
 
     updateShape (shape: Shape) {
@@ -129,6 +132,7 @@ export class GridBroadphase extends Broadphase {
         const s: Pair | undefined = this.manager.pairs.get(pairId);
         const pair: Pair = s || new Pair(shapeA, shapeB);
 
+        this.endedPairs.delete(pair);
         this.activePairs.add(pair);
 
         if (!s) {
@@ -178,7 +182,7 @@ export class GridBroadphase extends Broadphase {
 
                 if (pair.broadphaseCellsCount <= 0) {
                     if (pair.isActive) {
-                        this.manager.endedPairs.push(pair);
+                        this.endedPairs.add(pair);
                     }
                     this.activePairs.delete(pair);
                 }

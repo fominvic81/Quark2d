@@ -6,7 +6,7 @@ import { Circle, CircleOptions } from './body/shapes/Circle';
 import { Convex, ConvexOptions } from './body/shapes/Convex';
 import { Edge, EdgeOptions } from './body/shapes/Edge';
 import { Filter } from './body/Filter';
-import { Sleeping, SleepingState, SleepingType, SleepingOptions } from './body/Sleeping';
+import { Sleeping, SleepingType, SleepingOptions } from './body/Sleeping';
 
 import { AABB } from './math/AABB';
 import { Vector } from './math/Vector';
@@ -44,6 +44,8 @@ import { RaycastResult } from './collision/ray/RaycastResult';
 import { Intersection } from './collision/ray/Intersection';
 import { circleTest } from './collision/ray/CircleTest';
 
+import { Island, IslandManager } from './collision/island/IslandManager';
+
 import { Joint, JointType, JointOptions } from './joint/Joint';
 import { DistJoint, DistJointOptions } from './joint/DistJoint';
 
@@ -74,7 +76,6 @@ export {
     Edge, 
     Filter, 
     Sleeping,
-    SleepingState,
     SleepingType,
     AABB,
     Vector,
@@ -105,6 +106,8 @@ export {
     RaycastResult,
     Intersection,
     circleTest,
+    Island,
+    IslandManager,
     Joint,
     JointType,
     DistJoint,
@@ -148,7 +151,6 @@ export default {
     Edge, 
     Filter, 
     Sleeping,
-    SleepingState,
     SleepingType,
     AABB,
     Vector,
@@ -179,6 +181,8 @@ export default {
     RaycastResult,
     Intersection,
     circleTest,
+    Island,
+    IslandManager,
     Joint,
     JointType,
     DistJoint,

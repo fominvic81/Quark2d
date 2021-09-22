@@ -32,6 +32,8 @@ export abstract class Joint<UserData = any> {
     offsetB: Vector;
     impulse: number = 0;
     userData?: UserData;
+    /** @ignore */
+    visited: boolean = false;
 
     protected static vecTemp = [
         new Vector(), new Vector(),
@@ -66,6 +68,7 @@ export abstract class Joint<UserData = any> {
     abstract solve (): void;
 
     setPointA (point: Vector) {
+        this.wakeUp();
         point.clone(this.pointA);
         if (this.bodyA) {
             this.pointA.rotate(-this.bodyA.angle);
@@ -73,6 +76,7 @@ export abstract class Joint<UserData = any> {
     }
 
     setPointB (point: Vector) {
+        this.wakeUp();
         point.clone(this.pointB);
         if (this.bodyB) {
             this.pointB.rotate(-this.bodyB.angle);
@@ -80,11 +84,11 @@ export abstract class Joint<UserData = any> {
     }
 
     setWorldPointA (point: Vector) {
-        this.setPointA(Vector.subtract(point, this.bodyA ? this.bodyA.position : Vector.zero, Joint.vecTemp[0]));
+        this.setPointA(Vector.subtract(point, this.bodyA ? this.bodyA.center : Vector.zero, Joint.vecTemp[0]));
     }
     
     setWorldPointB (point: Vector) {
-        this.setPointB(Vector.subtract(point, this.bodyB ? this.bodyB.position : Vector.zero, Joint.vecTemp[0]));
+        this.setPointB(Vector.subtract(point, this.bodyB ? this.bodyB.center : Vector.zero, Joint.vecTemp[0]));
     }
 
     /**
@@ -92,6 +96,7 @@ export abstract class Joint<UserData = any> {
      * @param body
      */
     setBodyA (body?: Body) {
+        this.wakeUp();
         this.impulse = 0;
         if (this.bodyA) {
             this.bodyA.joints.delete(this);
@@ -108,6 +113,7 @@ export abstract class Joint<UserData = any> {
      * @param body
      */
     setBodyB (body?: Body) {
+        this.wakeUp();
         this.impulse = 0;
         if (this.bodyB) {
             this.bodyB.joints.delete(this);
@@ -149,4 +155,8 @@ export abstract class Joint<UserData = any> {
         return this.worldPointB;
     }
 
+    private wakeUp () {
+        if (this.bodyA) this.bodyA.setSleeping(false);
+        if (this.bodyB) this.bodyB.setSleeping(false);
+    }
 }

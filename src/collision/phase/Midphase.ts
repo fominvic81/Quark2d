@@ -1,6 +1,5 @@
 import { BodyType } from '../../body/Body';
 import { Filter } from '../../body/Filter';
-import { SleepingState } from '../../body/Sleeping';
 import { Engine } from '../../engine/Engine';
 import { Pair } from '../pair/Pair';
 import { Manager } from './Manager';
@@ -24,7 +23,7 @@ export class Midphase {
                 pair.isActive = false;
                 continue;
             }
-            pair.isSleeping = (pair.shapeA.body!.sleepState === SleepingState.SLEEPING || pair.shapeA.body!.type !== BodyType.dynamic) && (pair.shapeB.body!.sleepState === SleepingState.SLEEPING || (pair.shapeB.body!).type !== BodyType.dynamic);
+            pair.isSleeping = (pair.shapeA.body!.isSleeping || pair.shapeA.body!.type !== BodyType.dynamic) && (pair.shapeB.body!.isSleeping || (pair.shapeB.body!).type !== BodyType.dynamic);
             if (!pair.isSleeping && !pair.isActivePrev) {
                 pair.isActive = false;
                 if (!Filter.canCollide(pair.shapeA.filter, pair.shapeB.filter)) continue;

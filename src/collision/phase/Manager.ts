@@ -69,6 +69,15 @@ export class Manager {
         this.engine.timer.timeEnd('Narrowphase');
         this.engine.timer.timeEnd('Manager');
         /* develblock:end */
+
+        for (const pair of this.startedPairs) {
+            pair.shapeA.body!.pairs.set(pair.id, pair);
+            pair.shapeB.body!.pairs.set(pair.id, pair);
+        }
+        for (const pair of this.endedPairs) {
+            pair.shapeA.body!.pairs.delete(pair.id);
+            pair.shapeB.body!.pairs.delete(pair.id);
+        }
     }
 
     getPairsCount () {

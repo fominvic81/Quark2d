@@ -38,7 +38,6 @@ export class MouseJoint extends Events {
             this.joint.setBodyA(body);
             this.joint.setWorldPointA(event.mouse.position);
             this.joint.setWorldPointB(event.mouse.position);
-            console.log(this.joint)
             this.trigger('catch-body', [{body, shape}]);
             break;
         }
