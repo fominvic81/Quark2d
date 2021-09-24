@@ -61,6 +61,7 @@ export class Runner extends Events {
     private renderEvent = {
         time: 0,
         delta: 0,
+        tps: 0,
     }
 
     enabled: boolean = false; 
@@ -124,6 +125,7 @@ export class Runner extends Events {
                     this.event.time = this.worldTime - this.deltaAccumulator;
                     this.event.delta = this.options.fixedDelta;
                     this.event.tps = Math.min(this.options.fixedTps, this.tps);
+                    this.renderEvent.tps = this.event.tps;
 
                     this.trigger('before-update', [this.event]);
                     this.trigger('update', [this.event]);
@@ -171,6 +173,7 @@ export class Runner extends Events {
                     this.event.time = this.worldTime;
                     this.event.delta = delta;
                     this.event.tps = this.tps;
+                    this.renderEvent.tps = this.event.tps;
 
                     this.trigger('before-update', [this.event]);
                     this.trigger('update', [this.event]);
@@ -204,6 +207,7 @@ export class Runner extends Events {
         this.event.time = this.worldTime;
         this.event.delta = delta;
         this.event.tps = 1 / delta;
+        this.renderEvent.tps = this.event.tps;
 
         this.trigger('before-update', [this.event]);
         this.trigger('update', [this.event]);

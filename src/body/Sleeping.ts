@@ -50,9 +50,9 @@ export class Sleeping {
 
     /**
      * Updates the sleep state of bodies depending on their motion.
-     * @param delta
+     * @param dt
      */
-    afterSolve (delta: number) {
+    afterSolve (dt: number) {
 
         const motionSleepLimit = Settings.motionSleepLimit;
         const sleepyTime = Settings.sleepyTime;
@@ -64,10 +64,10 @@ export class Sleeping {
                     if (!body.canSleep || body.joints.size) continue;
 
                     if (body.motion <= motionSleepLimit) {
-                        body.sleepyTimer += delta;
+                        body.sleepyTimer += dt;
                         body.sleepyTimer = Math.min(body.sleepyTimer, sleepyTime);
                     } else if (body.sleepyTimer > 0) {
-                        body.sleepyTimer -= delta;
+                        body.sleepyTimer -= dt;
                         body.sleepyTimer = Math.max(body.sleepyTimer, 0);
                     }
 
@@ -80,10 +80,10 @@ export class Sleeping {
                 for (const body of this.engine.world.activeBodies.values()) {
 
                     if (body.motion <= motionSleepLimit) {
-                        body.sleepyTimer += delta;
+                        body.sleepyTimer += dt;
                         body.sleepyTimer = Math.min(body.sleepyTimer, sleepyTime);
                     } else if (body.sleepyTimer > 0) {
-                        body.sleepyTimer -= delta;
+                        body.sleepyTimer -= dt;
                         body.sleepyTimer = Math.max(body.sleepyTimer, 0);
                     }
                 }

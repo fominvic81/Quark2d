@@ -26,7 +26,7 @@ export abstract class Broadphase {
         this.engine = manager.engine;
     }
 
-    abstract update (): void;
+    abstract update (dt: number): void;
 
     abstract addShape (shape: Shape): void;
 

@@ -65,7 +65,7 @@ export abstract class Joint<UserData = any> {
 
     abstract warmStart(): void;
 
-    abstract solve (): void;
+    abstract solve (dt: number, invDt: number): void;
 
     setPointA (point: Vector) {
         this.wakeUp();

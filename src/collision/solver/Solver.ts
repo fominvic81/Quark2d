@@ -50,7 +50,8 @@ export class Solver {
         }
     }
 
-    step () {
+    step (dt: number) {
+        const invDt = 1/dt;
         if (this.options.warmStarting) {
             this.warmStart();
 
@@ -61,7 +62,7 @@ export class Solver {
 
         for (let i = 0; i < this.options.jointIterations; ++i) {
             for (const joint of this.engine.world.joints.values()) {
-                joint.solve();
+                joint.solve(dt, invDt);
             }
         }
         for (let i = 0; i < this.options.iterations; ++i) {

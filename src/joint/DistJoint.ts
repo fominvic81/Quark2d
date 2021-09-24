@@ -66,14 +66,15 @@ export class DistJoint<UserData = any> extends Joint {
         this.impulse *= 0.8;
     }
 
-    solve () {
+    solve (dt: number, invDt: number) {
         const bodyA = this.bodyA;
         const bodyB = this.bodyB;
 
         const relativeVelocity = Joint.vecTemp[1].set(
             (bodyB ? (bodyB.velocity.x - this.offsetB.y * bodyB.angularVelocity) : 0) - (bodyA ? (bodyA.velocity.x - this.offsetA.y * bodyA.angularVelocity) : 0),
             (bodyB ? (bodyB.velocity.y + this.offsetB.x * bodyB.angularVelocity) : 0) - (bodyA ? (bodyA.velocity.y + this.offsetA.x * bodyA.angularVelocity) : 0),
-        );
+        ).scale(dt);
+
         const delta = Vector.subtract(this.delta, relativeVelocity, Joint.vecTemp[2]);
 
         const dist = this.curLength = delta.length();
@@ -95,7 +96,7 @@ export class DistJoint<UserData = any> extends Joint {
             (bodyB ? (bodyB.inverseMass + bodyB.inverseInertia * normalCrossB * normalCrossB) : 0)
         );
 
-        const normalImpulse = (diff - normalVelocity) * 0.5 * share * this.stiffness;
+        const normalImpulse = ((diff - normalVelocity) * 0.5 * share * this.stiffness) * invDt;
         this.impulse += normalImpulse * 0.1;
 
         const impulse = this.normal.scaleOut(normalImpulse, Joint.vecTemp[3]);

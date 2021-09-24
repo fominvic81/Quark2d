@@ -1,9 +1,7 @@
 import { Vector } from '../../math/Vector';
 import { Draw } from './Draw';
 import { ShapeType } from '../../body/shapes/Shape';
-import { Events } from '../../common/Events';
 import { Mouse, QMouseEvent } from '../mouse/Mouse';
-import { SleepingState } from '../../body/Sleeping';
 import { AABB } from '../../math/AABB';
 import { Joint, JointType } from '../../joint/Joint';
 import { Engine } from '../../engine/Engine';
@@ -54,6 +52,7 @@ export class Render {
 
     statusTimer: number = 0;
     statusText: string = '';
+    tps: number = 0;
 
     mouse: Mouse;
 
@@ -94,9 +93,10 @@ export class Render {
      * Renders world. Step should be called every time the scene changes.
      * @param timestamp
      */
-    update (timestamp: {delta: number}) {
+    update (dt: number, tps: number) {
 
-        this.statusTimer += timestamp.delta;
+        this.statusTimer += dt;
+        this.tps = tps;
 
         this.ctx.setTransform(1, 0, 0, 1, 0, 0);
 
@@ -149,7 +149,7 @@ export class Render {
     bodies (bodies: Body[]) {
 
         for (const body of bodies) {
-            const color = (body.sleepState === SleepingState.AWAKE || !this.options.showSleeping) ? 'rgb(200, 200, 200)' : 'rgb(100, 100, 100)';
+            const color = (!body.isSleeping || !this.options.showSleeping) ? 'rgb(200, 200, 200)' : 'rgb(100, 100, 100)';
             for (const shape of body.shapes) {
                 const pos = shape.position;
                 switch (shape.type) {
@@ -229,9 +229,7 @@ export class Render {
             this.statusTimer -= 0.1;
             this.statusText = '';
 
-            if (this.engine.timestamp) {
-                this.statusText += `tps: ${Math.round(<number>this.engine.timestamp.tps)}   `;
-            }
+            this.statusText += `tps: ${Math.round(<number>this.tps)}   `;
 
             this.statusText += `bodies: ${this.engine.world.bodies.size}   `
 

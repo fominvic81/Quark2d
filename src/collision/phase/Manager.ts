@@ -36,7 +36,7 @@ export class Manager {
         this.narrowphase = new Narrowphase(this);
     }
 
-    update () {
+    update (dt: number) {
         this.startedPairs.length = 0;
         this.activePairs.length = 0;
         this.endedPairs.length = 0;
@@ -49,7 +49,7 @@ export class Manager {
         this.engine.timer.timeStart('Broadphase');
         /* develblock:end */
 
-        this.broadphase.update();
+        this.broadphase.update(dt);
 
         /* develblock:start */
         this.engine.timer.timeEnd('Broadphase');

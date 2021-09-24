@@ -48,7 +48,6 @@ export class Engine extends Events {
     solver: Solver;
     sleeping: Sleeping;
     islandManager: IslandManager = new IslandManager(this);
-    timestamp?: {delta: number, tps?: number};
     /* develblock:start */
     timer: Timer = new Timer();
     /* develblock:end */
@@ -60,27 +59,25 @@ export class Engine extends Events {
         this.manager = new Manager(this, options);
         this.solver = new Solver(this, options.solverOptions);
         this.sleeping = new Sleeping(this, options.sleepingOptions);
-        this.timestamp = undefined;
     }
 
     /**
-     * Moves engine forward in time by timestamp.delta.
+     * Moves engine forward in time by dt seconds.
      * @param timestamp
      */
-    update (timestamp: {delta: number, tps?: number}) {
-        this.timestamp = timestamp;
+    update (dt: number) {
 
-        this.trigger('before-update', [{engine: this, timestamp}]);
-        this.trigger('update', [{engine: this, timestamp}]);
+        this.trigger('before-update', [{engine: this, dt}]);
+        this.trigger('update', [{engine: this, dt}]);
 
         for (const body of this.world.activeBodies.values()) {
-            body.updatePosition();
+            body.updatePosition(dt);
         }
         for (const body of this.world.kinematicBodies.values()) {
-            body.updatePosition();
+            body.updatePosition(dt);
         }
 
-        this.manager.update();
+        this.manager.update(dt);
         this.islandManager.update();
 
         this.sleeping.afterCollisions();
@@ -90,19 +87,19 @@ export class Engine extends Events {
         this.trigger('ended-collisions', [{pairs: this.manager.endedPairs}]);
 
         /* develblock:start */
-        this.timer.timeStart('Solver preStep')
+        this.timer.timeStart('Solver preStep');
         /* develblock:end */
 
-        this.trigger('before-presolve')
+        this.trigger('before-presolve');
         this.solver.preStep();
-        this.trigger('after-presolve')
+        this.trigger('after-presolve');
 
         /* develblock:start */
-        this.timer.timeEnd('Solver preStep')
+        this.timer.timeEnd('Solver preStep');
         /* develblock:end */
 
         for (const body of this.world.activeBodies.values()) {
-            body.updateVelocity(timestamp.delta, this.gravity);
+            body.updateVelocity(dt, this.gravity);
         }
 
         /* develblock:start */
@@ -110,21 +107,21 @@ export class Engine extends Events {
         /* develblock:end */
         
         this.trigger('before-solve');
-        this.solver.step();
+        this.solver.step(dt);
         this.trigger('after-solve');
 
 
         /* develblock:start */
-        this.timer.timeEnd('Solver step')
+        this.timer.timeEnd('Solver step');
         /* develblock:end */
 
-        this.sleeping.afterSolve(timestamp.delta);
+        this.sleeping.afterSolve(dt);
 
         this.trigger('started-collisions-after-solve', [{pairs: this.manager.startedPairs}]);
         this.trigger('active-collisions-after-solve', [{pairs: this.manager.activePairs}]);
         this.trigger('ended-collisions-after-solve', [{pairs: this.manager.endedPairs}]);
 
-        this.trigger('after-update', [{engine: this, timestamp}]);
+        this.trigger('after-update', [{engine: this, dt}]);
     }
 
     /**

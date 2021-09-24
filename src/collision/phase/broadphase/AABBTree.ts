@@ -46,22 +46,22 @@ export class AABBTree extends Broadphase {
         }
     }
 
-    update () {
+    update (dt: number) {
         this.endedPairs.clear();
         for (const body of this.engine.world.activeBodies.values()) {
             for (const shape of body.shapes) {
-                this.updateShape(shape);
+                this.updateShape(shape, dt);
             }
         }
         for (const body of this.engine.world.kinematicBodies.values()) {
             for (const shape of body.shapes) {
-                this.updateShape(shape);
+                this.updateShape(shape, dt);
             }
         }
         this.manager.endedPairs.push(...this.endedPairs);
     }
 
-    updateShape (shape: Shape) {
+    updateShape (shape: Shape, dt: number) {
 
         let node = shape.AABBTreeNode;
 
@@ -70,7 +70,7 @@ export class AABBTree extends Broadphase {
         if (AABB.isInside(shape.aabb, node.aabb)) return;
 
         this.removeShape(shape);
-        this.insert(shape);
+        this.insert(shape, dt);
 
         const body = shape.body!;
         for (const shapeB of this.aabbTest(node.aabb)) {
@@ -98,16 +98,16 @@ export class AABBTree extends Broadphase {
     }
 
     addShape (shape: Shape) {
-        this.insert(shape);
+        this.insert(shape, 1/60);
 
         shape.AABBTreeNode!.aabb.minX = -Infinity;
         shape.AABBTreeNode!.aabb.minY = -Infinity;
         shape.AABBTreeNode!.aabb.maxX = -Infinity;
         shape.AABBTreeNode!.aabb.maxY = -Infinity;
-        this.updateShape(shape);
+        this.updateShape(shape, 1/60);
     }
 
-    private insert (shape: Shape) {
+    private insert (shape: Shape, dt: number) {
 
         const newLeaf = shape.AABBTreeNode || this.getNewNode();
         shape.AABBTreeNode = newLeaf;
@@ -123,16 +123,18 @@ export class AABBTree extends Broadphase {
         aabb.maxX += this.aabbGrow * w;
         aabb.maxY += this.aabbGrow * h;
 
+        const vf = this.velocityFactor * dt;
+
         const body = shape.body!;
         if (body.velocity.x > 0) {
-            aabb.maxX += body.velocity.x * this.velocityFactor;
+            aabb.maxX += body.velocity.x * vf;
         } else {
-            aabb.minX += body.velocity.x * this.velocityFactor;
+            aabb.minX += body.velocity.x * vf;
         }
         if (body.velocity.y > 0) {
-            aabb.maxY += body.velocity.y * this.velocityFactor;
+            aabb.maxY += body.velocity.y * vf;
         } else {
-            aabb.minY += body.velocity.y * this.velocityFactor;
+            aabb.minY += body.velocity.y * vf;
         }
 
         if (!this.root) {

@@ -167,17 +167,15 @@ export class Body<UserData = any> extends Events {
 
     /**
      * Updates velocity of the body.
-     * @param delta The delta time
+     * @param dt A delta time
      */
-    updateVelocity (delta: number, gravity: Vector) {
-        const deltaSquared = delta * delta;
-
+    updateVelocity (dt: number, gravity: Vector) {
         this.motion = this.velocity.lengthSquared() + Math.pow(this.angularVelocity, 2);
 
         // update velocity
         const rvd = (1 - this.velocityDamping);
-        this.velocity.x = this.velocity.x * rvd + gravity.x * deltaSquared;
-        this.velocity.y = this.velocity.y * rvd + gravity.y * deltaSquared;
+        this.velocity.x = this.velocity.x * rvd + gravity.x * dt;
+        this.velocity.y = this.velocity.y * rvd + gravity.y * dt;
 
         // update angularVelocity
         this.angularVelocity = this.angularVelocity * rvd;
@@ -185,13 +183,14 @@ export class Body<UserData = any> extends Events {
 
     /**
      * Updates position of the body.
+     * @param dt A delta time
      */
-    updatePosition () {
-        // update position 
-        this.translate(Vector.add(this.velocity, this.positionBias, Body.vecTemp[0]));
+    updatePosition (dt: number) {
+        // update position
+        this.translate(this.velocity.scaleOut(dt, Body.vecTemp[0]).add(this.positionBias));
 
         // update angle
-        this.rotate(this.angularVelocity + this.positionBiasAngle);
+        this.rotate(this.angularVelocity * dt + this.positionBiasAngle);
 
         this.positionBias.set(0, 0);
         this.positionBiasAngle = 0;
@@ -515,16 +514,15 @@ export class Body<UserData = any> extends Events {
 
     /**
      * Applies the given force to a body from the given offset(including resulting torque).
-     * @param delta
+     * @param dt
      * @param force
      * @param offset
      */
-    applyForce (delta: number, force: Vector, offset?: Vector) {
-        const deltaSquared = delta * delta;
-        this.velocity.x += force.x * this.inverseMass * deltaSquared;
-        this.velocity.y += force.y * this.inverseMass * deltaSquared;
+    applyForce (dt: number, force: Vector, offset?: Vector) {
+        this.velocity.x += force.x * this.inverseMass * dt;
+        this.velocity.y += force.y * this.inverseMass * dt;
         if (offset) {
-            this.angularVelocity += Vector.cross(offset, force) * this.inverseInertia * deltaSquared;
+            this.angularVelocity += Vector.cross(offset, force) * this.inverseInertia * dt;
         }
         this.setSleeping(false);
     }
