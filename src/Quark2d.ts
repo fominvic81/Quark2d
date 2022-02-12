@@ -27,10 +27,8 @@ import { GJK } from './collision/phase/narrowphase/Distance';
 import { EPA } from './collision/phase/narrowphase/Distance';
 import { distance } from './collision/phase/narrowphase/Distance';
 
-import { Manager, ManagerOptions } from './collision/phase/Manager';
-import { Broadphase, BroadphaseOptions, BroadphaseType } from './collision/phase/broadphase/Broadphase';
-import { GridBroadphase, GridBroadphaseOptions } from './collision/phase/broadphase/Grid';
-import { AABBTree, AABBTreeOptions } from './collision/phase/broadphase/AABBTree';
+import { Manager } from './collision/phase/Manager';
+import { AABBTree, AABBTreeOptions } from './collision/phase/AABBTree/AABBTree';
 import { Midphase } from './collision/phase/Midphase';
 import { Narrowphase } from './collision/phase/narrowphase/Narrowphase';
 
@@ -38,6 +36,8 @@ import { Contact } from './collision/pair/Contact';
 import { Pair } from './collision/pair/Pair';
 
 import { Solver, SolverOptions } from './collision/solver/Solver';
+
+import { TimeOfImpact } from './collision/timeOfImpact/TimeOfImpact';
 
 import { Ray, RayOptions } from './collision/ray/Ray';
 import { RaycastResult } from './collision/ray/RaycastResult';
@@ -94,15 +94,13 @@ export {
     EPA,
     distance,
     Manager,
-    Broadphase,
-    BroadphaseType,
-    GridBroadphase,
     AABBTree,
     Midphase,
     Narrowphase,
     Contact,
     Pair,
     Solver,
+    TimeOfImpact,
     Ray,
     RaycastResult,
     Intersection,
@@ -129,9 +127,6 @@ export {
     CircleOptions,
     ShapeOptions,
     BodyOptions,
-    ManagerOptions,
-    BroadphaseOptions,
-    GridBroadphaseOptions,
     AABBTreeOptions,
     SolverOptions,
     RayOptions,
@@ -170,15 +165,13 @@ export default {
     EPA,
     distance,
     Manager,
-    Broadphase,
-    BroadphaseType,
-    GridBroadphase,
     AABBTree,
     Midphase,
     Narrowphase,
     Contact,
     Pair,
     Solver,
+    TimeOfImpact,
     Ray,
     RaycastResult,
     Intersection,

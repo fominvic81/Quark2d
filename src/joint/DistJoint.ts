@@ -50,7 +50,7 @@ export class DistJoint<UserData = any> extends Joint {
         const bodyA = this.bodyA;
         const bodyB = this.bodyB;
 
-        const impulse = this.normal.scaleOut(this.impulse, Joint.vecTemp[0]);
+        const impulse = this.normal.clone(Joint.vecTemp[0]).scale(this.impulse);
 
         if (bodyA && bodyA.type === BodyType.dynamic && !bodyA.isSleeping) {
             bodyA.velocity.x -= impulse.x * bodyA.inverseMass;
@@ -79,7 +79,7 @@ export class DistJoint<UserData = any> extends Joint {
 
         const dist = this.curLength = delta.length();
 
-        const normal = dist ? delta.divideOut(dist, this.normal) : this.normal.set(0, 1);
+        const normal = dist ? delta.clone(this.normal).divide(dist) : this.normal.set(0, 1);
 
         const normalVelocity = Vector.dot(this.normal, relativeVelocity);
 
@@ -99,7 +99,7 @@ export class DistJoint<UserData = any> extends Joint {
         const normalImpulse = ((diff - normalVelocity) * 0.5 * share * this.stiffness) * invDt;
         this.impulse += normalImpulse * 0.1;
 
-        const impulse = this.normal.scaleOut(normalImpulse, Joint.vecTemp[3]);
+        const impulse = this.normal.clone(Joint.vecTemp[3]).scale(normalImpulse);
 
         if (bodyA && bodyA.type === BodyType.dynamic && !bodyA.isSleeping) {
             bodyA.velocity.x -= impulse.x * bodyA.inverseMass;

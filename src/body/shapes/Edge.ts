@@ -56,14 +56,17 @@ export class Edge<UserData = any> extends Shape {
     set (start: Vector, end: Vector) {
         start.clone(this.start);
         end.clone(this.end);
+        this.start.x += 0.01;
 
         const delta = Vector.subtract(this.end, this.start, Vector.temp[0]);
         this.length = delta.length();
 
-        delta.divideOut(this.length, this.normal);
+        delta.clone(this.normal).divide(this.length);
         this.normal.rotate90();
 
         Vector.interpolate(this.start, this.end, 0.5, this.position);
+        // EPA bug fix
+        this.rotate(0.00001);
     }
 
     /**
@@ -90,16 +93,24 @@ export class Edge<UserData = any> extends Shape {
      * @param angle
      */
     rotate (angle: number) {
-        const delta = Vector.temp[0];
-        Vector.subtract(this.position, this.start, delta);
-        delta.rotate(angle);
-        Vector.subtract(this.position, delta, this.start);
+        this.rotateU(Math.cos(angle), Math.sin(angle));
+    }
 
-        Vector.subtract(this.position, this.end, delta);
-        delta.rotate(angle);
-        Vector.subtract(this.position, delta, this.end);
+    rotateU (uX: number, uY: number) {
+        this.start.rotateAboutU(uX, uY, this.position);
+        this.end.rotateAboutU(uX, uY, this.position);
+        this.normal.rotateU(uX, uY);
+    }
 
-        this.normal.rotate(angle);
+    rotateAbout(angle: number, point: Vector) {
+        this.rotateAboutU(Math.cos(angle), Math.sin(angle), point);
+    }
+
+    rotateAboutU(uX: number, uY: number, point: Vector): void {
+        this.position.rotateAboutU(uX, uY, point);
+        this.start.rotateAboutU(uX, uY, point);
+        this.end.rotateAboutU(uX, uY, point);
+        this.normal.rotateU(uX, uY);
     }
 
     /**
@@ -172,7 +183,7 @@ export class Edge<UserData = any> extends Shape {
             intersection.point.x = from.x + delta.x * fraction;
             intersection.point.y = from.y + delta.y * fraction;
 
-            this.normal.scaleOut(-Common.sign(Vector.dot(this.normal, delta)), intersection.normal);
+            this.normal.clone(intersection.normal).scale(-Common.sign(Vector.dot(this.normal, delta)));
 
             return true;
         }
@@ -184,7 +195,7 @@ export class Edge<UserData = any> extends Shape {
 
         const r = this.radius;
         const sign = -Common.sign(Vector.dot(this.normal, delta));
-        const offset = this.normal.scaleOut(r * sign, Vector.temp[0]);
+        const offset = this.normal.clone(Vector.temp[0]).scale(r * sign);
 
         const fraction1 = Vector.lineSegmentsIntersectionFraction(
             from,
@@ -199,7 +210,7 @@ export class Edge<UserData = any> extends Shape {
             intersection.point.x = from.x + delta.x * fraction1;
             intersection.point.y = from.y + delta.y * fraction1;
 
-            this.normal.scaleOut(sign, intersection.normal);
+            this.normal.clone(intersection.normal).scale(sign);
 
             return true;
         } else {
@@ -264,7 +275,7 @@ export class Edge<UserData = any> extends Shape {
      * @returns The normal of the shape with the given index
      */
     getNormal (index: number, output: Vector) {
-        return index ? this.normal.clone(output) : this.normal.negOut(output);
+        return index ? this.normal.clone(output) : this.normal.clone(output).neg();
     }
 
     /**

@@ -1,11 +1,11 @@
 import { AABB } from '../../../math/AABB';
 import { Vector } from '../../../math/Vector';
 import { Pair } from '../../pair/Pair';
-import { Broadphase, BroadphaseOptions, BroadphaseType } from './Broadphase';
 import { Shape } from '../../../body/shapes/Shape';
 import { Manager } from '../Manager';
 import { Body, BodyType } from '../../../body/Body';
 import { Common } from '../../../common/Common';
+import { Engine } from '../../../engine/Engine';
 
 export class AABBTreeNode {
     aabb: AABB = new AABB();
@@ -19,24 +19,26 @@ export class AABBTreeNode {
 
 const aabbTemp = new AABB();
 
-export interface AABBTreeOptions extends BroadphaseOptions {
+export interface AABBTreeOptions {
     aabbGrow?: number;
     velocityFactor?: number;
 }
 
-export class AABBTree extends Broadphase {
-    type = BroadphaseType.AABBTree;
+export class AABBTree {
     activePairs: Set<Pair> = new Set();
     root?: AABBTreeNode;
     aabbGrow: number;
     velocityFactor: number;
     nodesStack: AABBTreeNode[] = [];
     endedPairs: Set<Pair> = new Set();
+    manager: Manager;
+    engine: Engine;
 
     constructor (manager: Manager, options: AABBTreeOptions = {}) {
-        super(manager, options);
+        this.manager = manager;
+        this.engine = manager.engine;
 
-        this.aabbGrow = options.aabbGrow ?? 0.1;
+        this.aabbGrow = options.aabbGrow ?? 0.4;
         this.velocityFactor = options.velocityFactor ?? 3;
 
         for (const body of this.engine.world.bodies.values()) {
@@ -67,12 +69,25 @@ export class AABBTree extends Broadphase {
 
         if (!node) return;
 
-        if (AABB.isInside(shape.aabb, node.aabb)) return;
+        const body = shape.body!;
+        const aabb = shape.aabb.clone(aabbTemp);
+
+        if (body.velocity.x > 0) {
+            aabb.maxX += body.velocity.x * dt;
+        } else {
+            aabb.minX += body.velocity.x * dt;
+        }
+        if (body.velocity.y > 0) {
+            aabb.maxY += body.velocity.y * dt;
+        } else {
+            aabb.minY += body.velocity.y * dt;
+        }
+
+        if (AABB.isInside(aabb, node.aabb)) return;
 
         this.removeShape(shape);
         this.insert(shape, dt);
 
-        const body = shape.body!;
         for (const shapeB of this.aabbTest(node.aabb)) {
             const bodyB = shapeB.body!;
 
@@ -99,15 +114,12 @@ export class AABBTree extends Broadphase {
 
     addShape (shape: Shape) {
         this.insert(shape, 1/60);
-
-        shape.AABBTreeNode!.aabb.minX = -Infinity;
-        shape.AABBTreeNode!.aabb.minY = -Infinity;
-        shape.AABBTreeNode!.aabb.maxX = -Infinity;
-        shape.AABBTreeNode!.aabb.maxY = -Infinity;
+        shape.AABBTreeNode!.aabb.setNum(-Infinity, -Infinity, -Infinity, -Infinity);
         this.updateShape(shape, 1/60);
     }
 
     private insert (shape: Shape, dt: number) {
+        const body = shape.body!;
 
         const newLeaf = shape.AABBTreeNode || this.getNewNode();
         shape.AABBTreeNode = newLeaf;
@@ -115,17 +127,14 @@ export class AABBTree extends Broadphase {
         const aabb = newLeaf.aabb;
         shape.aabb.clone(aabb);
 
-        const w = aabb.getWidth();
-        const h = aabb.getHeight();
-
-        aabb.minX -= this.aabbGrow * w;
-        aabb.minY -= this.aabbGrow * h;
-        aabb.maxX += this.aabbGrow * w;
-        aabb.maxY += this.aabbGrow * h;
+        aabb.minX -= this.aabbGrow;
+        aabb.minY -= this.aabbGrow;
+        aabb.maxX += this.aabbGrow;
+        aabb.maxY += this.aabbGrow;
+        aabb.clone(aabb);
 
         const vf = this.velocityFactor * dt;
 
-        const body = shape.body!;
         if (body.velocity.x > 0) {
             aabb.maxX += body.velocity.x * vf;
         } else {

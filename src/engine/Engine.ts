@@ -4,22 +4,26 @@ import { Events } from '../common/Events';
 import { Sleeping, SleepingOptions } from '../body/Sleeping';
 import { World } from '../common/World';
 import { Manager } from '../collision/phase/Manager';
-import { BroadphaseOptions } from '../collision/phase/broadphase/Broadphase';
 import { AABB } from '../math/AABB';
-import { GridBroadphase, GridBroadphaseOptions } from '../collision/phase/broadphase/Grid';
-import { AABBTree, AABBTreeOptions } from '../collision/phase/broadphase/AABBTree';
+import { AABBTreeOptions } from '../collision/phase/AABBTree/AABBTree';
 import { IslandManager } from '../collision/island/IslandManager';
+import { TimeOfImpact } from '../collision/timeOfImpact/TimeOfImpact';
+import { BodyType } from '../body/Body';
 /* develblock:start */
 import { Timer } from '../tools/debug/Timer';
+import { Filter } from '../Quark2d';
 /* develblock:end */
+
+const toiTranslationA = new Vector();
+const toiTranslationB = new Vector();
 
 interface EngineOptions {
     world?: World;
     gravity?: Vector;
     solverOptions?: SolverOptions;
     sleepingOptions?: SleepingOptions;
-    broadphaseConstructor?: (typeof GridBroadphase) | (typeof AABBTree);
-    broadphaseOptions?: BroadphaseOptions | GridBroadphaseOptions | AABBTreeOptions;
+    aabbTreeOptions?: AABBTreeOptions;
+    enableTOI?: boolean;
 }
 
 /**
@@ -48,17 +52,22 @@ export class Engine extends Events {
     solver: Solver;
     sleeping: Sleeping;
     islandManager: IslandManager = new IslandManager(this);
+    timeOfImpact: TimeOfImpact = new TimeOfImpact();
     /* develblock:start */
     timer: Timer = new Timer();
     /* develblock:end */
+    options = {
+        enableTOI: true,
+    };
 
     constructor (options: EngineOptions = {}) {
         super();
         this.world = options.world ?? new World(this);
         this.gravity = options.gravity === undefined ? new Vector(0, 9.8) : options.gravity.copy();
-        this.manager = new Manager(this, options);
+        this.manager = new Manager(this, options.aabbTreeOptions);
         this.solver = new Solver(this, options.solverOptions);
         this.sleeping = new Sleeping(this, options.sleepingOptions);
+        this.options.enableTOI = options.enableTOI ?? true;
     }
 
     /**
@@ -71,13 +80,44 @@ export class Engine extends Events {
         this.trigger('update', [{engine: this, dt}]);
 
         for (const body of this.world.activeBodies.values()) {
-            body.updatePosition(dt);
+            body.minTOI = 1;
+            body.updateBias();
         }
+
+        this.manager.beforeUpdate(dt);
+
+        if (this.options.enableTOI) {
+            for (const pair of this.manager.aabbTree.activePairs) {
+                if (pair.isSensor) continue;
+                if (!Filter.canCollide(pair.shapeA.filter, pair.shapeB.filter)) continue;
+                const collideA = (pair.shapeA.body!.type === BodyType.static) || pair.shapeA.body!.isBullet;
+                const collideB = (pair.shapeB.body!.type === BodyType.static) || pair.shapeB.body!.isBullet;
+                if (!collideA && !collideB) continue;
+
+                const bodyA = pair.shapeA.body!;
+                const bodyB = pair.shapeB.body!;
+                pair.shapeA.body!.velocity.clone(toiTranslationA).scale(dt);
+                pair.shapeB.body!.velocity.clone(toiTranslationB).scale(dt);
+                const t = this.timeOfImpact.timeOfImpact(
+                    pair.shapeA, toiTranslationA, pair.shapeA.body!.angularVelocity * dt,
+                    pair.shapeB, toiTranslationB, pair.shapeB.body!.angularVelocity * dt,
+                    bodyA.type === BodyType.dynamic && bodyB.type === BodyType.dynamic,
+                    0, Math.min(bodyA.minTOI, bodyB.minTOI),
+                );
+
+                if (bodyA.type === BodyType.dynamic) bodyA.minTOI = Math.min(bodyA.minTOI, t);
+                if (bodyB.type === BodyType.dynamic) bodyB.minTOI = Math.min(bodyB.minTOI, t);
+            }
+        }
+
         for (const body of this.world.kinematicBodies.values()) {
             body.updatePosition(dt);
         }
+        for (const body of this.world.activeBodies.values()) {
+            body.updatePosition(dt * body.minTOI);
+        }
 
-        this.manager.update(dt);
+        this.manager.update();
         this.islandManager.update();
 
         this.sleeping.afterCollisions();
@@ -129,7 +169,7 @@ export class Engine extends Events {
      * @param point
      */
     *pointTest (point: Vector) {
-        const broadphaseShapes = this.manager.broadphase.pointTest(point);
+        const broadphaseShapes = this.manager.aabbTree.pointTest(point);
 
         for (const shape of broadphaseShapes) {
             if (shape.aabb.contains(point)) {
@@ -147,7 +187,7 @@ export class Engine extends Events {
      */
 
     *aabbTest (aabb: AABB) {
-        const broadphaseShapes = this.manager.broadphase.aabbTest(aabb);
+        const broadphaseShapes = this.manager.aabbTree.aabbTest(aabb);
 
         for (const shape of broadphaseShapes) {
             if (aabb.overlaps(shape.aabb)) {

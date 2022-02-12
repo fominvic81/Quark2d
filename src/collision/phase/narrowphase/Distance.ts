@@ -17,7 +17,7 @@ export class SupportPoint {
 
     compute (shapeA: Shape, shapeB: Shape, dir: Vector) {
         const supportA = shapeA.support(dir);
-        const supportB = shapeB.support(dir.negOut(temp1));
+        const supportB = shapeB.support(dir.clone(temp1).neg());
 
         this.pointA = supportA;
         this.pointB = supportB;
@@ -59,7 +59,7 @@ export const GJK = (shapeA: Shape, shapeB: Shape, useEpa: boolean, output: Suppo
     let p1 = GJK_Temp1;
     let p2 = GJK_Temp2;
     p1.compute(shapeA, shapeB, INIT_DIR);
-    p2.compute(shapeA, shapeB, INIT_DIR.negOut(dir));
+    p2.compute(shapeA, shapeB, INIT_DIR.clone(dir).neg());
 
     while (true) {
 

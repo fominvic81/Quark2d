@@ -41,6 +41,7 @@ export class World extends Events {
                 this.addJoint(object);
             }
         }
+        return objects;
     }
 
     /**
@@ -54,7 +55,7 @@ export class World extends Events {
             this.bodies.set(body.id, body);
 
             body.engine = this.engine;
-            this.engine.manager.broadphase.addBody(body);
+            this.engine.manager.aabbTree.addBody(body);
 
             if (body.type === BodyType.dynamic) {
                 if (body.isSleeping) {
@@ -113,6 +114,7 @@ export class World extends Events {
             });
             this.eventIds.set(body.id, [sleepStartId, sleepEndId, becomeDynamicId, becomeStaticId, becomeKinematicId]);
         }
+        return bodies;
     }
 
     /**
@@ -127,7 +129,7 @@ export class World extends Events {
                 this.bodies.delete(body.id);
             }
 
-            this.engine.manager.broadphase.removeBody(body);
+            this.engine.manager.aabbTree.removeBody(body);
             body.engine = undefined;
 
             if (body.type === BodyType.dynamic) {
@@ -146,6 +148,7 @@ export class World extends Events {
                 body.off(eventId);
             }
         }
+        return bodies;
     }
 
     /**
@@ -203,6 +206,7 @@ export class World extends Events {
             this.trigger('add-joint', [{joint}]);
             this.joints.set(joint.id, joint);
         }
+        return joints;
     }
 
     /**
@@ -216,6 +220,7 @@ export class World extends Events {
                 this.joints.delete(joint.id);
             }
         }
+        return joints;
     }
 
     /**

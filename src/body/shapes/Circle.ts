@@ -33,9 +33,22 @@ export class Circle<UserData = any> extends Shape {
     }
 
     /**
-     * Shape hasn't method 'rotate'. 
+     * @ignore 
      */
     rotate () {}
+    
+    /**
+     * @ignore 
+     */
+    rotateU () {}
+    
+    rotateAbout(angle: number, point: Vector) {
+        this.rotateAboutU(Math.cos(angle), Math.sin(angle), point);
+    }
+
+    rotateAboutU(uX: number, uY: number, point: Vector) {
+        this.position.rotateAboutU(uX, uY, point);
+    }
 
     /**
      * Updates the area of the shape.

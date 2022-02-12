@@ -21,8 +21,6 @@ export class Convex<UserData = any> extends Shape {
     type: number = ShapeType.CONVEX;
     /** Array of vertices of the shape. */
     vertices: Vertex[];
-    /** @ignore */
-    deltaVertices: Vertex[];
     /** Array of normals of the shape. */
     normals: Vertex[] = [];
     /** Array of lengths of the edges of the shape. */
@@ -36,7 +34,6 @@ export class Convex<UserData = any> extends Shape {
         const vertices = options.vertices ?? Convex.DEFAULT_VERTICES;
 
         this.vertices = Vertices.create(vertices);
-        this.deltaVertices = Vertices.create(vertices);
 
         Vertices.normals(this.vertices, this.normals, this.lengths);
 
@@ -95,9 +92,22 @@ export class Convex<UserData = any> extends Shape {
      * @param angle
      */
     rotate (angle: number) {
-        Vertices.rotate(this.vertices, angle, this.position);
-        Vertices.rotate(this.normals, angle);
-        Vertices.rotate(this.deltaVertices, angle);
+        this.rotateU(Math.cos(angle), Math.sin(angle));
+    }
+    
+    rotateU(uX: number, uY: number) {
+        Vertices.rotateAboutU(this.vertices, uX, uY, this.position);
+        Vertices.rotateU(this.normals, uX, uY);
+    }
+
+    rotateAbout(angle: number, point: Vector) {
+        this.rotateAboutU(Math.cos(angle), Math.sin(angle), point);
+    }
+
+    rotateAboutU(uX: number, uY: number, point: Vector) {
+        this.position.rotateAboutU(uX, uY, point);
+        Vertices.rotateAboutU(this.vertices, uX, uY, point);
+        Vertices.rotateU(this.normals, uX, uY);
     }
 
     /**
@@ -105,7 +115,7 @@ export class Convex<UserData = any> extends Shape {
      * @returns The area
      */
     updateArea () {
-        this.area = Vertices.area(this.deltaVertices);
+        this.area = Vertices.area(this.vertices);
 
         for (const length of this.lengths) {
             this.area += length * this.radius;
@@ -121,7 +131,17 @@ export class Convex<UserData = any> extends Shape {
      * @returns The inertia
      */
     updateInertia () {
-        this.areaInertia = Vertices.inertia(this.deltaVertices);
+        const vertices: Vector[] = [];
+        if (this.body) {
+            for (const vertex of this.vertices) {
+                vertices.push(vertex.copy().subtract(this.body.center));
+            }
+        } else {
+            for (const vertex of this.vertices) {
+                vertices.push(vertex.copy().subtract(this.position));
+            }
+        }
+        this.areaInertia = Vertices.inertia(vertices);
 
         const radiusSquared = Math.pow(this.radius, 2);
         const inverseArea = 1/this.area;
@@ -135,7 +155,7 @@ export class Convex<UserData = any> extends Shape {
             const normal = this.normals[v.index];
 
             const point = Vector.interpolate(vertex, vertex2, 0.5, Vector.temp[2]);
-            point.add(normal.scaleOut(this.radius * 0.5, Vector.temp[3]));
+            point.add(normal.clone(Vector.temp[3]).scale(this.radius * 0.5));
 
             const areaFraction = length * this.radius * inverseArea;
             const inertia = (Math.pow(length, 2) + radiusSquared) / 12;
@@ -233,7 +253,7 @@ export class Convex<UserData = any> extends Shape {
 
             const normal = normals[prevVertex.index];
             if (Vector.dot(delta, normal) < 0) {
-                const offset = normal.scaleOut(r, Vector.temp[0]);
+                const offset = normal.clone(Vector.temp[0]).scale(r);
                 const fraction = Vector.lineSegmentsIntersectionFraction(
                     from,
                     to,

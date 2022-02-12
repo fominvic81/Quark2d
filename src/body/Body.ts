@@ -2,8 +2,6 @@ import { Vector } from '../math/Vector';
 import { Common } from '../common/Common';
 import { Events } from '../common/Events';
 import { Shape, ShapeType } from './shapes/Shape';
-import { Convex } from './shapes/Convex';
-import { Edge } from './shapes/Edge';
 import { Joint } from '../joint/Joint';
 import { Settings } from '../Settings';
 import { Engine } from '../engine/Engine';
@@ -24,6 +22,7 @@ export interface BodyOptions {
     fixedRotation?: boolean,
     /** A variable which determines the body's ability to sleep */
     canSleep?: boolean,
+    isBullet?: boolean,
 }
 
 export enum BodyType {
@@ -122,6 +121,9 @@ export class Body<UserData = any> extends Events {
     /** @ignore */
     visited: boolean = false;
     island?: Island;
+    isBullet: boolean = false;
+    /** @ignore */
+    minTOI: number = 1;
 
     /** @ignore */
     private static vecTemp: Vector[] = [
@@ -161,6 +163,9 @@ export class Body<UserData = any> extends Events {
                 case 'canSleep':
                     this.setAbilityToSleep(option[1]);
                     break;
+                case 'isBullet':
+                    this.isBullet = option[1];
+                    break;
             }
         }
     }
@@ -187,18 +192,22 @@ export class Body<UserData = any> extends Events {
      */
     updatePosition (dt: number) {
         // update position
-        this.translate(this.velocity.scaleOut(dt, Body.vecTemp[0]).add(this.positionBias));
+        this.translate(this.velocity.clone(Body.vecTemp[0]).scale(dt));
 
         // update angle
-        this.rotate(this.angularVelocity * dt + this.positionBiasAngle);
-
-        this.positionBias.set(0, 0);
-        this.positionBiasAngle = 0;
+        this.rotate(this.angularVelocity * dt);
 
         // update AABB
         for (const shape of this.shapes) {
             shape.updateAABB();
         }
+    }
+
+    updateBias () {
+        this.translate(this.positionBias);
+        this.rotate(this.positionBiasAngle);
+        this.positionBias.set(0, 0);
+        this.positionBiasAngle = 0;
     }
 
     /**
@@ -227,7 +236,7 @@ export class Body<UserData = any> extends Events {
 
         this.updateInertia();
 
-        this.engine?.manager.broadphase.addShape(shape);
+        this.engine?.manager.aabbTree.addShape(shape);
 
         this.trigger('add-shape', [{shape, body: this}]);
         return shape;
@@ -250,7 +259,7 @@ export class Body<UserData = any> extends Events {
 
         this.trigger('remove-shape', [{shape, body: this}]);
 
-        this.engine?.manager.broadphase.removeShape(shape);
+        this.engine?.manager.aabbTree.removeShape(shape);
         return shape;
     }
 
@@ -315,21 +324,13 @@ export class Body<UserData = any> extends Events {
         
         for (const shape of this.shapes) {
             Vector.subtract(this.center, shape.position, offset);
-            sum.add(offset.scaleOut(shape.mass, Vector.temp[2]));
+            sum.add(offset.clone(Vector.temp[2]).scale(shape.mass));
             mass += shape.mass;
         }
 
-        const cm = sum.divideOut(mass, Vector.temp[1]);
+        const cm = sum.clone(Vector.temp[1]).divide(mass);
 
         Vector.subtract(this.center, cm, this.center);
-        for (const shape of this.shapes) {
-            if (shape.type === ShapeType.CONVEX) {
-                const convex = <Convex>shape;
-                for (const vertex of convex.vertices) {
-                    Vector.subtract(vertex, this.center, convex.deltaVertices[vertex.index]);
-                }
-            }
-        }
         this.updateInertia();
     }
 
@@ -367,84 +368,23 @@ export class Body<UserData = any> extends Events {
      * @param angle
      */
     rotate (angle: number) {
-
         if (angle === 0) return;
+
+        this.rotateU(Math.cos(angle), Math.sin(angle), angle);
+    }
+
+    rotateU (uX: number, uY: number, angle: number) {
 
         this.angle += angle;
 
-        const cos = Math.cos(angle);
-        const sin = Math.sin(angle);
-
-        let vertices;
         let dx = this.dir.x;
         let dy = this.dir.y;
-        let delta;
-        let normals;
 
-        this.dir.x = dx * cos - dy * sin;
-        this.dir.y = dx * sin + dy * cos;
+        this.dir.x = dx * uX - dy * uY;
+        this.dir.y = dx * uY + dy * uX;
 
         for (const shape of this.shapes) {
-
-            dx = shape.position.x - this.center.x;
-            dy = shape.position.y - this.center.y;
-
-            shape.position.x = dx * cos - dy * sin + this.center.x;
-            shape.position.y = dx * sin + dy * cos + this.center.y;
-
-            switch (shape.type) {
-                case ShapeType.CONVEX:
-                    vertices = (<Convex>shape).vertices;
-
-                    for (const vertex of vertices) {
-                        delta = (<Convex>shape).deltaVertices[vertex.index];
-
-                        dx = delta.x;
-                        dy = delta.y;
-            
-                        delta.x = dx * cos - dy * sin;
-                        delta.y = dx * sin + dy * cos;
-    
-                        vertex.x = delta.x + this.center.x;
-                        vertex.y = delta.y + this.center.y;
-                    }
-    
-                    normals = (<Convex>shape).normals;
-    
-                    for (const normal of normals) {
-                        dx = normal.x;
-                        dy = normal.y;
-            
-                        normal.x = dx * cos - dy * sin;
-                        normal.y = dx * sin + dy * cos;
-                    }
-                    break;
-                case ShapeType.EDGE:
-
-                    dx = shape.position.x - this.center.x;
-                    dy = shape.position.y - this.center.y;
-
-                    shape.position.x = dx * cos - dy * sin + this.center.x;
-                    shape.position.y = dx * sin + dy * cos + this.center.y;
-
-                    dx = (<Edge>shape).start.x - this.center.x;
-                    dy = (<Edge>shape).start.y - this.center.y;
-
-                    (<Edge>shape).start.x = dx * cos - dy * sin + this.center.x;
-                    (<Edge>shape).start.y = dx * sin + dy * cos + this.center.y;
-
-                    dx = (<Edge>shape).end.x - this.center.x;
-                    dy = (<Edge>shape).end.y - this.center.y;
-
-                    (<Edge>shape).end.x = dx * cos - dy * sin + this.center.x;
-                    (<Edge>shape).end.y = dx * sin + dy * cos + this.center.y;
-
-                    dx = (<Edge>shape).normal.x;
-                    dy = (<Edge>shape).normal.y;
-        
-                    (<Edge>shape).normal.x = dx * cos - dy * sin;
-                    (<Edge>shape).normal.y = dx * sin + dy * cos;
-            }
+            shape.rotateAboutU(uX, uY, this.center);
         }
     }
 
@@ -467,8 +407,10 @@ export class Body<UserData = any> extends Events {
             this.trigger('become-dynamic', [{previousType}]);
         } else if (type === BodyType.static) {
             this.trigger('become-static', [{previousType}]);
+            this.minTOI = 1;
         } else if (type === BodyType.kinematic) {
             this.trigger('become-kinematic', [{previousType}]);
+            this.minTOI = 1;
         }
         this.updateMass();
         this.updateInertia();
@@ -533,7 +475,7 @@ export class Body<UserData = any> extends Events {
      * @param offset
      */
     applyImpulse (impulse: Vector, offset?: Vector) {
-        const velocity = impulse.scaleOut(this.inverseMass, Body.vecTemp[0]);
+        const velocity = impulse.clone(Body.vecTemp[0]).scale(this.inverseMass);
         this.velocity.add(velocity);
 
         if (offset) {
@@ -543,7 +485,7 @@ export class Body<UserData = any> extends Events {
     }
 
     /**
-     * Sets the velosity of a body to the given.
+     * Sets the velocity of a body to the given.
      * @param velocity
      */
     setVelocity (velocity: Vector) {

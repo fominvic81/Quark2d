@@ -71,21 +71,46 @@ export class Vertices {
      * @param output [output]
      * @returns The vertices
      */
-    static rotate (vertices: Vector[], angle: number, point: Vector = Vector.zero, output: Vector[] = vertices): Vector[] {
+    static rotateAbout (vertices: Vector[], angle: number, point: Vector = Vector.zero): Vector[] {
+        return this.rotateAboutU(vertices, Math.cos(angle), Math.sin(angle));
+    }
 
-        const cos = Math.cos(angle);
-        const sin = Math.sin(angle);
+    static rotateAboutU (vertices: Vector[], uX: number, uY: number, point: Vector = Vector.zero): Vector[] {
 
         for (let i = 0; i < vertices.length; ++i) {
             const vertex = vertices[i];
-            const outputVertex = output[i];
             const x = vertex.x - point.x;
             const y = vertex.y - point.y;
 
-            outputVertex.x = x * cos - y * sin + point.x;
-            outputVertex.y = x * sin + y * cos + point.y;
+            vertex.x = x * uX - y * uY + point.x;
+            vertex.y = x * uY + y * uX + point.y;
         }
-        return output;
+        return vertices;
+    }
+
+    /**
+     * Rotates the given set of vertices by the given angle.
+     * @param vertices
+     * @param angle
+     * @param point
+     * @param output [output]
+     * @returns The vertices
+     */
+    static rotate (vertices: Vector[], angle: number): Vector[] {
+        return this.rotateU(vertices, Math.cos(angle), Math.sin(angle));
+    }
+
+    static rotateU (vertices: Vector[], uX: number, uY: number): Vector[] {
+
+        for (let i = 0; i < vertices.length; ++i) {
+            const vertex = vertices[i];
+            const x = vertex.x;
+            const y = vertex.y;
+
+            vertex.x = x * uX - y * uY;
+            vertex.y = x * uY + y * uX;
+        }
+        return vertices;
     }
 
     /**

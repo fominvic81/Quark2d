@@ -65,13 +65,13 @@ export const EdgeVsCircle = (pair: Pair) => {
                 return;
             }
             pair.contacts[0].depth = radius + dist;
-            edge.normal.negOut(normal);
+            edge.normal.clone(normal).neg();
         }
 
     }
 
     pair.contactsCount = 1;
-    normal.scaleOut(circle.radius, temp0).add(circle.position).clone(pair.contacts[0].vertex);
+    normal.clone(temp0).scale(circle.radius).add(circle.position).clone(pair.contacts[0].vertex);
 
     if (flipped) {
         normal.neg();

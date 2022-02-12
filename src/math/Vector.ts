@@ -54,26 +54,26 @@ export class Vector {
      * @returns A rotated vector
      */
     rotate (angle: number): Vector {
-        const cos: number = Math.cos(angle);
-        const sin: number = Math.sin(angle);
+        return this.rotateU(Math.cos(angle), Math.sin(angle));
+    }
+
+    rotateU (uX: number, uY: number): Vector {
         const x: number = this.x;
-        this.x = x * cos - this.y * sin;
-        this.y = x * sin + this.y * cos;
+        this.x = x * uX - this.y * uY;
+        this.y = x * uY + this.y * uX;
         return this;
     }
 
-    /**
-     * Rotates the vector by the given angle and sets it's value to output(original vector does not changes).
-     * @param angle
-     * @param output
-     * @returns A rotated vector
-     */
-    rotateOut (angle: number, output: Vector): Vector {
-        const cos: number = Math.cos(angle);
-        const sin: number = Math.sin(angle);
-        output.x = this.x * cos - this.y * sin;
-        output.y = this.x * sin + this.y * cos;
-        return output;
+    rotateAbout (angle: number, point: Vector) {
+        return this.rotateAboutU(Math.cos(angle), Math.sin(angle), point);
+    }
+
+    rotateAboutU (uX: number, uY: number, point: Vector) {
+        const x = this.x - point.x;
+        const y = this.y - point.y;
+        this.x = x * uX - y * uY + point.x;
+        this.y = x * uY + y * uX + point.y;
+        return this;
     }
 
     /**
@@ -87,17 +87,6 @@ export class Vector {
     }
 
     /**
-     * Rotates the vector by 180 degrees and sets it's value to output(original vector does not changes).
-     * @param output
-     * @returns A negated vector
-     */
-    negOut (output: Vector): Vector {
-        output.x = -this.x;
-        output.y = -this.y;
-        return output;
-    }
-
-    /**
      * Rotates the vector by 90 degrees.
      * @returns The rotated vector
      */
@@ -107,18 +96,6 @@ export class Vector {
         this.y = x;
         return this;
     }
-
-    /**
-     * Rotates the vector by 90 degrees and sets it's value to output(original vector does not changes).
-     * @param output
-     * @returns The rotated vector
-     */
-    rotate90Out (output: Vector): Vector {
-        output.x = -this.y;
-        output.y = this.x;
-        return output;
-    }
-
     /**
      * Rotates the vector by 270 degrees.
      * @returns The rotated vector
@@ -128,17 +105,6 @@ export class Vector {
         this.x = this.y;
         this.y = -x;
         return this;
-    }
-
-    /**
-     * Rotates the vector by 270 degrees and sets it's value to output(original vector does not changes).
-     * @param output
-     * @returns The rotated vector
-     */
-    rotate270Out (output: Vector): Vector {
-        output.x = this.y;
-        output.y = -this.x;
-        return output;
     }
 
     /**
@@ -180,18 +146,6 @@ export class Vector {
     }
 
     /**
-     * Scales the vector by the given scalar and sets it's value to output(original vector does not changes).
-     * @param scalar The scalar
-     * @param output
-     * @returns The scaled vector
-     */
-    scaleOut (scalar: number, output: Vector): Vector {
-        output.x = this.x * scalar;
-        output.y = this.y * scalar;
-        return output;
-    }
-
-    /**
      * Divides the vector by the given divisor.
      * @param divisor The divisor
      * @returns The divided vector
@@ -200,18 +154,6 @@ export class Vector {
         this.x /= divisor;
         this.y /= divisor;
         return this;
-    }
-
-    /**
-     * Divides the vector by the given divisor and sets it's value to output(original vector does not changes).
-     * @param divisor The divisor
-     * @param output
-     * @returns The divided vector
-     */
-    divideOut (divisor: number, output: Vector): Vector {
-        output.x = this.x / divisor;
-        output.y = this.y / divisor;
-        return output;
     }
 
     /**
@@ -396,8 +338,8 @@ export class Vector {
     static interpolateT (vectorA: Vector, vectorB: Vector, t: number, output: Vector): Vector {
         const halfT: number = 0.5 * t;
         return Vector.add(
-            vectorA.scaleOut(0.5 - halfT, Vector.prTemp[0]),
-            vectorB.scaleOut(0.5 + halfT, Vector.prTemp[1]),
+            vectorA.clone(Vector.prTemp[0]).scale(0.5 - halfT),
+            vectorB.clone(Vector.prTemp[1]).scale(0.5 + halfT),
             output,
         );
     }

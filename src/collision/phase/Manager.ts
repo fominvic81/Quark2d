@@ -1,21 +1,14 @@
 import { Engine } from '../../engine/Engine';
 import { Contact } from '../pair/Contact';
 import { Pair } from '../pair/Pair';
-import { AABBTree, AABBTreeOptions } from './broadphase/AABBTree';
-import { Broadphase, BroadphaseOptions } from './broadphase/Broadphase';
-import { GridBroadphase, GridBroadphaseOptions } from './broadphase/Grid';
+import { AABBTree, AABBTreeOptions } from './AABBTree/AABBTree';
 import { Midphase } from './Midphase';
 import { Narrowphase } from './narrowphase/Narrowphase';
-
-export interface ManagerOptions {
-    broadphaseConstructor?: (typeof GridBroadphase) | (typeof AABBTree);
-    broadphaseOptions?: BroadphaseOptions | GridBroadphaseOptions | AABBTreeOptions;
-}
 
 export class Manager {
     engine: Engine;
 
-    broadphase: Broadphase;
+    aabbTree: AABBTree;
     midphase: Midphase;
     narrowphase: Narrowphase;
 
@@ -28,15 +21,15 @@ export class Manager {
     pairsToSolve: Pair[] = [];
     contactsToSolve: Contact[] = [];
 
-    constructor (engine: Engine, options: ManagerOptions = {}) {
+    constructor (engine: Engine, options: AABBTreeOptions = {}) {
         this.engine = engine;
 
-        this.broadphase = new (options.broadphaseConstructor ?? AABBTree)(this, options.broadphaseOptions);
+        this.aabbTree = new AABBTree(this, options);
         this.midphase = new Midphase(this);
         this.narrowphase = new Narrowphase(this);
     }
 
-    update (dt: number) {
+    beforeUpdate (dt: number) {
         this.startedPairs.length = 0;
         this.activePairs.length = 0;
         this.endedPairs.length = 0;
@@ -45,18 +38,24 @@ export class Manager {
         this.contactsToSolve.length = 0;
 
         /* develblock:start */
-        this.engine.timer.timeStart('Manager');
         this.engine.timer.timeStart('Broadphase');
         /* develblock:end */
 
-        this.broadphase.update(dt);
+        this.aabbTree.update(dt);
 
         /* develblock:start */
         this.engine.timer.timeEnd('Broadphase');
+        /* develblock:end */
+
+    }
+
+    update () {        
+
+        /* develblock:start */
         this.engine.timer.timeStart('Midphase');
         /* develblock:end */
 
-        this.midphase.update(this.broadphase.activePairs);
+        this.midphase.update(this.aabbTree.activePairs);
 
         /* develblock:start */
         this.engine.timer.timeEnd('Midphase');
@@ -67,7 +66,6 @@ export class Manager {
 
         /* develblock:start */
         this.engine.timer.timeEnd('Narrowphase');
-        this.engine.timer.timeEnd('Manager');
         /* develblock:end */
 
         for (const pair of this.startedPairs) {

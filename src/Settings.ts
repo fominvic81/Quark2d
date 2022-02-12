@@ -4,7 +4,7 @@ const slop = 0.005;
 export const Settings = {
     restitutionThreshold: 0.015,
 
-    depthDamping: 0.3,
+    depthDamping: 0.6,
 
     slop,
     defaultRadius: 2 * slop,

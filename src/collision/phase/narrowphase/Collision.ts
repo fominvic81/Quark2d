@@ -66,7 +66,7 @@ export const contacts = (pair: Pair, refFace: Vector[], incFace: Vector[], norma
         pair.contacts[1].vertex,
     ];
 
-    clip(contactsTemp, incFace, tangent.negOut(Vector.temp[2]), offset1);
+    clip(contactsTemp, incFace, tangent.clone(Vector.temp[2]).neg(), offset1);
     clip(contacts, contactsTemp, tangent, offset2);
 
     const separation = Vector.dot(contacts[1], normal) - Vector.dot(refFace[0], normal);
@@ -109,7 +109,7 @@ export const collide = (pair: Pair) => {
 
         
         pair.contactsCount = 1;
-        Vector.add(vertex1, normal.scaleOut(shapeA.radius, temp), pair.contacts[0].vertex);
+        Vector.add(vertex1, normal.clone(temp).scale(shapeA.radius), pair.contacts[0].vertex);
         pair.contacts[0].depth = radius - length;
     } else {
         let incFace: Vector[];
@@ -124,14 +124,14 @@ export const collide = (pair: Pair) => {
             incRadius = shapeA.radius;
             
 
-            incFace = supportEdge(shapeA, points[0].indexA, normal.negOut(temp));
+            incFace = supportEdge(shapeA, points[0].indexA, normal.clone(temp).neg());
             refFace = [points[0].pointB, points[1].pointB];
         } else {
             shapeA.getNormal(points[1].indexA, normal);
             depth = Vector.dot(normal, points[0].point) + radius;
             incRadius = shapeB.radius;
             
-            incFace = supportEdge(shapeB, points[0].indexB, normal.negOut(temp));
+            incFace = supportEdge(shapeB, points[0].indexB, normal.clone(temp).neg());
             refFace = [points[0].pointA, points[1].pointA];
             
             flipped = true;
@@ -139,13 +139,13 @@ export const collide = (pair: Pair) => {
 
         if (depth < 0) return;
 
-        const tangent = normal.rotate270Out(temp);
+        const tangent = normal.clone(temp).rotate270();
         contacts(pair, refFace, incFace, normal, tangent, radius);
 
         pair.contacts[0].depth = depth;
 
         for (let i = 0; i < pair.contactsCount; ++i) {
-            pair.contacts[i].vertex.subtract(normal.scaleOut(incRadius, temp));
+            pair.contacts[i].vertex.subtract(normal.clone(temp).scale(incRadius));
         }
         if (!flipped) normal.neg();
 

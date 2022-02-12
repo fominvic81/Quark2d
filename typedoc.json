@@ -9,6 +9,7 @@
         "**/pair/**",
         "**/debug/**",
         "**/mouse/**",
-        "**/island/**"
+        "**/island/**",
+        "**/timeOfImpact/**"
     ]
 }

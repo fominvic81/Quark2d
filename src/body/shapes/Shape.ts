@@ -2,8 +2,7 @@ import { Vector } from '../../math/Vector';
 import { AABB } from '../../math/AABB';
 import { Common } from '../../common/Common';
 import { Filter } from '../Filter';
-import { Region } from '../../collision/phase/broadphase/Grid';
-import { AABBTreeNode } from '../../collision/phase/broadphase/AABBTree';
+import { AABBTreeNode } from '../../collision/phase/AABBTree/AABBTree';
 import { Body } from '../Body';
 import { Intersection } from '../../collision/ray/Intersection';
 import { Vertex } from '../../math/Vertex';
@@ -90,8 +89,6 @@ export abstract class Shape<UserData = any> {
      */
     isSensor: boolean;
     /** @ignore */
-    region: Region = new Region();
-    /** @ignore */
     AABBTreeNode?: AABBTreeNode;
     /** A variable that contains user data */
     userData?: UserData;
@@ -122,6 +119,12 @@ export abstract class Shape<UserData = any> {
      * @param angle
      */
     abstract rotate (angle: number): void;
+
+    abstract rotateU (uX: number, uY: number): void;
+
+    abstract rotateAbout (angle: number, point: Vector): void;
+
+    abstract rotateAboutU (uX: number, uY: number, point: Vector): void;
 
     /**
      * Updates the area of the shape.
