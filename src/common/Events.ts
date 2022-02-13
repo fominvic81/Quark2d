@@ -1,5 +1,8 @@
 import { Common } from './Common';
 
+export type Callback = (...data: any[]) => void;
+export type DefaultEventMap = {[name: string]: Callback};
+
 /**
  * The 'Events' is the class for creating event listeners.
  * 
@@ -8,21 +11,22 @@ import { Common } from './Common';
  *     const events = new Events();
  * 
  * 
- *     const eventId = events.on('test', (arg1, arg2, arg3) => {
+ *     const eventId = events.on('test', (data) => {
  * 
- *         console.log(arg1, arg2, arg3);
+ *         console.log(data);
  * 
  *     });
  * 
  * 
- *     events.trigger('test', [1, 2, {srt: 'string'}]); // console: 1 2 {srt: "string"}
+ *     events.trigger('test', [1, 2, {str: 'string'}]);
  * 
  */
 
-export class Events {
-    private events: Map<string, Map<number, {(...args: any[]): void}>> = new Map();
-    private onceEvents: Map<string, Set<{(...args: any[]): void}>> = new Map();
-    private namesByIds: Map<number, Array<string | number>> = new Map();
+
+export class Events<EventMap extends DefaultEventMap = DefaultEventMap> {
+    private events: Map<keyof EventMap, Map<number, Callback>> = new Map();
+    private onceEvents: Map<keyof EventMap, Set<Callback>> = new Map();
+    private namesByIds: Map<number, Array<keyof EventMap | number>> = new Map();
 
     /**
      * Subscribes the callback function to the given event name.
@@ -30,7 +34,7 @@ export class Events {
      * @param callback
      * @returns The id of the event
      */
-    on (name: string, callback: {(...args: any[]): void}): number {
+    on = <U extends keyof EventMap>(name: U, callback: EventMap[U]): number => {
         const id = Common.nextId();
         const callbackId = Common.nextId();
 
@@ -51,7 +55,7 @@ export class Events {
      * @param name
      * @param callback
      */
-    once (name: string, callback: {(...args: any[]): void}) {
+    once = <U extends keyof EventMap>(name: U, callback: EventMap[U]) => {
         let a = this.onceEvents.get(name);
         if (!a) {
             a = new Set();
@@ -78,16 +82,16 @@ export class Events {
     /**
      * Triggers all the callbacks subscribed to the given name.
      * @param name
-     * @param args
+     * @param data
      */
-    trigger (name: string, args: any[] = []) {
+    trigger = <U extends keyof EventMap>(name: U, ...data: Parameters<EventMap[U]>) => {
         const callbacks = this.events.get(name);
         if (callbacks) for (const callback of callbacks.values()) {
-            callback(...args);
+            callback(...data);
         }
         const onces = this.onceEvents.get(name);
         if (onces) for (const callback of onces.values()) {
-            callback(...args);
+            callback(...data);
         }
         this.onceEvents.delete(name);
     }

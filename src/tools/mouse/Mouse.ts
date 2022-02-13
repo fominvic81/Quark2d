@@ -4,10 +4,21 @@ import { Render } from '../render/Render';
 
 export interface QMouseEvent {
     mouse: Mouse;
-    event: any;
+    event: MouseEvent;
+}
+export interface QWheelEvent {
+    mouse: Mouse;
+    event: WheelEvent;
 }
 
-export class Mouse extends Events {
+type MouseEventMap = {
+    'mouse-down': (data: QMouseEvent) => void;
+    'mouse-up': (data: QMouseEvent) => void;
+    'mouse-move': (data: QMouseEvent) => void;
+    'wheel': (data: QWheelEvent) => void;
+}
+
+export class Mouse extends Events<MouseEventMap> {
     render: Render;
     pressed: boolean = false;
     leftButtonPressed : boolean = false;
@@ -21,7 +32,7 @@ export class Mouse extends Events {
     mousedownListener = (event: MouseEvent) => this.mouseDown(event);
     mouseupListener = (event: MouseEvent) => this.mouseUp(event);
     mousemoveListener = (event: MouseEvent) => this.mouseMove(event);
-    wheelListener = (event: MouseEvent) => this.mouseWheel(event);
+    wheelListener = (event: WheelEvent) => this.mouseWheel(event);
 
     constructor (render: Render) {
         super();
@@ -55,7 +66,7 @@ export class Mouse extends Events {
         this.localPosition.set(event.offsetX, event.offsetY);
         this.updatePosition();
         
-        this.trigger('mouse-down', [{mouse: this, event}]);
+        this.trigger('mouse-down', {mouse: this, event});
 
     }
     
@@ -75,7 +86,7 @@ export class Mouse extends Events {
         this.localPosition.set(event.offsetX, event.offsetY);
         this.updatePosition();
 
-        this.trigger('mouse-up', [{mouse: this, event}]);
+        this.trigger('mouse-up', {mouse: this, event});
     }
 
     mouseMove (event: MouseEvent) {
@@ -85,11 +96,11 @@ export class Mouse extends Events {
         this.localMovement.set(event.movementX, event.movementY);
         this.updateMovement();
 
-        this.trigger('mouse-move', [{mouse: this, event}]);
+        this.trigger('mouse-move', {mouse: this, event});
     }
 
-    mouseWheel (event: MouseEvent) {
-        this.trigger('wheel', [{mouse: this, event}]);
+    mouseWheel (event: WheelEvent) {
+        this.trigger('wheel', {mouse: this, event});
     }
 
     updatePosition () {

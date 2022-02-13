@@ -31,6 +31,16 @@ export enum BodyType {
     kinematic,
 }
 
+type BodyEventMap = {
+    'add-shape': (data: {shape: Shape}) => void;
+    'remove-shape': (data: {shape: Shape}) => void;
+    'become-dynamic': (data: {previousType: BodyType}) => void;
+    'become-static': (data: {previousType: BodyType}) => void;
+    'become-kinematic': (data: {previousType: BodyType}) => void;
+    'sleep-start': () => void;
+    'sleep-end': () => void;
+}
+
 /**
  * The bodies have position, angle, velocity.
  * You can apply forces, impulses and add the shapes to the bodies.
@@ -61,7 +71,7 @@ export enum BodyType {
  * 
  */
 
-export class Body<UserData = any> extends Events {
+export class Body<UserData = any> extends Events<BodyEventMap> {
     /** An id of the body */
     id: number = Common.nextId();
     /**
@@ -238,7 +248,7 @@ export class Body<UserData = any> extends Events {
 
         this.engine?.manager.aabbTree.addShape(shape);
 
-        this.trigger('add-shape', [{shape, body: this}]);
+        this.trigger('add-shape', {shape});
         return shape;
     }
 
@@ -257,7 +267,7 @@ export class Body<UserData = any> extends Events {
 
         this.updateInertia();
 
-        this.trigger('remove-shape', [{shape, body: this}]);
+        this.trigger('remove-shape', {shape});
 
         this.engine?.manager.aabbTree.removeShape(shape);
         return shape;
@@ -404,12 +414,12 @@ export class Body<UserData = any> extends Events {
 
         if (type === BodyType.dynamic) {
             this.setSleeping(false);
-            this.trigger('become-dynamic', [{previousType}]);
+            this.trigger('become-dynamic', {previousType});
         } else if (type === BodyType.static) {
-            this.trigger('become-static', [{previousType}]);
+            this.trigger('become-static', {previousType});
             this.minTOI = 1;
         } else if (type === BodyType.kinematic) {
-            this.trigger('become-kinematic', [{previousType}]);
+            this.trigger('become-kinematic', {previousType});
             this.minTOI = 1;
         }
         this.updateMass();

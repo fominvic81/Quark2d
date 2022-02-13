@@ -1,7 +1,7 @@
 import { Vector } from '../../math/Vector';
 import { Draw } from './Draw';
 import { ShapeType } from '../../body/shapes/Shape';
-import { Mouse, QMouseEvent } from '../mouse/Mouse';
+import { Mouse, QMouseEvent, QWheelEvent } from '../mouse/Mouse';
 import { AABB } from '../../math/AABB';
 import { Joint, JointType } from '../../joint/Joint';
 import { Engine } from '../../engine/Engine';
@@ -274,7 +274,7 @@ export class Render {
         }
     }
 
-    mouseWheel (event: QMouseEvent) {
+    mouseWheel (event: QWheelEvent) {
         this.options.scale.x -= event.event.deltaY * this.options.scale.x / 1000;
         this.options.scale.y -= event.event.deltaY * this.options.scale.y / 1000;
     }

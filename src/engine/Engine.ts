@@ -9,9 +9,10 @@ import { AABBTreeOptions } from '../collision/phase/AABBTree/AABBTree';
 import { IslandManager } from '../collision/island/IslandManager';
 import { TimeOfImpact } from '../collision/timeOfImpact/TimeOfImpact';
 import { BodyType } from '../body/Body';
+import { Filter } from '../body/Filter';
+import { Pair } from '../collision/pair/Pair';
 /* develblock:start */
 import { Timer } from '../tools/debug/Timer';
-import { Filter } from '../Quark2d';
 /* develblock:end */
 
 const toiTranslationA = new Vector();
@@ -26,26 +27,29 @@ interface EngineOptions {
     enableTOI?: boolean;
 }
 
+type EngineEventMap = {
+    'before-update': (data: {dt: number}, data2: {dt: number}) => void;
+    'after-collisions': (data: {startedPairs: Pair[], activePairs: Pair[], endedPairs: Pair[]}) => void;
+    'before-presolve': () => void;
+    'after-presolve': () => void;
+    'before-solve': () => void;
+    'after-solve': () => void;
+    'after-update': (data: {dt: number}) => void;
+}
+
 /**
  * The 'Engine' is a class that manages updating the simulation of the world.
  * 
  * Events:
  * * before-update
- * * update
- * * started-collisions
- * * active-collisions
- * * ended-collisions
  * * before-presolve
  * * after-presolve
  * * before-solve
  * * after-solve
- * * started-collisions-after-solve
- * * active-collisions-after-solve
- * * ended-collisions-after-solve
  * * after-update
  */
 
-export class Engine extends Events {
+export class Engine extends Events<EngineEventMap> {
     world: World;
     gravity: Vector;
     manager: Manager;
@@ -69,15 +73,12 @@ export class Engine extends Events {
         this.sleeping = new Sleeping(this, options.sleepingOptions);
         this.options.enableTOI = options.enableTOI ?? true;
     }
-
     /**
      * Moves engine forward in time by dt seconds.
      * @param timestamp
      */
     update (dt: number) {
-
-        this.trigger('before-update', [{engine: this, dt}]);
-        this.trigger('update', [{engine: this, dt}]);
+        this.trigger('before-update', {dt}, {dt});
 
         for (const body of this.world.activeBodies.values()) {
             body.minTOI = 1;
@@ -121,10 +122,7 @@ export class Engine extends Events {
         this.islandManager.update();
 
         this.sleeping.afterCollisions();
-
-        this.trigger('started-collisions', [{pairs: this.manager.startedPairs}]);
-        this.trigger('active-collisions', [{pairs: this.manager.activePairs}]);
-        this.trigger('ended-collisions', [{pairs: this.manager.endedPairs}]);
+        this.trigger('after-collisions', {startedPairs: this.manager.startedPairs,  activePairs: this.manager.activePairs, endedPairs: this.manager.endedPairs});
 
         /* develblock:start */
         this.timer.timeStart('Solver preStep');
@@ -157,11 +155,7 @@ export class Engine extends Events {
 
         this.sleeping.afterSolve(dt);
 
-        this.trigger('started-collisions-after-solve', [{pairs: this.manager.startedPairs}]);
-        this.trigger('active-collisions-after-solve', [{pairs: this.manager.activePairs}]);
-        this.trigger('ended-collisions-after-solve', [{pairs: this.manager.endedPairs}]);
-
-        this.trigger('after-update', [{engine: this, dt}]);
+        this.trigger('after-update', {dt});
     }
 
     /**

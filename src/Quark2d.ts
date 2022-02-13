@@ -53,7 +53,7 @@ import { Factory } from './tools/factory/Factory';
 import { FactoryBody } from './tools/factory/FactoryBody';
 import { FactoryShape } from './tools/factory/FactoryShape';
 
-import { Mouse } from './tools/mouse/Mouse';
+import { Mouse, QMouseEvent, QWheelEvent } from './tools/mouse/Mouse';
 import { MouseJoint } from './tools/mouse/MouseJoint';
 
 import { Render, RenderOptions } from './tools/render/Render';
@@ -134,6 +134,8 @@ export {
     DistJointOptions,
     RenderOptions,
     RunnerOptions,
+    QMouseEvent,
+    QWheelEvent,
 }
 
 export default {

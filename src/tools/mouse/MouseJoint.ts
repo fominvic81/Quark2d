@@ -5,7 +5,12 @@ import { Mouse, QMouseEvent } from './Mouse';
 import { Body, BodyType } from '../../body/Body';
 import { Shape } from '../../body/shapes/Shape';
 
-export class MouseJoint extends Events {
+type MouseJointEventMap = {
+    'catch-body': (data: {shape: Shape, body: Body}) => void;
+    'throw-body': (data: {shape: Shape, body: Body}) => void;
+}
+
+export class MouseJoint extends Events<MouseJointEventMap> {
     engine: Engine;
     mouse: Mouse;
     joint: DistJoint
@@ -38,7 +43,7 @@ export class MouseJoint extends Events {
             this.joint.setBodyA(body);
             this.joint.setWorldPointA(event.mouse.position);
             this.joint.setWorldPointB(event.mouse.position);
-            this.trigger('catch-body', [{body, shape}]);
+            this.trigger('catch-body', {body, shape});
             break;
         }
     }
@@ -47,7 +52,7 @@ export class MouseJoint extends Events {
         if (event.mouse.leftButtonPressed) return;
         if (this.body && this.shape) {
             this.joint.setBodyA();
-            this.trigger('throw-body', [{body: this.body, shape: this.shape}]);
+            this.trigger('throw-body', {body: this.body, shape: this.shape});
             this.body = undefined;
             this.shape = undefined;
         }

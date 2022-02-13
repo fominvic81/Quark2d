@@ -3,6 +3,14 @@ import { Engine } from '../engine/Engine';
 import { Joint } from '../joint/Joint';
 import { Events } from './Events';
 
+type WorldEventMap = {
+    'add-body': (data: {body: Body}) => void;
+    'remove-body': (data: {body: Body}) => void;
+    'add-joint': (data: {joint: Joint}) => void;
+    'remove-joint': (data: {joint: Joint}) => void;
+
+}
+
 /**
  * The world is container for bodies and joints.
  * 
@@ -13,7 +21,7 @@ import { Events } from './Events';
  * * remove-joint
  */
 
-export class World extends Events {
+export class World extends Events<WorldEventMap> {
     bodies: Map<number, Body> = new Map();
     joints: Map<number, Joint> = new Map();
     sleepingBodies: Map<number, Body> = new Map();
@@ -51,7 +59,7 @@ export class World extends Events {
     addBody (...bodies: Body[]) {
 
         for (const body of bodies) {
-            this.trigger('add-body', [{body}]);
+            this.trigger('add-body', {body});
             this.bodies.set(body.id, body);
 
             body.engine = this.engine;
@@ -125,7 +133,7 @@ export class World extends Events {
         
         for (const body of bodies) {
             if (this.bodies.has(body.id)) {
-                this.trigger('remove-body', [{body}]);
+                this.trigger('remove-body', {body});
                 this.bodies.delete(body.id);
             }
 
@@ -203,7 +211,7 @@ export class World extends Events {
      */
     addJoint (...joints: Joint[]) {
         for (const joint of joints) {
-            this.trigger('add-joint', [{joint}]);
+            this.trigger('add-joint', {joint});
             this.joints.set(joint.id, joint);
         }
         return joints;
@@ -216,7 +224,7 @@ export class World extends Events {
     removeJoint (...joints: Joint[]) {
         for (const joint of joints) {
             if (this.joints.has(joint.id)) {
-                this.trigger('remove-joint', [{joint}]);
+                this.trigger('remove-joint', {joint});
                 this.joints.delete(joint.id);
             }
         }
