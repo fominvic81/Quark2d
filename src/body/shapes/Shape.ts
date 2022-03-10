@@ -2,7 +2,7 @@ import { Vector } from '../../math/Vector';
 import { AABB } from '../../math/AABB';
 import { Common } from '../../common/Common';
 import { Filter } from '../Filter';
-import { AABBTreeNode } from '../../collision/phase/AABBTree/AABBTree';
+import { AABBTreeNode } from '../../collision/manager/AABBTree/AABBTree';
 import { Body } from '../Body';
 import { Intersection } from '../../collision/ray/Intersection';
 import { Vertex } from '../../math/Vertex';
@@ -55,8 +55,8 @@ export abstract class Shape<UserData = any> {
     abstract type: number;
     /** A body to which the shape is attached. */
     body: undefined | Body;
-    /** Current position of the shape. */
-    position: Vector = new Vector();
+    /** Current center of mass of the shape. */
+    center: Vector = new Vector();
     /** The axis-aligned bounding box of the shape. */
     aabb: AABB = new AABB();
     /** The area of the shape. */
@@ -181,4 +181,6 @@ export abstract class Shape<UserData = any> {
      * @param vector
      */
     abstract support (vector: Vector): Vertex;
+
+    abstract getCenterOfMass (output: Vector): Vector;
 }

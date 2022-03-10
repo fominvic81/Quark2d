@@ -151,7 +151,7 @@ export class Render {
         for (const body of bodies) {
             const color = (!body.isSleeping || !this.options.showSleeping) ? 'rgb(200, 200, 200)' : 'rgb(100, 100, 100)';
             for (const shape of body.shapes) {
-                const pos = shape.position;
+                const pos = shape.center;
                 switch (shape.type) {
                     case ShapeType.CIRCLE:
                         Draw.circle(this.ctx, pos, Math.max(shape.radius - Settings.defaultRadius, Settings.defaultRadius), color, false, this.options.lineWidth / 20);

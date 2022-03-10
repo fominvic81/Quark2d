@@ -267,7 +267,7 @@ export class Vector {
      * @param output
      * @returns The interpolated vector
      */
-    static interpolate (vectorA: Vector, vectorB: Vector, t: number, output: Vector): Vector {
+    static lerp (vectorA: Vector, vectorB: Vector, t: number, output: Vector): Vector {
         output.x = vectorA.x + t * (vectorB.x - vectorA.x);
         output.y = vectorA.y + t * (vectorB.y - vectorA.y);
         return output;
@@ -335,7 +335,7 @@ export class Vector {
      * @param output
      * @returns The interpolated vector
      */
-    static interpolateT (vectorA: Vector, vectorB: Vector, t: number, output: Vector): Vector {
+    static lerpT (vectorA: Vector, vectorB: Vector, t: number, output: Vector): Vector {
         const halfT: number = 0.5 * t;
         return Vector.add(
             vectorA.clone(Vector.prTemp[0]).scale(0.5 - halfT),
@@ -351,7 +351,7 @@ export class Vector {
      * @returns The squared distance
      */
     static distSquaredToZero (vectorA: Vector, vectorB: Vector): number {
-        return Vector.interpolateT(vectorA, vectorB, Vector.zeroT(vectorA, vectorB), Vector.prTemp[0]).lengthSquared();
+        return Vector.lerpT(vectorA, vectorB, Vector.zeroT(vectorA, vectorB), Vector.prTemp[0]).lengthSquared();
     }
 
     /**

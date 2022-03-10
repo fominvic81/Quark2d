@@ -1,7 +1,7 @@
 import { Vector } from '../../math/Vector';
 import { Body, BodyOptions } from '../../body/Body';
-import { Circle, CircleOptions } from '../../body/shapes/Circle';
-import { Convex, ConvexOptions } from '../../body/shapes/Convex';
+import { CircleOptions } from '../../body/shapes/Circle';
+import { ConvexOptions } from '../../body/shapes/Convex';
 import { EdgeOptions } from '../../body/shapes/Edge';
 import { Factory } from './Factory';
 
@@ -19,9 +19,7 @@ export class FactoryBody {
 
         bodyOptions.position = position;
         const body = new Body(bodyOptions);
-    
-        shapeOptions.radius = radius;
-        body.addShape(new Circle(shapeOptions));
+        body.addShape(Factory.Shape.circle(position, radius, shapeOptions));
     
         return body;
     }
@@ -41,7 +39,7 @@ export class FactoryBody {
         bodyOptions.position = position;
         bodyOptions.angle = angle;
         const body = new Body(bodyOptions);
-        const shape = Factory.Shape.capsule(length, radius, shapeOptions);
+        const shape = Factory.Shape.capsule(position, angle, length, radius, shapeOptions);
         body.addShape(shape);
     
         return body;
@@ -61,15 +59,9 @@ export class FactoryBody {
     
         bodyOptions.position = position;
         bodyOptions.angle = angle;
-        shapeOptions.vertices = [
-            new Vector(-width / 2, -heigth / 2),
-            new Vector(width / 2, -heigth / 2),
-            new Vector(width / 2, heigth / 2),
-            new Vector(-width / 2, heigth / 2),
-        ];
-    
+
         const rectangle = new Body(bodyOptions);
-        rectangle.addShape(new Convex(shapeOptions));
+        rectangle.addShape(Factory.Shape.rectangle(position, angle, width, heigth, shapeOptions));
     
         return rectangle;
     }
@@ -87,7 +79,7 @@ export class FactoryBody {
     
         bodyOptions.position = position;
         const body = new Body(bodyOptions);
-        const shape = Factory.Shape.polygon(sides, radius, shapeOptions);
+        const shape = Factory.Shape.polygon(position, sides, radius, shapeOptions);
         body.addShape(shape);
     
         return body;
@@ -103,13 +95,13 @@ export class FactoryBody {
      */
     static fromVertices (position: Vector, vertices: Vector[], bodyOptions: BodyOptions = {}, shapeOptions: ConvexOptions = {}): Body {
     
-        bodyOptions.position = position;
         const body = new Body(bodyOptions);
         const shapes = Factory.Shape.fromVertices(vertices, shapeOptions);
     
         for (const shape of shapes) {
             body.addShape(shape);
         }
+        body.translate(position);
 
         return body;
     }
@@ -124,11 +116,11 @@ export class FactoryBody {
      * @param shapeOptions
      * @returns An ellipse
      */
-    static ellipse (position: Vector, radiusX: number, radiusY: number, quality: number = 6, bodyOptions: BodyOptions = {}, shapeOptions: ConvexOptions = {}): Body {
+    static ellipse (position: Vector, angle: number, radiusX: number, radiusY: number, quality: number = 6, bodyOptions: BodyOptions = {}, shapeOptions: ConvexOptions = {}): Body {
 
         bodyOptions.position = position;
         const body = new Body(bodyOptions);
-        const shape = Factory.Shape.ellipse(radiusX, radiusY, quality, shapeOptions);
+        const shape = Factory.Shape.ellipse(position, angle, radiusX, radiusY, quality, shapeOptions);
         body.addShape(shape);
 
         return body

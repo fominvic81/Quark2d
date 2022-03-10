@@ -75,7 +75,7 @@ export const GJK = (shapeA: Shape, shapeB: Shape, useEpa: boolean, output: Suppo
             dir.x = p2.point.y - p1.point.y;
             dir.y = p1.point.x - p2.point.x;
         } else {
-            // Vector.interpolateT(p1.point, p2.point, t, dir).neg();
+            // Vector.lerpT(p1.point, p2.point, t, dir).neg();
             const halfT: number = 0.5 * t;
             const a = 0.5 - halfT;
             const b = 0.5 + halfT;

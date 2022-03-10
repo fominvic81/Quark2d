@@ -5,7 +5,10 @@ import { Vertex } from '../../math/Vertex';
 import { Settings } from '../../Settings';
 import { circleTest } from '../../collision/ray/CircleTest';
 
-export interface CircleOptions extends ShapeOptions {}
+export interface CircleOptions extends ShapeOptions {
+    /** Position of the circle */
+    position?: Vector;
+}
 
 export class Circle<UserData = any> extends Shape {
     type: number = ShapeType.CIRCLE;
@@ -17,6 +20,7 @@ export class Circle<UserData = any> extends Shape {
         this.radius = (options.radius ?? 0.5) + Settings.defaultRadius;
 
         this.updateArea();
+        if (options.position) options.position.clone(this.position).clone(this.center);
         
         if (options.mass) this.setMass(options.mass);
         if (!options.mass || options.density) this.setDensity(options.density ?? Settings.defaultDensity);
@@ -29,7 +33,7 @@ export class Circle<UserData = any> extends Shape {
      * @param vector
      */
     translate (vector: Vector) {
-        this.position.add(vector);
+        this.position.add(vector).clone(this.center);
     }
 
     /**
@@ -47,7 +51,7 @@ export class Circle<UserData = any> extends Shape {
     }
 
     rotateAboutU(uX: number, uY: number, point: Vector) {
-        this.position.rotateAboutU(uX, uY, point);
+        this.position.rotateAboutU(uX, uY, point).clone(this.center);
     }
 
     /**
@@ -129,7 +133,11 @@ export class Circle<UserData = any> extends Shape {
      * Returns the farthest vertex in the given direction and its index.
      * @param vector
      */
-     support (vector: Vector) {
+    support (vector: Vector) {
         return this.position;
+    }
+
+    getCenterOfMass(output: Vector) {
+        return this.center.clone(output);
     }
 }

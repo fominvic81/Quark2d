@@ -1,7 +1,7 @@
 import { Vector } from '../math/Vector';
 import { Common } from '../common/Common';
 import { Events } from '../common/Events';
-import { Shape, ShapeType } from './shapes/Shape';
+import { Shape } from './shapes/Shape';
 import { Joint } from '../joint/Joint';
 import { Settings } from '../Settings';
 import { Engine } from '../engine/Engine';
@@ -223,15 +223,8 @@ export class Body<UserData = any> extends Events<BodyEventMap> {
     /**
      * Adds shape to the body.
      * @param shape
-     * @param updateCenterOfMass
-     * @param offset
-     * @param angle
      */
-    addShape (shape: Shape, offset: Vector = new Vector(), angle: number = 0) {
-
-        shape.rotate(this.angle + angle);
-        shape.translate(this.position);
-        shape.translate(offset);
+    addShape (shape: Shape) {
 
         shape.updateAABB();
 
@@ -250,6 +243,16 @@ export class Body<UserData = any> extends Events<BodyEventMap> {
 
         this.trigger('add-shape', {shape});
         return shape;
+    }
+
+    /**
+     * Adds shape to the body relatively to body`s position and angle.
+     * @param shape
+     */
+    addShapeRelatively (shape: Shape, offset: Vector = new Vector(), angle: number = 0) {
+        shape.rotate(this.angle + angle);
+        shape.translate(offset.copy().add(this.position));
+        return this.addShape(shape);
     }
 
     /**
@@ -293,7 +296,7 @@ export class Body<UserData = any> extends Events<BodyEventMap> {
         if (this.type === BodyType.dynamic && !this.fixedRotation) {
             for (const shape of this.shapes) {
                 shape.updateInertia();
-                const distSquared = Vector.distSquared(this.center, shape.position);
+                const distSquared = Vector.distSquared(this.center, shape.center);
     
                 this.inertia += shape.inertia + distSquared * shape.mass;
             }
@@ -333,7 +336,7 @@ export class Body<UserData = any> extends Events<BodyEventMap> {
         let mass = 0;
         
         for (const shape of this.shapes) {
-            Vector.subtract(this.center, shape.position, offset);
+            Vector.subtract(this.center, shape.center, offset);
             sum.add(offset.clone(Vector.temp[2]).scale(shape.mass));
             mass += shape.mass;
         }

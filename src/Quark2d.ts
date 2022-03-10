@@ -18,19 +18,19 @@ import { Grid } from './common/Grid';
 import { Events } from './common/Events';
 import { World,  } from './common/World';
 
-import { CircleVsCircle } from './collision/phase/narrowphase/CircleVsCircle';
-import { ConvexVsCircle } from './collision/phase/narrowphase/ConvexVsCircle';
-import { EdgeVsCircle } from './collision/phase/narrowphase/EdgeVsCircle';
-import { collide } from './collision/phase/narrowphase/Collision';
-import { Colliders } from './collision/phase/narrowphase/Colliders';
-import { GJK } from './collision/phase/narrowphase/Distance';
-import { EPA } from './collision/phase/narrowphase/Distance';
-import { distance } from './collision/phase/narrowphase/Distance';
+import { CircleVsCircle } from './collision/manager/narrowphase/CircleVsCircle';
+import { ConvexVsCircle } from './collision/manager/narrowphase/ConvexVsCircle';
+import { EdgeVsCircle } from './collision/manager/narrowphase/EdgeVsCircle';
+import { collide } from './collision/manager/narrowphase/Collision';
+import { Colliders } from './collision/manager/narrowphase/Colliders';
+import { GJK } from './collision/manager/narrowphase/Distance';
+import { EPA } from './collision/manager/narrowphase/Distance';
+import { distance } from './collision/manager/narrowphase/Distance';
 
-import { Manager } from './collision/phase/Manager';
-import { AABBTree, AABBTreeOptions } from './collision/phase/AABBTree/AABBTree';
-import { Midphase } from './collision/phase/Midphase';
-import { Narrowphase } from './collision/phase/narrowphase/Narrowphase';
+import { Manager } from './collision/manager/Manager';
+import { AABBTree, AABBTreeOptions } from './collision/manager/AABBTree/AABBTree';
+import { Midphase } from './collision/manager/Midphase';
+import { Narrowphase } from './collision/manager/narrowphase/Narrowphase';
 
 import { Contact } from './collision/pair/Contact';
 import { Pair } from './collision/pair/Pair';

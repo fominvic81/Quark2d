@@ -1,4 +1,4 @@
-import { distance } from '../phase/narrowphase/Distance';
+import { distance } from '../manager/narrowphase/Distance';
 import { Settings } from '../../Settings';
 import { Shape, ShapeType } from '../../body/shapes/Shape';
 import { Vector } from '../../math/Vector';

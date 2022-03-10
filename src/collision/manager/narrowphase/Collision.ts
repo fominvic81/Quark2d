@@ -46,7 +46,7 @@ export const clip = (output: Vector[], incFace: Vector[], normal: Vector, offset
 
     if (dist1 * dist2 < 0) {
         const t = dist1 / (dist1 - dist2);
-        Vector.interpolate(incFace[0], incFace[1], t, output[count++]);
+        Vector.lerp(incFace[0], incFace[1], t, output[count++]);
     }
 
     return count;

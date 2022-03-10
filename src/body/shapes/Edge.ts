@@ -64,7 +64,7 @@ export class Edge<UserData = any> extends Shape {
         delta.clone(this.normal).divide(this.length);
         this.normal.rotate90();
 
-        Vector.interpolate(this.start, this.end, 0.5, this.position);
+        Vector.lerp(this.start, this.end, 0.5, this.center);
         // EPA bug fix
         this.rotate(0.00001);
     }
@@ -83,7 +83,7 @@ export class Edge<UserData = any> extends Shape {
      * @param vector
      */
     translate (vector: Vector) {
-        this.position.add(vector);
+        this.center.add(vector);
         this.start.add(vector);
         this.end.add(vector);
     }
@@ -97,8 +97,8 @@ export class Edge<UserData = any> extends Shape {
     }
 
     rotateU (uX: number, uY: number) {
-        this.start.rotateAboutU(uX, uY, this.position);
-        this.end.rotateAboutU(uX, uY, this.position);
+        this.start.rotateAboutU(uX, uY, this.center);
+        this.end.rotateAboutU(uX, uY, this.center);
         this.normal.rotateU(uX, uY);
     }
 
@@ -107,7 +107,7 @@ export class Edge<UserData = any> extends Shape {
     }
 
     rotateAboutU(uX: number, uY: number, point: Vector): void {
-        this.position.rotateAboutU(uX, uY, point);
+        this.center.rotateAboutU(uX, uY, point);
         this.start.rotateAboutU(uX, uY, point);
         this.end.rotateAboutU(uX, uY, point);
         this.normal.rotateU(uX, uY);
@@ -285,5 +285,9 @@ export class Edge<UserData = any> extends Shape {
     support (vector: Vector) {
         const index = this.project(vector);
         return index ? this.end : this.start;
+    }
+
+    getCenterOfMass (output: Vector) {
+        return Vector.lerp(this.start, this.end, 0.5, output);
     }
 }

@@ -38,7 +38,7 @@ export class Convex<UserData = any> extends Shape {
         Vertices.normals(this.vertices, this.normals, this.lengths);
 
         this.updateArea();
-        this.updateCenterOfMass();
+        this.getCenterOfMass(this.center);
 
         if (options.mass) this.setMass(options.mass);
         if (!options.mass || options.density) this.setDensity(options.density ?? Settings.defaultDensity);
@@ -83,7 +83,7 @@ export class Convex<UserData = any> extends Shape {
      * @param vector
      */
     translate (vector: Vector) {
-        this.position.add(vector);
+        this.center.add(vector);
         Vertices.translate(this.vertices, vector);
     }
 
@@ -96,7 +96,7 @@ export class Convex<UserData = any> extends Shape {
     }
     
     rotateU(uX: number, uY: number) {
-        Vertices.rotateAboutU(this.vertices, uX, uY, this.position);
+        Vertices.rotateAboutU(this.vertices, uX, uY, this.center);
         Vertices.rotateU(this.normals, uX, uY);
     }
 
@@ -105,7 +105,7 @@ export class Convex<UserData = any> extends Shape {
     }
 
     rotateAboutU(uX: number, uY: number, point: Vector) {
-        this.position.rotateAboutU(uX, uY, point);
+        this.center.rotateAboutU(uX, uY, point);
         Vertices.rotateAboutU(this.vertices, uX, uY, point);
         Vertices.rotateU(this.normals, uX, uY);
     }
@@ -132,14 +132,9 @@ export class Convex<UserData = any> extends Shape {
      */
     updateInertia () {
         const vertices: Vector[] = [];
-        if (this.body) {
-            for (const vertex of this.vertices) {
-                vertices.push(vertex.copy().subtract(this.body.center));
-            }
-        } else {
-            for (const vertex of this.vertices) {
-                vertices.push(vertex.copy().subtract(this.position));
-            }
+
+        for (const vertex of this.vertices) {
+            vertices.push(vertex.copy().subtract(this.center));
         }
         this.areaInertia = Vertices.inertia(vertices);
 
@@ -148,13 +143,13 @@ export class Convex<UserData = any> extends Shape {
 
         const vertex = Vector.temp[0];
         for (const v of this.vertices) {
-            Vector.subtract(v, this.position, vertex);
-            const vertex2 = Vector.subtract(this.vertices[(v.index + 1) % this.vertices.length], this.position, Vector.temp[1]);
+            Vector.subtract(v, this.center, vertex);
+            const vertex2 = Vector.subtract(this.vertices[(v.index + 1) % this.vertices.length], this.center, Vector.temp[1]);
 
             const length = this.lengths[v.index];
             const normal = this.normals[v.index];
 
-            const point = Vector.interpolate(vertex, vertex2, 0.5, Vector.temp[2]);
+            const point = Vector.lerp(vertex, vertex2, 0.5, Vector.temp[2]);
             point.add(normal.clone(Vector.temp[3]).scale(this.radius * 0.5));
 
             const areaFraction = length * this.radius * inverseArea;
@@ -165,7 +160,7 @@ export class Convex<UserData = any> extends Shape {
         }
 
         for (const v of this.vertices) {
-            Vector.subtract(v, this.position, vertex);
+            Vector.subtract(v, this.center, vertex);
             const n1 = this.normals[v.index];
             const n2 = this.normals[(v.index - 1 + this.normals.length) % this.normals.length];
 
@@ -196,17 +191,6 @@ export class Convex<UserData = any> extends Shape {
         this.aabb.maxX += this.radius;
         this.aabb.maxY += this.radius;
         return this.aabb;
-    }
-
-    /**
-     * Updates the centroid of the shape.
-     */
-    updateCenterOfMass () {
-        const center = Vertices.center(this.vertices);
-
-        center.clone(this.position);
-
-        this.updateInertia();
     }
 
     raycast (intersection: Intersection, from: Vector, to: Vector, delta: Vector) {
@@ -351,5 +335,9 @@ export class Convex<UserData = any> extends Shape {
      */
     support (vector: Vector) {
         return this.vertices[this.project(vector)];
+    }
+
+    getCenterOfMass (output: Vector) {
+        return Vertices.center(this.vertices).clone(output);
     }
 }

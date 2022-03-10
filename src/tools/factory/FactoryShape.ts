@@ -6,32 +6,35 @@ import { Common } from '../../common/Common';
 import { Vertices } from '../../math/Vertices';
 
 export class FactoryShape {
-    static circle (radius: number, options: CircleOptions = {}): Circle {
+
+    static circle (position: Vector, radius: number, options: CircleOptions = {}): Circle {
+        options.position = position;
         options.radius = radius;
         return new Circle(options);
     }
     
-    static capsule (length: number, radius: number, options: EdgeOptions = {}): Edge {
+    static capsule (position: Vector, angle: number, length: number, radius: number, options: EdgeOptions = {}): Edge {
     
-        options.start = new Vector(-length * 0.5, 0);
-        options.end = new Vector(length * 0.5, 0);
+        options.start = new Vector(-length * 0.5, 0).add(position);
+        options.end = new Vector(length * 0.5, 0).add(position);
+        options.angle = angle;
         options.radius = radius;
     
         return new Edge(options);
     }
     
-    static rectangle (width: number, heigth: number, options: ConvexOptions = {}): Convex {
+    static rectangle (position: Vector, angle: number, width: number, heigth: number, options: ConvexOptions = {}): Convex {
         options.vertices = [
-            new Vector(-width / 2, -heigth / 2),
-            new Vector(width / 2, -heigth / 2),
-            new Vector(width / 2, heigth / 2),
-            new Vector(-width / 2, heigth / 2),
+            new Vector(-width / 2, -heigth / 2).add(position),
+            new Vector(width / 2, -heigth / 2).add(position),
+            new Vector(width / 2, heigth / 2).add(position),
+            new Vector(-width / 2, heigth / 2).add(position),
         ];
-    
+        options.angle = angle;
         return new Convex(options);
     }
     
-    static polygon (sides: number = 4, radius: number = 1, options: ConvexOptions = {}): Convex {
+    static polygon (position: Vector, sides: number = 4, radius: number = 1, options: ConvexOptions = {}): Convex {
     
         if (sides < 3) {
             console.warn('Sides must be at least 3');
@@ -46,9 +49,8 @@ export class FactoryShape {
             vertices.push(new Vector(
                 Math.cos(angle) * radius,
                 Math.sin(angle) * radius,
-            ));
+            ).add(position));
         }
-        
         options.vertices = vertices;
         return new Convex(options);
     }
@@ -66,7 +68,7 @@ export class FactoryShape {
         return output;
     }
 
-    static ellipse (radiusX: number, radiusY: number, quality: number = 6, options: ConvexOptions = {}): Convex {
+    static ellipse (position: Vector, angle: number, radiusX: number, radiusY: number, quality: number = 6, options: ConvexOptions = {}): Convex {
         const sides = quality * 4;
 
         const delta = Common.PI2 / sides;
@@ -78,10 +80,10 @@ export class FactoryShape {
             vertices.push(new Vector(
                 Math.cos(angle) * radiusX,
                 Math.sin(angle) * radiusY,
-            ));
+            ).add(position));
         }
-        
         options.vertices = vertices;
+        options.angle = angle;
         return new Convex(options);
     }
 }
