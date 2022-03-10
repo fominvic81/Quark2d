@@ -202,10 +202,10 @@ export class Body<UserData = any> extends Events<BodyEventMap> {
      */
     updatePosition (dt: number) {
         // update position
-        this.translate(this.velocity.clone(Body.vecTemp[0]).scale(dt));
+        this.translate(this.velocity.clone(Body.vecTemp[0]).scale(dt), false);
 
         // update angle
-        this.rotate(this.angularVelocity * dt);
+        this.rotate(this.angularVelocity * dt, false);
 
         // update AABB
         for (const shape of this.shapes) {
@@ -214,8 +214,8 @@ export class Body<UserData = any> extends Events<BodyEventMap> {
     }
 
     updateBias () {
-        this.translate(this.positionBias);
-        this.rotate(this.positionBiasAngle);
+        this.translate(this.positionBias, false);
+        this.rotate(this.positionBiasAngle, false);
         this.positionBias.set(0, 0);
         this.positionBiasAngle = 0;
     }
@@ -351,20 +351,21 @@ export class Body<UserData = any> extends Events<BodyEventMap> {
      * Sets the position of the body to the given.
      * @param position
      */
-    setPosition (position: Vector) {
-        this.translate(Vector.subtract(position, this.position, Body.vecTemp[0]));
+    setPosition (position: Vector, updateAABB: boolean = true) {
+        this.translate(Vector.subtract(position, this.position, Body.vecTemp[0]), updateAABB);
     }
 
     /**
      * Translates the body by the given vector.
      * @param vector
      */
-    translate (vector: Vector) {
+    translate (vector: Vector, updateAABB: boolean = true) {
         this.position.add(vector);
         this.center.add(vector);
 
         for (const shape of this.shapes) {
             shape.translate(vector);
+            if (updateAABB) shape.updateAABB();
         }
     }
 
@@ -372,21 +373,21 @@ export class Body<UserData = any> extends Events<BodyEventMap> {
      * Sets the angle of the body to the given.
      * @param angle
      */
-    setAngle (angle: number) {
-        this.rotate(angle - this.angle);
+    setAngle (angle: number, updateAABB: boolean = true) {
+        this.rotate(angle - this.angle, updateAABB);
     }
 
     /**
      * Rotates the body by the given angle.
      * @param angle
      */
-    rotate (angle: number) {
+    rotate (angle: number, updateAABB: boolean = true) {
         if (angle === 0) return;
 
-        this.rotateU(Math.cos(angle), Math.sin(angle), angle);
+        this.rotateU(Math.cos(angle), Math.sin(angle), angle, updateAABB);
     }
 
-    rotateU (uX: number, uY: number, angle: number) {
+    rotateU (uX: number, uY: number, angle: number, updateAABB: boolean = true) {
 
         this.angle += angle;
 
@@ -398,6 +399,7 @@ export class Body<UserData = any> extends Events<BodyEventMap> {
 
         for (const shape of this.shapes) {
             shape.rotateAboutU(uX, uY, this.center);
+            if (updateAABB) shape.updateAABB();
         }
     }
 

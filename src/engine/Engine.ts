@@ -75,7 +75,7 @@ export class Engine extends Events<EngineEventMap> {
     }
     /**
      * Moves engine forward in time by dt seconds.
-     * @param timestamp
+     * @param dt
      */
     update (dt: number) {
         this.trigger('before-update', {dt}, {dt});
