@@ -239,7 +239,7 @@ export class Body<UserData = any> extends Events<BodyEventMap> {
 
         this.updateInertia();
 
-        this.engine?.manager.aabbTree.addShape(shape);
+        this.engine?.manager.broadphase.addShape(shape);
 
         this.trigger('add-shape', {shape});
         return shape;
@@ -272,7 +272,7 @@ export class Body<UserData = any> extends Events<BodyEventMap> {
 
         this.trigger('remove-shape', {shape});
 
-        this.engine?.manager.aabbTree.removeShape(shape);
+        this.engine?.manager.broadphase.removeShape(shape);
         return shape;
     }
 

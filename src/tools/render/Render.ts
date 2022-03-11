@@ -237,7 +237,7 @@ export class Render {
 
             this.statusText += `joints: ${alljoints.length}   `
 
-            this.statusText += `broadphasePairs: ${this.engine.manager.aabbTree.getPairsCount()}   `;
+            this.statusText += `broadphasePairs: ${this.engine.manager.broadphase.getPairsCount()}   `;
             this.statusText += `midphasePairs: ${this.engine.manager.midphase.getPairsCount()}   `;
             this.statusText += `narrowphasePairs: ${this.engine.manager.getPairsCount()}   `;
 

@@ -2,7 +2,7 @@ import { Vector } from '../../math/Vector';
 import { AABB } from '../../math/AABB';
 import { Common } from '../../common/Common';
 import { Filter } from '../Filter';
-import { AABBTreeNode } from '../../collision/manager/AABBTree/AABBTree';
+import { AABBTreeNode } from '../../collision/manager/broadphase/AABBTree';
 import { Body } from '../Body';
 import { Intersection } from '../../collision/ray/Intersection';
 import { Vertex } from '../../math/Vertex';
@@ -89,7 +89,7 @@ export abstract class Shape<UserData = any> {
      */
     isSensor: boolean;
     /** @ignore */
-    AABBTreeNode?: AABBTreeNode;
+    AABBTreeNode: AABBTreeNode = new AABBTreeNode();
     /** A variable that contains user data */
     userData?: UserData;
 
@@ -104,6 +104,8 @@ export abstract class Shape<UserData = any> {
         this.friction = options.friction ?? Settings.defaultFriction;
         this.surfaceVelocity = options.surfaceVelocity ?? 0;
         this.isSensor = options.isSensor ?? false;
+
+        this.AABBTreeNode.shape = this;
 
         this.userData = userData;
     }

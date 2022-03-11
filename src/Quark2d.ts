@@ -28,7 +28,8 @@ import { EPA } from './collision/manager/narrowphase/Distance';
 import { distance } from './collision/manager/narrowphase/Distance';
 
 import { Manager } from './collision/manager/Manager';
-import { AABBTree, AABBTreeOptions } from './collision/manager/AABBTree/AABBTree';
+import { Broadphase, BroadphaseOptions } from './collision/manager/broadphase/Broadphase';
+import { AABBTree, AABBTreeNode } from './collision/manager/broadphase/AABBTree';
 import { Midphase } from './collision/manager/Midphase';
 import { Narrowphase } from './collision/manager/narrowphase/Narrowphase';
 
@@ -94,7 +95,9 @@ export {
     EPA,
     distance,
     Manager,
+    Broadphase,
     AABBTree,
+    AABBTreeNode,
     Midphase,
     Narrowphase,
     Contact,
@@ -127,7 +130,7 @@ export {
     CircleOptions,
     ShapeOptions,
     BodyOptions,
-    AABBTreeOptions,
+    BroadphaseOptions,
     SolverOptions,
     RayOptions,
     JointOptions,
@@ -167,7 +170,9 @@ export default {
     EPA,
     distance,
     Manager,
+    Broadphase,
     AABBTree,
+    AABBTreeNode,
     Midphase,
     Narrowphase,
     Contact,

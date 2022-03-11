@@ -66,7 +66,7 @@ export class Ray {
         this.from.clone(result.from);
 
         if (useBroadphase) {
-            for (const shape of engine.manager.aabbTree.raycast(this.from, this.delta)) {
+            for (const shape of engine.manager.broadphase.raycast(this.from, this.delta)) {
                 if (Filter.canCollide(shape.filter, this.filter)) {
                     const intersection = result.createIntersection(shape);
 

@@ -43,7 +43,7 @@ Grid broadphase
 
 Collision filtering
 
-Events
+Continuous collision detection
 
 ## Example
 
@@ -84,7 +84,7 @@ Mouse wheel to zoom.
     });
 
     // Add the circle shape to the body
-    circleBody.addShape(circleShape);
+    circleBody.addShapeRelatively(circleShape);
 
     // Add the the body to the world
     engine.world.add(circleBody);
@@ -114,7 +114,7 @@ Mouse wheel to zoom.
     });
 
     // Add the rectangular shape to the body
-    ground.addShape(groundShape);
+    ground.addShapeRelatively(groundShape);
 
     // Add the the body to the world
     engine.world.add(ground);
@@ -131,10 +131,10 @@ Mouse wheel to zoom.
     // Create a runner
     const runner = new Runner();
     runner.on('update', (timestamp) => {
-        engine.update(timestamp);
+        engine.update(timestamp.delta);
     })
     runner.on('render', (timestamp) => {
-        render.update(timestamp);
+        render.update(timestamp.delta, runner.tps);
     });
 
     // Run the runner

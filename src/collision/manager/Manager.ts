@@ -1,14 +1,14 @@
 import { Engine } from '../../engine/Engine';
 import { Contact } from '../pair/Contact';
 import { Pair } from '../pair/Pair';
-import { AABBTree, AABBTreeOptions } from './AABBTree/AABBTree';
+import { Broadphase, BroadphaseOptions } from './broadphase/Broadphase';
 import { Midphase } from './Midphase';
 import { Narrowphase } from './narrowphase/Narrowphase';
 
 export class Manager {
     engine: Engine;
 
-    aabbTree: AABBTree;
+    broadphase: Broadphase;
     midphase: Midphase;
     narrowphase: Narrowphase;
 
@@ -21,10 +21,10 @@ export class Manager {
     pairsToSolve: Pair[] = [];
     contactsToSolve: Contact[] = [];
 
-    constructor (engine: Engine, options: AABBTreeOptions = {}) {
+    constructor (engine: Engine, options: BroadphaseOptions = {}) {
         this.engine = engine;
 
-        this.aabbTree = new AABBTree(this, options);
+        this.broadphase = new Broadphase(this, options);
         this.midphase = new Midphase(this);
         this.narrowphase = new Narrowphase(this);
     }
@@ -41,7 +41,7 @@ export class Manager {
         this.engine.timer.timeStart('Broadphase');
         /* develblock:end */
 
-        this.aabbTree.update(dt);
+        this.broadphase.update(dt);
 
         /* develblock:start */
         this.engine.timer.timeEnd('Broadphase');
@@ -55,7 +55,7 @@ export class Manager {
         this.engine.timer.timeStart('Midphase');
         /* develblock:end */
 
-        this.midphase.update(this.aabbTree.activePairs);
+        this.midphase.update(this.broadphase.activePairs);
 
         /* develblock:start */
         this.engine.timer.timeEnd('Midphase');

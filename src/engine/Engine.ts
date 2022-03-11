@@ -5,7 +5,7 @@ import { Sleeping, SleepingOptions } from '../body/Sleeping';
 import { World } from '../common/World';
 import { Manager } from '../collision/manager/Manager';
 import { AABB } from '../math/AABB';
-import { AABBTreeOptions } from '../collision/manager/AABBTree/AABBTree';
+import { BroadphaseOptions } from '../collision/manager/broadphase/Broadphase';
 import { IslandManager } from '../collision/island/IslandManager';
 import { TimeOfImpact } from '../collision/timeOfImpact/TimeOfImpact';
 import { BodyType } from '../body/Body';
@@ -23,7 +23,7 @@ interface EngineOptions {
     gravity?: Vector;
     solverOptions?: SolverOptions;
     sleepingOptions?: SleepingOptions;
-    aabbTreeOptions?: AABBTreeOptions;
+    broadphaseOptions?: BroadphaseOptions;
     enableTOI?: boolean;
 }
 
@@ -68,7 +68,7 @@ export class Engine extends Events<EngineEventMap> {
         super();
         this.world = options.world ?? new World(this);
         this.gravity = options.gravity === undefined ? new Vector(0, 9.8) : options.gravity.copy();
-        this.manager = new Manager(this, options.aabbTreeOptions);
+        this.manager = new Manager(this, options.broadphaseOptions);
         this.solver = new Solver(this, options.solverOptions);
         this.sleeping = new Sleeping(this, options.sleepingOptions);
         this.options.enableTOI = options.enableTOI ?? true;
@@ -88,7 +88,7 @@ export class Engine extends Events<EngineEventMap> {
         this.manager.beforeUpdate(dt);
 
         if (this.options.enableTOI) {
-            for (const pair of this.manager.aabbTree.activePairs) {
+            for (const pair of this.manager.broadphase.activePairs) {
                 if (pair.isSensor) continue;
                 if (!Filter.canCollide(pair.shapeA.filter, pair.shapeB.filter)) continue;
                 const collideA = (pair.shapeA.body!.type === BodyType.static) || pair.shapeA.body!.isBullet;
@@ -163,7 +163,7 @@ export class Engine extends Events<EngineEventMap> {
      * @param point
      */
     *pointTest (point: Vector) {
-        const broadphaseShapes = this.manager.aabbTree.pointTest(point);
+        const broadphaseShapes = this.manager.broadphase.pointTest(point);
 
         for (const shape of broadphaseShapes) {
             if (shape.aabb.contains(point)) {
@@ -181,7 +181,7 @@ export class Engine extends Events<EngineEventMap> {
      */
 
     *aabbTest (aabb: AABB) {
-        const broadphaseShapes = this.manager.aabbTree.aabbTest(aabb);
+        const broadphaseShapes = this.manager.broadphase.aabbTest(aabb);
 
         for (const shape of broadphaseShapes) {
             if (aabb.overlaps(shape.aabb)) {

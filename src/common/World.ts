@@ -63,7 +63,7 @@ export class World extends Events<WorldEventMap> {
             this.bodies.set(body.id, body);
 
             body.engine = this.engine;
-            this.engine.manager.aabbTree.addBody(body);
+            this.engine.manager.broadphase.addBody(body);
 
             if (body.type === BodyType.dynamic) {
                 if (body.isSleeping) {
@@ -137,7 +137,7 @@ export class World extends Events<WorldEventMap> {
                 this.bodies.delete(body.id);
             }
 
-            this.engine.manager.aabbTree.removeBody(body);
+            this.engine.manager.broadphase.removeBody(body);
             body.engine = undefined;
 
             if (body.type === BodyType.dynamic) {
